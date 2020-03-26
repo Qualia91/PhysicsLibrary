@@ -3,12 +3,15 @@ package com.nick.wood.rigid_body_dynamics.particle_system_dynamics_verbose;
 import com.nick.wood.rigid_body_dynamics.graphics.math.Vec3d;
 
 import java.util.ArrayList;
+import java.util.Objects;
+import java.util.UUID;
 
 public class Particle {
 
+	private final UUID uuid = UUID.randomUUID();
 	private final double mass;
-	private final Vec3d position;
-	private final Vec3d velocity;
+	private Vec3d position;
+	private Vec3d velocity;
 	private final ArrayList<NaryForce> nonGlobalForces;
 
 	public Particle(double mass, Vec3d position, Vec3d velocity, ArrayList<NaryForce> nonGlobalForces) {
@@ -32,5 +35,14 @@ public class Particle {
 
 	public ArrayList<NaryForce> getNonGlobalForces() {
 		return nonGlobalForces;
+	}
+
+	public UUID getUuid() {
+		return uuid;
+	}
+
+	public void updateState(Vec3d newPos, Vec3d newVel) {
+		this.position = newPos;
+		this.velocity = newVel;
 	}
 }

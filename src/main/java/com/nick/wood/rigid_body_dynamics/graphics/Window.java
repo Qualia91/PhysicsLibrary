@@ -5,7 +5,7 @@ import com.nick.wood.rigid_body_dynamics.graphics.objects.Cube;
 import com.nick.wood.rigid_body_dynamics.graphics.objects.GameObject;
 import com.nick.wood.rigid_body_dynamics.graphics.math.Matrix4d;
 import com.nick.wood.rigid_body_dynamics.graphics.math.Vec3d;
-import com.nick.wood.rigid_body_dynamics.graphics.objects.MeshObject;
+import com.nick.wood.rigid_body_dynamics.particle_system_dynamics_verbose.Particle;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -17,6 +17,8 @@ import org.lwjgl.system.MemoryStack;
 
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.UUID;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
@@ -44,14 +46,18 @@ public class Window {
 
 	private boolean windowSizeChanged = false;
 
-	ArrayList<GameObject> gameObjects = new ArrayList<>();
+	HashMap<UUID, GameObject> gameObjects = new HashMap<>();
 
-	public Window(int WIDTH, int HEIGHT, String title) {
+	public Window(int WIDTH, int HEIGHT, String title, HashMap<UUID, Particle> particles) {
 		this.WIDTH = WIDTH;
 		this.HEIGHT = HEIGHT;
 		this.title = title;
-		this.camera = new Camera(new Vec3d(0.0, 0.0, 2.0), new Vec3d(0.0, 0.0, 0.0), 0.1, 0.1);
+		this.camera = new Camera(new Vec3d(0.0, 0.0, 2.0), new Vec3d(0.0, 0.0, 0.0), 0.5, 0.1);
 		this.input = new Inputs();
+
+		particles.forEach((uuid, particle) -> {
+			gameObjects.put(uuid, new GameObject(new Vec3d(particle.getPosition().getX(), particle.getPosition().getY(), particle.getPosition().getZ()), Vec3d.ZERO, new Vec3d(1.0, 1.0, 1.0), new Cube()));
+		});
 
 		//for (int xPos = -10; xPos < 10; xPos+=2) {
 		//	for (int yPos = -10; yPos < 10; yPos += 2) {
@@ -72,7 +78,7 @@ public class Window {
 
 		shader.destroy();
 
-		for (GameObject gameObject : gameObjects) {
+		for (GameObject gameObject : gameObjects.values()) {
 			gameObject.getMeshObject().getMesh().destroy();
 		}
 
@@ -149,7 +155,7 @@ public class Window {
 		// this locks cursor to center so can always look about
 		GLFW.glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-		for (GameObject gameObject : gameObjects) {
+		for (GameObject gameObject : gameObjects.values()) {
 			gameObject.getMeshObject().getMesh().create();
 		}
 
@@ -223,9 +229,7 @@ public class Window {
 		// invoked during this call.
 		glfwPollEvents();
 
-		//this.gameObject.update();
-
-		for (GameObject gameObject : gameObjects) {
+		for (GameObject gameObject : gameObjects.values()) {
 			renderer.renderMesh(gameObject, camera);
 		}
 
@@ -249,4 +253,11 @@ public class Window {
 		return shader;
 	}
 
+	public void updateDrawables(HashMap<UUID, Particle> particles) {
+
+		particles.forEach((uuid, particle) -> {
+			gameObjects.get(uuid).setPosition(new Vec3d(particle.getPosition().getX(), -particle.getPosition().getZ(), particle.getPosition().getY()));
+		});
+
+	}
 }

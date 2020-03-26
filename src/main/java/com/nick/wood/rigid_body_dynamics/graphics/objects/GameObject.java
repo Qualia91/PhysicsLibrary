@@ -1,9 +1,11 @@
 package com.nick.wood.rigid_body_dynamics.graphics.objects;
 
-import com.nick.wood.rigid_body_dynamics.graphics.Mesh;
 import com.nick.wood.rigid_body_dynamics.graphics.math.Vec3d;
 
+import java.util.UUID;
+
 public class GameObject {
+
 	private Vec3d position, rotation, scale;
 	private final MeshObject meshObject;
 
