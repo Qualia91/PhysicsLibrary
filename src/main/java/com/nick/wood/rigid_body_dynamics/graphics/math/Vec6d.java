@@ -1,4 +1,4 @@
-package com.nick.wood.rigid_body_dynamics.particle_system_dynamics_verbose;
+package com.nick.wood.rigid_body_dynamics.graphics.math;
 
 public class Vec6d {
 

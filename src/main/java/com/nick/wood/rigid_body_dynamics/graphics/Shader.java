@@ -1,8 +1,12 @@
 package com.nick.wood.rigid_body_dynamics.graphics;
 
 import com.nick.wood.rigid_body_dynamics.graphics.utils.FileUtils;
+import com.nick.wood.rigid_body_dynamics.graphics.math.Matrix4d;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.system.MemoryUtil;
+
+import java.nio.FloatBuffer;
 
 public class Shader {
 
@@ -48,14 +52,28 @@ public class Shader {
 		GL20.glDeleteShader(fragmentId);
 	}
 
+	public int getUniformLocation(String name) {
+		return GL20.glGetUniformLocation(programId, name);
+	}
+
+	public void setUniform(String name, Matrix4d value) {
+		FloatBuffer matrix = MemoryUtil.memAllocFloat(Matrix4d.SIZE * Matrix4d.SIZE);
+		matrix.put(value.getValuesF()).flip();
+		GL20.glUniformMatrix4fv(getUniformLocation(name), true, matrix);
+	}
+
 	public void bind() {
 		GL20.glUseProgram(programId);
 	}
-
 	public void unbind() {
 		GL20.glUseProgram(0);
 	}
 	public void destroy() {
+
+		GL20.glDetachShader(programId, vertexId);
+		GL20.glDetachShader(programId, fragmentId);
+		GL20.glDeleteShader(vertexId);
+		GL20.glDeleteShader(fragmentId);
 		GL20.glDeleteProgram(programId);
 	}
 

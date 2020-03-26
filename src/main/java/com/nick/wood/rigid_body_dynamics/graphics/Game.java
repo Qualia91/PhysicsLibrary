@@ -1,7 +1,5 @@
 package com.nick.wood.rigid_body_dynamics.graphics;
 
-import com.nick.wood.rigid_body_dynamics.particle_system_dynamics_verbose.Vec3d;
-
 import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
 
 public class Game implements Runnable {
@@ -10,7 +8,6 @@ public class Game implements Runnable {
 	private double simHerts = 1;
 	private final Window window;
 	private long frames = 0;
-	private final Inputs input = new Inputs();
 
 	public Game(int width,
 	            int height,
@@ -20,8 +17,7 @@ public class Game implements Runnable {
 		this.window = new Window(
 				width,
 				height,
-				"",
-				input);
+				"");
 	}
 
 	@Override

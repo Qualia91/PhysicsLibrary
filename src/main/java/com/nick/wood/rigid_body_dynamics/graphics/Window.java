@@ -1,7 +1,13 @@
 package com.nick.wood.rigid_body_dynamics.graphics;
 
-import com.nick.wood.rigid_body_dynamics.particle_system_dynamics_verbose.Vec3d;
+import com.nick.wood.rigid_body_dynamics.graphics.objects.Camera;
+import com.nick.wood.rigid_body_dynamics.graphics.objects.Cube;
+import com.nick.wood.rigid_body_dynamics.graphics.objects.GameObject;
+import com.nick.wood.rigid_body_dynamics.graphics.math.Matrix4d;
+import com.nick.wood.rigid_body_dynamics.graphics.math.Vec3d;
+import com.nick.wood.rigid_body_dynamics.graphics.objects.MeshObject;
 import org.lwjgl.Version;
+import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
@@ -10,6 +16,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.IntBuffer;
+import java.util.ArrayList;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
@@ -21,6 +28,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 public class Window {
 
 	private final Inputs input;
+	private final Camera camera;
 	// The window handle
 	private long window;
 	private int WIDTH;
@@ -29,24 +37,31 @@ public class Window {
 
 	private Shader shader;
 	private Renderer renderer;
-
-	public Mesh mesh = new Mesh(new Vertex[] {
-			new Vertex(new Vec3d(-0.5,  0.5, 0.0)),
-			new Vertex(new Vec3d( 0.5,  0.5, 0.0)),
-			new Vertex(new Vec3d( 0.5, -0.5, 0.0)),
-			new Vertex(new Vec3d(-0.5, -0.5, 0.0))
-	}, new int[] {
-			0, 1, 2,
-			0, 3, 2
-	});
+	private Matrix4d projectionMatrix;
+	private double newMouseX, newMouseY;
+	private double oldMouseX = 0.0;
+	private double oldMouseY = 0.0;
 
 	private boolean windowSizeChanged = false;
 
-	public Window(int WIDTH, int HEIGHT, String title, Inputs input) {
+	ArrayList<GameObject> gameObjects = new ArrayList<>();
+
+	public Window(int WIDTH, int HEIGHT, String title) {
 		this.WIDTH = WIDTH;
 		this.HEIGHT = HEIGHT;
 		this.title = title;
-		this.input = input;
+		this.camera = new Camera(new Vec3d(0.0, 0.0, 2.0), new Vec3d(0.0, 0.0, 0.0), 0.1, 0.1);
+		this.input = new Inputs();
+
+		//for (int xPos = -10; xPos < 10; xPos+=2) {
+		//	for (int yPos = -10; yPos < 10; yPos += 2) {
+		//		for (int zPos = -10; zPos < 10; zPos += 2) {
+		//			gameObjects.add(new GameObject(new Vec3d(xPos, yPos, zPos), Vec3d.ZERO, new Vec3d(1.0, 1.0, 1.0), new Cube()));
+		//		}
+		//	}
+		//}
+
+		this.projectionMatrix = Matrix4d.Projection((double)WIDTH/(double)HEIGHT, Math.toRadians(70.0), 0.1, 1000);
 	}
 
 	public void destroy() {
@@ -54,6 +69,12 @@ public class Window {
 		// Free the window callbacks and destroy the window
 		glfwFreeCallbacks(window);
 		glfwDestroyWindow(window);
+
+		shader.destroy();
+
+		for (GameObject gameObject : gameObjects) {
+			gameObject.getMeshObject().getMesh().destroy();
+		}
 
 		// Terminate GLFW and free the error callback
 		glfwTerminate();
@@ -63,7 +84,7 @@ public class Window {
 	void init() {
 
 		shader = new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl");
-		renderer = new Renderer(shader);
+		renderer = new Renderer(this);
 
 
 		System.out.println("Hello LWJGL " + Version.getVersion() + "!");
@@ -125,7 +146,13 @@ public class Window {
 
 		GL11.glEnable(GL_DEPTH_TEST);
 
-		mesh.create();
+		// this locks cursor to center so can always look about
+		GLFW.glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+		for (GameObject gameObject : gameObjects) {
+			gameObject.getMeshObject().getMesh().create();
+		}
+
 		shader.create();
 	}
 
@@ -148,8 +175,38 @@ public class Window {
 
 	void loop() {
 
+		// user inputs
 		if (input.isKeyPressed(GLFW_KEY_ESCAPE)) {
 			glfwSetWindowShouldClose(window, true);
+		}
+
+		newMouseX = input.getMouseX();
+		newMouseY = input.getMouseY();
+
+		double dx = newMouseX - oldMouseX;
+		double dy = newMouseY - oldMouseY;
+		oldMouseX = newMouseX;
+		oldMouseY = newMouseY;
+
+		camera.rotate(dx, dy);
+
+		if (input.isKeyPressed(GLFW_KEY_A)) {
+			camera.left();
+		}
+		if (input.isKeyPressed(GLFW_KEY_W)) {
+			camera.forward();
+		}
+		if (input.isKeyPressed(GLFW_KEY_D)) {
+			camera.right();
+		}
+		if (input.isKeyPressed(GLFW_KEY_S)) {
+			camera.back();
+		}
+		if (input.isKeyPressed(GLFW_KEY_SPACE)) {
+			camera.up();
+		}
+		if (input.isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
+			camera.down();
 		}
 
 		if (windowSizeChanged) {
@@ -166,7 +223,11 @@ public class Window {
 		// invoked during this call.
 		glfwPollEvents();
 
-		renderer.renderMesh(mesh);
+		//this.gameObject.update();
+
+		for (GameObject gameObject : gameObjects) {
+			renderer.renderMesh(gameObject, camera);
+		}
 
 		glfwSwapBuffers(window); // swap the color buffers
 
@@ -178,6 +239,14 @@ public class Window {
 
 	public long getWindow() {
 		return window;
+	}
+
+	public Matrix4d getProjectionMatrix() {
+		return projectionMatrix;
+	}
+
+	public Shader getShader() {
+		return shader;
 	}
 
 }

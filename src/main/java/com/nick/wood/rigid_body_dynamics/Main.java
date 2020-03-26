@@ -11,7 +11,7 @@ public class Main {
 
     public static void main(String[] args) throws ExecutionException, InterruptedException {
 
-        Game game = new Game(300, 300, () -> {});
+        Game game = new Game(1000, 800, () -> {});
 
         ExecutorService executor = Executors.newFixedThreadPool(4);
 
