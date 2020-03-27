@@ -1,5 +1,7 @@
 package com.nick.wood.rigid_body_dynamics.graphics.math;
 
+import java.util.Arrays;
+
 public class Quaternion {
 
 	private final double[] q;
@@ -23,6 +25,10 @@ public class Quaternion {
 		return new Quaternion(Math.cos(angle/2), 0.0, 0.0, Math.sin(angle/2));
 	}
 
+	public Quaternion normalise() {
+		return this.scale(this.len());
+	}
+
 	public Quaternion(double... q) {
 		this.q = q;
 	}
@@ -32,11 +38,7 @@ public class Quaternion {
 	}
 
 	public Quaternion rotateVector(Quaternion vector) {
-
-		Quaternion conjugate = this.conjugate();
-
 		return this.multiply(vector.multiply(this.conjugate()));
-
 	}
 
 	public Quaternion add(Quaternion p) {
@@ -77,7 +79,7 @@ public class Quaternion {
 	}
 
 	public Quaternion scale(double s) {
-		return new Quaternion(q[0]*s - q[1]*s - q[2]*s - q[3]*s);
+		return new Quaternion(q[0]*s, q[1]*s, q[2]*s, q[3]*s);
 	}
 
 	public Quaternion conjugate() {
@@ -102,5 +104,10 @@ public class Quaternion {
 
 	public Vec3d toVec3d() {
 		return new Vec3d(q[1], q[2], q[3]);
+	}
+
+	@Override
+	public String toString() {
+		return Arrays.toString(q);
 	}
 }
