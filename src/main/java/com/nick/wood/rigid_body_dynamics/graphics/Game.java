@@ -20,7 +20,8 @@ public class Game implements Runnable {
 				width,
 				height,
 				"",
-				simulation.getParticles());
+				simulation.getParticles(),
+				simulation.getPlanes());
 	}
 
 	@Override
@@ -54,9 +55,7 @@ public class Game implements Runnable {
 
 			}
 
-
 			window.loop();
-			//render(getPixelMatrix.get());
 
 			lastTime = now;
 

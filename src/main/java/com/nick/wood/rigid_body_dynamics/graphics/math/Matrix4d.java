@@ -152,7 +152,7 @@ public class Matrix4d {
 
 		Matrix4d rotation = rotationX.multiply(rotationY.multiply(rotationZ));
 
-		return translation.multiply(rotation).multiply(scaleMatrix);
+		return rotation.multiply(scaleMatrix).multiply(translation);
 
 	}
 
@@ -179,6 +179,22 @@ public class Matrix4d {
 		Matrix4d rotation = rotationZ.multiply(rotationY.multiply(rotationX));
 
 		return translation.multiply(rotation);
+	}
+
+	double trace() {
+		return elements[0] + elements[5] + elements[10];
+	}
+
+	public Quaternion toQuaternion() {
+		double trace = trace();
+		double traceAddition = (1 - trace) / 4.0;
+		double q0 = Math.sqrt((trace + 1.0) / 4.0);
+		double q1 = Math.sqrt((elements[0]/2) + traceAddition);
+		double q2 = Math.sqrt((elements[5]/2) + traceAddition);
+		double q3 = Math.sqrt((elements[10]/2) + traceAddition);
+
+		return new Quaternion(q0, q1, q2, q3);
+
 	}
 
 	@Override

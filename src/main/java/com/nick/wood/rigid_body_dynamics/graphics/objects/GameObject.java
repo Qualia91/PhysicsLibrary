@@ -2,8 +2,6 @@ package com.nick.wood.rigid_body_dynamics.graphics.objects;
 
 import com.nick.wood.rigid_body_dynamics.graphics.math.Vec3d;
 
-import java.util.UUID;
-
 public class GameObject {
 
 	private Vec3d position, rotation, scale;
@@ -48,5 +46,14 @@ public class GameObject {
 
 	public MeshObject getMeshObject() {
 		return meshObject;
+	}
+
+	public void rotateLeft() {
+		rotation = rotation.add(Vec3d.Y.scale(10));
+		System.out.println(rotation);
+	}
+
+	public void rotateRight() {
+		rotation = rotation.add(Vec3d.Y.scale(-10));
 	}
 }

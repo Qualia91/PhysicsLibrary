@@ -11,6 +11,6 @@ public class Gravity implements NaryForce {
 
 	@Override
 	public Vec3d calculateForceOnParticle(Particle ... particle) {
-		return new Vec3d(0.0, 0.0, particle[0].getMass() * G);
+		return new Vec3d(0.0, 0.0, -particle[0].getMass() * G);
 	}
 }

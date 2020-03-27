@@ -1,10 +1,12 @@
 package com.nick.wood.rigid_body_dynamics.graphics;
 
+import com.nick.wood.rigid_body_dynamics.Plane;
 import com.nick.wood.rigid_body_dynamics.graphics.objects.Camera;
 import com.nick.wood.rigid_body_dynamics.graphics.objects.Cube;
 import com.nick.wood.rigid_body_dynamics.graphics.objects.GameObject;
 import com.nick.wood.rigid_body_dynamics.graphics.math.Matrix4d;
 import com.nick.wood.rigid_body_dynamics.graphics.math.Vec3d;
+import com.nick.wood.rigid_body_dynamics.graphics.objects.Square;
 import com.nick.wood.rigid_body_dynamics.particle_system_dynamics_verbose.Particle;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
@@ -41,33 +43,47 @@ public class Window {
 	private Renderer renderer;
 	private Matrix4d projectionMatrix;
 	private double newMouseX, newMouseY;
-	private double oldMouseX = 0.0;
-	private double oldMouseY = 0.0;
+	private double oldMouseX = 0;
+	private double oldMouseY = 0;
 
 	private boolean windowSizeChanged = false;
 
 	HashMap<UUID, GameObject> gameObjects = new HashMap<>();
 
-	public Window(int WIDTH, int HEIGHT, String title, HashMap<UUID, Particle> particles) {
+	public Window(int WIDTH, int HEIGHT, String title, HashMap<UUID, Particle> particles, ArrayList<Plane> planes) {
 		this.WIDTH = WIDTH;
 		this.HEIGHT = HEIGHT;
 		this.title = title;
-		this.camera = new Camera(new Vec3d(0.0, 0.0, 2.0), new Vec3d(0.0, 0.0, 0.0), 0.5, 0.1);
+		this.camera = new Camera(new Vec3d(10.0, -5.0, 50.0), new Vec3d(0.0, 0.0, 0.0), 0.5, 0.1);
 		this.input = new Inputs();
 
 		particles.forEach((uuid, particle) -> {
-			gameObjects.put(uuid, new GameObject(new Vec3d(particle.getPosition().getX(), particle.getPosition().getY(), particle.getPosition().getZ()), Vec3d.ZERO, new Vec3d(1.0, 1.0, 1.0), new Cube()));
+			gameObjects.put(uuid, new GameObject(new Vec3d(particle.getPosition().getX(), particle.getPosition().getZ(), particle.getPosition().getY()), Vec3d.ZERO, new Vec3d(1.0, 1.0, 1.0), new Cube()));
 		});
 
-		//for (int xPos = -10; xPos < 10; xPos+=2) {
-		//	for (int yPos = -10; yPos < 10; yPos += 2) {
-		//		for (int zPos = -10; zPos < 10; zPos += 2) {
-		//			gameObjects.add(new GameObject(new Vec3d(xPos, yPos, zPos), Vec3d.ZERO, new Vec3d(1.0, 1.0, 1.0), new Cube()));
-		//		}
-		//	}
-		//}
+		for (Plane plane : planes) {
 
-		this.projectionMatrix = Matrix4d.Projection((double)WIDTH/(double)HEIGHT, Math.toRadians(70.0), 0.1, 1000);
+			Vec3d rotation = plane.getNormal();
+
+			if (plane.getNormal().equals(Vec3d.Z)) {
+				rotation = Vec3d.X;
+			}
+			else if (plane.getNormal().equals(Vec3d.X)) {
+				rotation = Vec3d.Z;
+			}
+
+			gameObjects.put(UUID.randomUUID(), new GameObject(new Vec3d(plane.getCenter().getX(), plane.getCenter().getZ(), plane.getCenter().getY()), rotation.scale(90.0), new Vec3d(100.0, 100.0, 100.0), new Square()));
+		}
+
+		for (int xPos = -10; xPos < 10; xPos+=2) {
+			for (int yPos = -10; yPos < 10; yPos += 2) {
+				for (int zPos = -10; zPos < 10; zPos += 2) {
+					gameObjects.put(UUID.randomUUID(), new GameObject(new Vec3d(xPos, yPos, zPos), Vec3d.ZERO, new Vec3d(1.0, 1.0, 1.0), new Cube()));
+				}
+			}
+		}
+
+		this.projectionMatrix = Matrix4d.Projection((double)WIDTH/(double)HEIGHT, Math.toRadians(70.0), 0.01, 1000);
 	}
 
 	public void destroy() {
@@ -188,9 +204,12 @@ public class Window {
 
 		newMouseX = input.getMouseX();
 		newMouseY = input.getMouseY();
-
 		double dx = newMouseX - oldMouseX;
 		double dy = newMouseY - oldMouseY;
+		if (oldMouseX == 0 && oldMouseY == 0) {
+			dx = 0.0;
+			dy = 0.0;
+		}
 		oldMouseX = newMouseX;
 		oldMouseY = newMouseY;
 
@@ -214,6 +233,12 @@ public class Window {
 		if (input.isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
 			camera.down();
 		}
+		if (input.isKeyPressed(GLFW_KEY_LEFT)) {
+			gameObjects.forEach((uuid, gameObject) -> gameObject.rotateLeft());
+		}
+		if (input.isKeyPressed(GLFW_KEY_RIGHT)) {
+			gameObjects.forEach((uuid, gameObject) -> gameObject.rotateRight());
+		}
 
 		if (windowSizeChanged) {
 			glViewport(0, 0, WIDTH, HEIGHT);
@@ -228,6 +253,8 @@ public class Window {
 		// Poll for window events. The key callback above will only be
 		// invoked during this call.
 		glfwPollEvents();
+
+		gameObjects.forEach((uuid, gameObject) -> gameObject.update());
 
 		for (GameObject gameObject : gameObjects.values()) {
 			renderer.renderMesh(gameObject, camera);
@@ -256,7 +283,7 @@ public class Window {
 	public void updateDrawables(HashMap<UUID, Particle> particles) {
 
 		particles.forEach((uuid, particle) -> {
-			gameObjects.get(uuid).setPosition(new Vec3d(particle.getPosition().getX(), -particle.getPosition().getZ(), particle.getPosition().getY()));
+			gameObjects.get(uuid).setPosition(new Vec3d(particle.getPosition().getX(), particle.getPosition().getZ(), particle.getPosition().getY()));
 		});
 
 	}

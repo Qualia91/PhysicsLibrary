@@ -6,6 +6,7 @@ import com.nick.wood.rigid_body_dynamics.particle_system_dynamics_verbose.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -17,14 +18,26 @@ public class Main {
     public static void main(String[] args) throws ExecutionException, InterruptedException {
 
         HashMap<UUID, Particle> particles = new HashMap<>();
-        Particle particle = new Particle(1, Vec3d.ZERO, Vec3d.ZERO, new ArrayList<>());
-        particles.put(particle.getUuid(), particle);
+
+        Random random = new Random();
+
+        for (int i = 0; i < 20; i+=2) {
+            for (int j = 0; j < 20; j+=2) {
+                ArrayList<NaryForce> localNaryForces = new ArrayList<>();
+                localNaryForces.add(new ViscousDrag(random.nextInt(4) + 1));
+                localNaryForces.add(new Gravity());
+                Particle particle = new Particle(random.nextInt(4) + 1, new Vec3d(i, j, 20.0), Vec3d.ZERO, localNaryForces);
+                particles.put(particle.getUuid(), particle);
+            }
+        }
+
+        ArrayList<Plane> planes = new ArrayList<>();
+        Plane ground = new Plane(new Vec3d(0.0, 0.0, -10.0), Vec3d.Z);
+        planes.add(ground);
 
         ArrayList<NaryForce> naryForces = new ArrayList<>();
-        naryForces.add(new Gravity());
-        naryForces.add(new ViscousDrag(1));
 
-        Simulation simulation = new Simulation(particles, naryForces);
+        Simulation simulation = new Simulation(particles, naryForces, planes);
 
         Game game = new Game(1000, 800, simulation);
 
