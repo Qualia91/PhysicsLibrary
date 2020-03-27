@@ -1,7 +1,6 @@
 package com.nick.wood.rigid_body_dynamics.graphics.objects;
 
-import com.nick.wood.rigid_body_dynamics.graphics.math.Matrix4d;
-import com.nick.wood.rigid_body_dynamics.graphics.math.Vec3d;
+import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
 
 public class Camera {
 	private Vec3d pos;

@@ -1,7 +1,7 @@
 package com.nick.wood.rigid_body_dynamics.graphics;
 
 import com.nick.wood.rigid_body_dynamics.graphics.utils.FileUtils;
-import com.nick.wood.rigid_body_dynamics.graphics.math.Matrix4d;
+import com.nick.wood.rigid_body_dynamics.maths.Matrix4d;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.system.MemoryUtil;

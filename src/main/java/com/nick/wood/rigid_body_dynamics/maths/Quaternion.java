@@ -1,4 +1,4 @@
-package com.nick.wood.rigid_body_dynamics.graphics.math;
+package com.nick.wood.rigid_body_dynamics.maths;
 
 import java.util.Arrays;
 
@@ -59,21 +59,26 @@ public class Quaternion {
 	}
 
 	public Matrix4d toMatrix() {
-		double q00 = q[0] * q[0];
-		double q11 = q[1] * q[1];
-		double q22 = q[2] * q[2];
-		double q33 = q[3] * q[3];
-		double q01 = q[0] * q[1];
-		double q02 = q[0] * q[2];
-		double q03 = q[0] * q[3];
-		double q12 = q[1] * q[2];
-		double q13 = q[2] * q[3];
-		double q23 = q[2] * q[3];
+
+		this.normalise();
+
+		double x2 = q[1] * q[1];
+		double y2 = q[2] * q[2];
+		double z2 = q[3] * q[3];
+
+		double wx = q[0] * q[1];
+		double wy = q[0] * q[2];
+		double wz = q[0] * q[3];
+
+		double xy = q[1] * q[2];
+		double xz = q[1] * q[3];
+
+		double yz = q[2] * q[3];
 
 		return new Matrix4d(
-				q00 + q11 - 0.5, q12 - q03, q02 + q13, 0.0,
-				q03 + q12, q00 + q22 - 0.5, q23 - q01, 0.0,
-				q13 - q02, q01 + q23, q00 + q33 - 0.5, 0.0,
+				0.5 - y2 - z2, xy + xz, xz - wy, 0.0,
+				xy - wz, 0.5 - x2 - z2, yz + wx, 0.0,
+				xz + wy, yz + wz, 0.5 - x2 - y2, 0.0,
 				0.0, 0.0, 0.0, 0.5
 		).scale(2);
 	}

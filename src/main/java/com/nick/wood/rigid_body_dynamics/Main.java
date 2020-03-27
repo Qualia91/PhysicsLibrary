@@ -1,7 +1,7 @@
 package com.nick.wood.rigid_body_dynamics;
 
 import com.nick.wood.rigid_body_dynamics.graphics.Game;
-import com.nick.wood.rigid_body_dynamics.graphics.math.Vec3d;
+import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
 import com.nick.wood.rigid_body_dynamics.particle_system_dynamics_verbose.*;
 
 import java.util.ArrayList;
@@ -17,6 +17,24 @@ public class Main {
 
     public static void main(String[] args) throws ExecutionException, InterruptedException {
 
+        SimulationInterface simulation = new com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.Simulation();
+
+        Game game = new Game(1000, 800, simulation);
+
+        ExecutorService executor = Executors.newFixedThreadPool(4);
+
+        Future<?> submit = executor.submit(game);
+
+        // waits for game to finish
+        submit.get();
+
+        // closes executor service
+        executor.shutdown();
+
+
+    }
+
+    private void particleSim() throws ExecutionException, InterruptedException {
         HashMap<UUID, Particle> particles = new HashMap<>();
 
         Random random = new Random();
@@ -32,7 +50,7 @@ public class Main {
         }
 
         ArrayList<Plane> planes = new ArrayList<>();
-        Plane ground = new Plane(new Vec3d(0.0, 0.0, -10.0), Vec3d.Z);
+        Plane ground = new Plane(new Vec3d(0.0, 0.0, -10.0), new Vec3d(0.0, 0.0, 1.0));
         planes.add(ground);
 
         ArrayList<NaryForce> naryForces = new ArrayList<>();
@@ -50,8 +68,6 @@ public class Main {
 
         // closes executor service
         executor.shutdown();
-
-
     }
 
 }

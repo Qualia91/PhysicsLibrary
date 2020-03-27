@@ -1,15 +1,15 @@
 package com.nick.wood.rigid_body_dynamics.particle_system_dynamics_verbose;
 
-import com.nick.wood.rigid_body_dynamics.Plane;
-import com.nick.wood.rigid_body_dynamics.graphics.math.Vec3d;
-import com.sun.security.jgss.GSSUtil;
+import com.nick.wood.rigid_body_dynamics.SimulationInterface;
+import com.nick.wood.rigid_body_dynamics.graphics.objects.GameObject;
+import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
 
-public class Simulation {
+public class Simulation implements SimulationInterface {
 
 	private final HashMap<UUID, Particle> particles;
 	private final ArrayList<NaryForce> forces;
@@ -98,6 +98,16 @@ public class Simulation {
 
 	public HashMap<UUID, Particle> getParticles() {
 		return particles;
+	}
+
+	@Override
+	public HashMap<UUID, GameObject> getGameObjects() {
+		return null;
+	}
+
+	@Override
+	public void iterate(double deltaSeconds) {
+
 	}
 
 	public ArrayList<Plane> getPlanes() {

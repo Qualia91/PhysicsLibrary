@@ -1,6 +1,6 @@
 package com.nick.wood.rigid_body_dynamics.graphics;
 
-import com.nick.wood.rigid_body_dynamics.graphics.math.Vec3d;
+import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
 
 public class Vertex {
 

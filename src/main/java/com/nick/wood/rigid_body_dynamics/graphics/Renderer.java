@@ -2,7 +2,7 @@ package com.nick.wood.rigid_body_dynamics.graphics;
 
 import com.nick.wood.rigid_body_dynamics.graphics.objects.Camera;
 import com.nick.wood.rigid_body_dynamics.graphics.objects.GameObject;
-import com.nick.wood.rigid_body_dynamics.graphics.math.Matrix4d;
+import com.nick.wood.rigid_body_dynamics.maths.Matrix4d;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL30;

@@ -1,4 +1,4 @@
-package com.nick.wood.rigid_body_dynamics.graphics.math;
+package com.nick.wood.rigid_body_dynamics.maths;
 
 public class Vec6d {
 

@@ -2,7 +2,7 @@ package com.nick.wood.rigid_body_dynamics.graphics.objects;
 
 import com.nick.wood.rigid_body_dynamics.graphics.Mesh;
 import com.nick.wood.rigid_body_dynamics.graphics.Vertex;
-import com.nick.wood.rigid_body_dynamics.graphics.math.Vec3d;
+import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
 
 public class Cube implements MeshObject {
 

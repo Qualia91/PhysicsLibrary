@@ -1,4 +1,4 @@
-package com.nick.wood.rigid_body_dynamics.graphics.math;
+package com.nick.wood.rigid_body_dynamics.maths;
 
 import java.util.Arrays;
 
@@ -142,17 +142,12 @@ public class Matrix4d {
 		};
 	}
 
-	public static Matrix4d Transform(Vec3d pos, Vec3d rot, Vec3d scale) {
+	public static Matrix4d Transform(Vec3d pos, Matrix4d rot, Vec3d scale) {
 
 		Matrix4d translation = Translation(pos);
-		Matrix4d rotationX = Rotation(rot.getX(), Vec3d.X);
-		Matrix4d rotationY = Rotation(rot.getY(), Vec3d.Y);
-		Matrix4d rotationZ = Rotation(rot.getZ(), Vec3d.Z);
 		Matrix4d scaleMatrix = Scale(scale);
 
-		Matrix4d rotation = rotationX.multiply(rotationY.multiply(rotationZ));
-
-		return rotation.multiply(scaleMatrix).multiply(translation);
+		return rot.multiply(scaleMatrix).multiply(translation);
 
 	}
 
@@ -181,7 +176,7 @@ public class Matrix4d {
 		return translation.multiply(rotation);
 	}
 
-	double trace() {
+	public double trace() {
 		return elements[0] + elements[5] + elements[10];
 	}
 
@@ -209,4 +204,18 @@ public class Matrix4d {
 	public int hashCode() {
 		return Arrays.hashCode(elements);
 	}
+
+	public Matrix4d transpose() {
+
+		double[] newElements = new double[16];
+
+		for (int i = 0; i < SIZE; i++) {
+			for (int j = 0; j < SIZE; j++) {
+				newElements[j * SIZE + i] = this.getValues()[i * SIZE + j];
+			}
+		}
+
+		return new Matrix4d(newElements);
+	}
+
 }

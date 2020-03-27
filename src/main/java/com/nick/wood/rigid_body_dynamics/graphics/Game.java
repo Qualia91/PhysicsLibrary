@@ -1,26 +1,26 @@
 package com.nick.wood.rigid_body_dynamics.graphics;
 
+import com.nick.wood.rigid_body_dynamics.SimulationInterface;
 import com.nick.wood.rigid_body_dynamics.particle_system_dynamics_verbose.Simulation;
 
 import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
 
 public class Game implements Runnable {
 
-	private final Simulation simulation;
-	private double simHerts = 120;
+	private final SimulationInterface simulation;
+	private double simHerts = 60;
 	private final Window window;
 	private long frames = 0;
 
 	public Game(int width,
 	            int height,
-	            Simulation simulation) {
+	            SimulationInterface simulation) {
 
 		this.simulation = simulation;
 		this.window = new Window(
 				width,
 				height,
 				"",
-				simulation.getParticles(),
 				simulation.getPlanes());
 	}
 
@@ -43,9 +43,9 @@ public class Game implements Runnable {
 
 			while (deltaSeconds >= 1 / simHerts) {
 
-				simulation.eulerStep(deltaSeconds);
+				simulation.iterate(deltaSeconds);
 
-				window.updateDrawables(simulation.getParticles());
+				window.updateDrawables(simulation.getGameObjects());
 
 				window.setTitle("Iteration time: " + deltaSeconds);
 

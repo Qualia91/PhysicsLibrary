@@ -1,13 +1,15 @@
 package com.nick.wood.rigid_body_dynamics.graphics.objects;
 
-import com.nick.wood.rigid_body_dynamics.graphics.math.Vec3d;
+import com.nick.wood.rigid_body_dynamics.maths.Matrix4d;
+import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
 
 public class GameObject {
 
-	private Vec3d position, rotation, scale;
+	private Vec3d position, scale;
+	private Matrix4d rotation;
 	private final MeshObject meshObject;
 
-	public GameObject(Vec3d position, Vec3d rotation, Vec3d scale, MeshObject meshObject) {
+	public GameObject(Vec3d position, Matrix4d rotation, Vec3d scale, MeshObject meshObject) {
 		this.position = position;
 		this.rotation = rotation;
 		this.scale = scale;
@@ -28,11 +30,11 @@ public class GameObject {
 		this.position = position;
 	}
 
-	public Vec3d getRotation() {
+	public Matrix4d getRotation() {
 		return rotation;
 	}
 
-	public void setRotation(Vec3d rotation) {
+	public void setRotation(Matrix4d rotation) {
 		this.rotation = rotation;
 	}
 

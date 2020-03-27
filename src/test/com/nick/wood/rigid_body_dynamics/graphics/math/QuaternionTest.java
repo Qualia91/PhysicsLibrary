@@ -1,5 +1,8 @@
 package com.nick.wood.rigid_body_dynamics.graphics.math;
 
+import com.nick.wood.rigid_body_dynamics.maths.Matrix4d;
+import com.nick.wood.rigid_body_dynamics.maths.Quaternion;
+import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

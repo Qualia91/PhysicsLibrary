@@ -1,4 +1,4 @@
-package com.nick.wood.rigid_body_dynamics.graphics.math;
+package com.nick.wood.rigid_body_dynamics.maths;
 
 import java.util.Objects;
 
@@ -107,6 +107,15 @@ public class Vec3d {
 				-this.x,
 				-this.y,
 				-this.z
+		);
+	}
+
+	public Matrix4d star() {
+		return new Matrix4d(
+				0.0, -z, y, 0.0,
+				z, 0.0, -x, 0.0,
+				-y, x, 0.0, 0.0,
+				0.0, 0.0, 0.0, 1.0
 		);
 	}
 

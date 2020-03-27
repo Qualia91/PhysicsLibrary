@@ -1,11 +1,11 @@
 package com.nick.wood.rigid_body_dynamics.graphics;
 
-import com.nick.wood.rigid_body_dynamics.Plane;
+import com.nick.wood.rigid_body_dynamics.particle_system_dynamics_verbose.Plane;
 import com.nick.wood.rigid_body_dynamics.graphics.objects.Camera;
 import com.nick.wood.rigid_body_dynamics.graphics.objects.Cube;
 import com.nick.wood.rigid_body_dynamics.graphics.objects.GameObject;
-import com.nick.wood.rigid_body_dynamics.graphics.math.Matrix4d;
-import com.nick.wood.rigid_body_dynamics.graphics.math.Vec3d;
+import com.nick.wood.rigid_body_dynamics.maths.Matrix4d;
+import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
 import com.nick.wood.rigid_body_dynamics.graphics.objects.Square;
 import com.nick.wood.rigid_body_dynamics.particle_system_dynamics_verbose.Particle;
 import org.lwjgl.Version;
@@ -50,38 +50,27 @@ public class Window {
 
 	HashMap<UUID, GameObject> gameObjects = new HashMap<>();
 
-	public Window(int WIDTH, int HEIGHT, String title, HashMap<UUID, Particle> particles, ArrayList<Plane> planes) {
+	public Window(int WIDTH, int HEIGHT, String title, ArrayList<Plane> planes) {
 		this.WIDTH = WIDTH;
 		this.HEIGHT = HEIGHT;
 		this.title = title;
 		this.camera = new Camera(new Vec3d(10.0, -5.0, 50.0), new Vec3d(0.0, 0.0, 0.0), 0.5, 0.1);
 		this.input = new Inputs();
 
-		particles.forEach((uuid, particle) -> {
-			gameObjects.put(uuid, new GameObject(new Vec3d(particle.getPosition().getX(), particle.getPosition().getZ(), particle.getPosition().getY()), Vec3d.ZERO, new Vec3d(1.0, 1.0, 1.0), new Cube()));
-		});
-
 		for (Plane plane : planes) {
 
-			Vec3d rotation = plane.getNormal();
+			Vec3d rotation = new Vec3d(plane.getNormal().getZ(), plane.getNormal().getY(), -plane.getNormal().getX());
 
-			if (plane.getNormal().equals(Vec3d.Z)) {
-				rotation = Vec3d.X;
-			}
-			else if (plane.getNormal().equals(Vec3d.X)) {
-				rotation = Vec3d.Z;
-			}
-
-			gameObjects.put(UUID.randomUUID(), new GameObject(new Vec3d(plane.getCenter().getX(), plane.getCenter().getZ(), plane.getCenter().getY()), rotation.scale(90.0), new Vec3d(100.0, 100.0, 100.0), new Square()));
+			gameObjects.put(UUID.randomUUID(), new GameObject(new Vec3d(plane.getCenter().getX(), plane.getCenter().getZ(), plane.getCenter().getY()), Matrix4d.Rotation(90.0, rotation), new Vec3d(100.0, 100.0, 100.0), new Square()));
 		}
 
-		for (int xPos = -10; xPos < 10; xPos+=2) {
-			for (int yPos = -10; yPos < 10; yPos += 2) {
-				for (int zPos = -10; zPos < 10; zPos += 2) {
-					gameObjects.put(UUID.randomUUID(), new GameObject(new Vec3d(xPos, yPos, zPos), Vec3d.ZERO, new Vec3d(1.0, 1.0, 1.0), new Cube()));
-				}
-			}
-		}
+		//for (int xPos = -10; xPos < 10; xPos+=2) {
+		//	for (int yPos = -10; yPos < 10; yPos += 2) {
+		//		for (int zPos = -10; zPos < 10; zPos += 2) {
+		//			gameObjects.put(UUID.randomUUID(), new GameObject(new Vec3d(xPos, yPos, zPos), Vec3d.ZERO, new Vec3d(1.0, 1.0, 1.0), new Cube()));
+		//		}
+		//	}
+		//}
 
 		this.projectionMatrix = Matrix4d.Projection((double)WIDTH/(double)HEIGHT, Math.toRadians(70.0), 0.01, 1000);
 	}
@@ -280,10 +269,16 @@ public class Window {
 		return shader;
 	}
 
-	public void updateDrawables(HashMap<UUID, Particle> particles) {
+	public void updateDrawables(HashMap<UUID, GameObject> inputGameObject) {
 
-		particles.forEach((uuid, particle) -> {
-			gameObjects.get(uuid).setPosition(new Vec3d(particle.getPosition().getX(), particle.getPosition().getZ(), particle.getPosition().getY()));
+		inputGameObject.forEach((uuid, particle) -> {
+			if (gameObjects.containsKey(uuid)) {
+				gameObjects.get(uuid).setPosition(new Vec3d(particle.getPosition().getX(), particle.getPosition().getY(), particle.getPosition().getZ()));
+				gameObjects.get(uuid).setRotation(particle.getRotation());
+			} else {
+				particle.getMeshObject().getMesh().create();
+				gameObjects.put(uuid, new GameObject(new Vec3d(particle.getPosition().getX(), particle.getPosition().getY(), particle.getPosition().getZ()), particle.getRotation(), new Vec3d(1.0, 1.0, 1.0), particle.getMeshObject()));
+			}
 		});
 
 	}
