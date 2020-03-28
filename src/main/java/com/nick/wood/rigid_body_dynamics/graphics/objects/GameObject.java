@@ -52,7 +52,6 @@ public class GameObject {
 
 	public void rotateLeft() {
 		rotation = rotation.add(Vec3d.Y.scale(10));
-		System.out.println(rotation);
 	}
 
 	public void rotateRight() {

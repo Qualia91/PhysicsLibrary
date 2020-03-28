@@ -1,6 +1,7 @@
 package com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose;
 
 import com.nick.wood.rigid_body_dynamics.maths.Matrix4d;
+import com.nick.wood.rigid_body_dynamics.maths.Quaternion;
 import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
 import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.ode.RigidBodyODEReturnData;
 
@@ -15,7 +16,7 @@ public class RigidBodyCuboid {
 
 	// State variables
 	private Vec3d origin;
-	private Matrix4d rotation;
+	private Quaternion rotation;
 	private Vec3d linearMomentum;
 	private Vec3d angularMomentum;
 
@@ -29,12 +30,12 @@ public class RigidBodyCuboid {
 	private Vec3d force;
 	private Vec3d torque;
 
-	public RigidBodyCuboid(double density, Vec3d dimensions, Vec3d origin, Matrix4d rotation, Vec3d linearMomentum, Vec3d angularMomentum) {
+	public RigidBodyCuboid(double density, Vec3d dimensions, Vec3d origin, Quaternion rotation, Vec3d linearMomentum, Vec3d angularMomentum) {
 		this.density = density;
 		this.dimensions = dimensions;
 		this.mass = dimensions.length() * density;
 		this.origin = origin;
-		this.rotation = rotation;
+		this.rotation = rotation.normalise();
 		this.velocity = calcVelocity(linearMomentum, mass);
 		this.angularMomentum = angularMomentum;
 		double xx = dimensions.getX() * dimensions.getX();
@@ -48,8 +49,8 @@ public class RigidBodyCuboid {
 		).scale(mass/12.0);
 		this.IBodyInv = getIBodyInv(IBody);
 		this.linearMomentum = velocity.scale(mass);
-		this.InertialTensor = calcInertialTensor(rotation, IBody);
-		this.Iinv = calcInertialTensor(rotation, IBodyInv);
+		this.InertialTensor = calcInertialTensor(this.rotation, IBody);
+		this.Iinv = calcInertialTensor(this.rotation, IBodyInv);
 		this.angularVelocity = calcAngularVelocity(Iinv, angularMomentum);
 	}
 
@@ -61,8 +62,9 @@ public class RigidBodyCuboid {
 		return velocity.scale(mass);
 	}
 
-	private Matrix4d calcInertialTensor(Matrix4d rotation, Matrix4d IBody) {
-		return rotation.multiply(IBody).multiply(rotation.transpose());
+	private Matrix4d calcInertialTensor(Quaternion rotationQ, Matrix4d IBody) {
+		Matrix4d rot = rotationQ.toMatrix().transpose();
+		return rot.multiply(IBody).multiply(rot.transpose());
 	}
 
 	private Matrix4d getIBodyInv(Matrix4d iBody) {
@@ -94,7 +96,7 @@ public class RigidBodyCuboid {
 		return origin;
 	}
 
-	public Matrix4d getRotation() {
+	public Quaternion getRotation() {
 		return rotation;
 	}
 
@@ -128,9 +130,7 @@ public class RigidBodyCuboid {
 
 	public RigidBodyCuboid incrementAndCopy(RigidBodyODEReturnData increment) {
 		Vec3d newX = origin.add(increment.Xdot);
-		Matrix4d newRotation = rotation.add(increment.Rdot);
-		// todo hacky
-		newRotation.getValues()[15] = 1;
+		Quaternion newRotation = rotation.add(increment.Qdot);
 		Vec3d newMomentum = linearMomentum.add(increment.Pdot);
 		Vec3d newAngularMomentum = angularMomentum.add(increment.Ldot);
 
