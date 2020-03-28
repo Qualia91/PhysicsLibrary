@@ -71,7 +71,7 @@ public class Vec3d {
 	}
 
 	public Vec3d normalise() {
-		return this.scale(this.length());
+		return this.scale(1/this.length());
 	}
 
 	public double[] getValues() {

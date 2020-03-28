@@ -3,6 +3,7 @@ package com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose;
 import com.nick.wood.rigid_body_dynamics.SimulationInterface;
 import com.nick.wood.rigid_body_dynamics.graphics.objects.Cube;
 import com.nick.wood.rigid_body_dynamics.graphics.objects.GameObject;
+import com.nick.wood.rigid_body_dynamics.graphics.objects.Triangle;
 import com.nick.wood.rigid_body_dynamics.maths.Quaternion;
 import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
 import com.nick.wood.rigid_body_dynamics.particle_system_dynamics_verbose.Plane;
@@ -28,7 +29,7 @@ public class Simulation implements SimulationInterface {
 					Quaternion dDot = Quaternion.FromVec(0.0, rigidBody.getAngularVelocity()).multiply(rigidBody.getRotation()).scale(0.5);
 
 					rigidBody.setForce(new Vec3d(0.0, 0.0, 0.0));
-					rigidBody.setTorque(new Vec3d(0.0, 0.0, 1.0));
+					rigidBody.setTorque(new Vec3d(0.0, 0.0, 0.0));
 
 					return new RigidBodyODEReturnData(
 							rigidBody.getVelocity(),
@@ -41,7 +42,7 @@ public class Simulation implements SimulationInterface {
 		);
 
 		for (int i = 0; i < 1; i++) {
-			RigidBodyCuboid rigidBody = new RigidBodyCuboid(1, new Vec3d(1.0, 2.0, 1.0), new Vec3d(i, 0.0, 0.0), new Quaternion(1.0, 0.0, 0.0, 0.0), Vec3d.ZERO, Vec3d.ZERO);
+			RigidBodyCuboid rigidBody = new RigidBodyCuboid(1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(i, 0.0, 0.0), new Quaternion(1.0, 0.0, 0.0, 0.0), Vec3d.ZERO, Vec3d.ZERO);
 			UUID uuid = UUID.randomUUID();
 			uuidRigidBodyCuboidHashMap.put(uuid, rigidBody);
 			uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody));
@@ -54,7 +55,7 @@ public class Simulation implements SimulationInterface {
 				rigidBody.getOrigin(),
 				rigidBody.getRotation().toMatrix(),
 				rigidBody.getDimensions(),
-				new Cube()
+				new Triangle()
 		);
 	}
 
