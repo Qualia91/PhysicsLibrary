@@ -171,7 +171,7 @@ public class Matrix4d {
 		Matrix4d rotationX = Rotation(rot.getX(), Vec3d.X);
 		Matrix4d rotationY = Rotation(rot.getY(), Vec3d.Y);
 		Matrix4d rotationZ = Rotation(rot.getZ(), Vec3d.Z);
-		Matrix4d rotation = rotationZ.multiply(rotationY.multiply(rotationX));
+		Matrix4d rotation = rotationZ.multiply(rotationY).multiply(rotationX);
 
 		return translation.multiply(rotation);
 	}

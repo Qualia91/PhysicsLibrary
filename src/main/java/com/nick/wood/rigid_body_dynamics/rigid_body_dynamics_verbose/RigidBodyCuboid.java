@@ -148,4 +148,8 @@ public class RigidBodyCuboid {
 	public void setTorque(Vec3d vec3d) {
 		torque = vec3d;
 	}
+
+	public Vec3d getDimensions() {
+		return dimensions;
+	}
 }

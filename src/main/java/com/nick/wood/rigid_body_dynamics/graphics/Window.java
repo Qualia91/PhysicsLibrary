@@ -51,10 +51,11 @@ public class Window {
 	HashMap<UUID, GameObject> gameObjects = new HashMap<>();
 
 	public Window(int WIDTH, int HEIGHT, String title, ArrayList<Plane> planes) {
+
 		this.WIDTH = WIDTH;
 		this.HEIGHT = HEIGHT;
 		this.title = title;
-		this.camera = new Camera(new Vec3d(10.0, -5.0, 50.0), new Vec3d(0.0, 0.0, 0.0), 0.5, 0.1);
+		this.camera = new Camera(new Vec3d(-5.0, 0.0, 0.0),  new Vec3d(-90.0, 180.0, 90.0), 0.5, 0.1);
 		this.input = new Inputs();
 
 		for (Plane plane : planes) {
@@ -277,7 +278,7 @@ public class Window {
 				gameObjects.get(uuid).setRotation(particle.getRotation());
 			} else {
 				particle.getMeshObject().getMesh().create();
-				gameObjects.put(uuid, new GameObject(new Vec3d(particle.getPosition().getX(), particle.getPosition().getY(), particle.getPosition().getZ()), particle.getRotation(), new Vec3d(1.0, 1.0, 1.0), particle.getMeshObject()));
+				gameObjects.put(uuid, new GameObject(new Vec3d(particle.getPosition().getX(), particle.getPosition().getY(), particle.getPosition().getZ()), particle.getRotation(), particle.getScale(), particle.getMeshObject()));
 			}
 		});
 

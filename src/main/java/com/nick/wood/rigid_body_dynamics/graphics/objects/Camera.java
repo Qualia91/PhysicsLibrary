@@ -43,34 +43,34 @@ public class Camera {
 	}
 
 	public void left() {
-		pos = pos.add(new Vec3d(-z, 0.0, x));
+		pos = pos.add(new Vec3d(x, y, 0.0));
 	}
 
 	public void right() {
-		pos = pos.add(new Vec3d(z, 0.0, -x));
+		pos = pos.add(new Vec3d(-x, -y, 0.0));
 	}
 
 	public void forward() {
-		pos = pos.add(new Vec3d(-x, y, -z));
+		pos = pos.add(new Vec3d(y, -x, z));
 	}
 
 	public void back() {
-		pos = pos.add(new Vec3d(x, -y, z));
+		pos = pos.add(new Vec3d(-y, x, -z));
 	}
 
 	public void up() {
-		pos = pos.add(new Vec3d(0.0, moveSpeed, 0.0));
+		pos = pos.add(new Vec3d(0.0, 0.0, moveSpeed));
 	}
 
 	public void down() {
-		pos = pos.add(new Vec3d(0.0, -moveSpeed, 0.0));
+		pos = pos.add(new Vec3d(0.0, 0.0, -moveSpeed));
 	}
 
 	public void rotate(double dx, double dy) {
-		rot = rot.add(new Vec3d(-dy*sensitivity, -dx*sensitivity, 0.0));
+		rot = rot.add(new Vec3d(-dy*sensitivity, 0.0,-dx*sensitivity));
 
-		this.x = Math.sin(Math.toRadians(rot.getY())) * moveSpeed;
-		this.y = Math.sin(Math.toRadians(rot.getX())) * moveSpeed;
-		this.z = Math.cos(Math.toRadians(rot.getY())) * moveSpeed;
+		this.x = Math.cos(Math.toRadians(rot.getZ())) * moveSpeed;
+		this.y = Math.sin(Math.toRadians(rot.getZ())) * moveSpeed;
+		this.z = Math.cos(Math.toRadians(rot.getX())) * moveSpeed;
 	}
 }
