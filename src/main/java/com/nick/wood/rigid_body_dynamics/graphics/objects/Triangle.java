@@ -2,17 +2,25 @@ package com.nick.wood.rigid_body_dynamics.graphics.objects;
 
 import com.nick.wood.rigid_body_dynamics.graphics.Mesh;
 import com.nick.wood.rigid_body_dynamics.graphics.Vertex;
+import com.nick.wood.rigid_body_dynamics.maths.Matrix4d;
 import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
 
 import java.util.ArrayList;
 
 public class Triangle implements MeshObject {
 
-	private static final int TRIANGLE_NUMBER = 20;
+	private Vec3d position, scale;
+	private Matrix4d rotation;
+	private final int triangleNumber;
 
 	private Mesh mesh;
 
-	public Triangle() {
+	public Triangle(Vec3d translation, Vec3d scale, Matrix4d rotation, int triangleNumber) {
+
+		this.position = translation;
+		this.scale = scale;
+		this.rotation = rotation;
+		this.triangleNumber = triangleNumber;
 
 		ArrayList<ArrayList<Vertex>> vertexSlicesArrayList = new ArrayList<>();
 		ArrayList<Integer> indexList = new ArrayList<>();
@@ -21,13 +29,13 @@ public class Triangle implements MeshObject {
 		Vec3d frontRight = new Vec3d(-1.0, -1.0, 0.0);
 		Vec3d top = new Vec3d(0.0, 0.0, 1.0);
 
-		double lengthOfTriangleSide =  top.subtract(frontLeft).length() / TRIANGLE_NUMBER;
+		double lengthOfTriangleSide =  top.subtract(frontLeft).length() / triangleNumber;
 
 		Vec3d frontLeftToTopVec = top.subtract(frontLeft).normalise().scale(lengthOfTriangleSide);
 		Vec3d topToFrontRightVec = top.subtract(frontRight).normalise().scale(lengthOfTriangleSide).neg();
 
 		// work out vertices in strips
-		for (int triangleUpIndex = 0; triangleUpIndex < TRIANGLE_NUMBER + 1; triangleUpIndex++) {
+		for (int triangleUpIndex = 0; triangleUpIndex < triangleNumber + 1; triangleUpIndex++) {
 
 			ArrayList<Vertex> vertexArrayList = new ArrayList<>();
 
@@ -39,7 +47,7 @@ public class Triangle implements MeshObject {
 				Vec3d newPos = startingPos.add(topToFrontRightVec.scale(triangleDownIndex));
 
 				vertexArrayList.add(new Vertex(
-						newPos.normalise(),
+						newPos.normalise().scale(0.5),
 						newPos
 				));
 
@@ -50,7 +58,7 @@ public class Triangle implements MeshObject {
 		}
 
 		// create the 2 returning arrays
-		int numOfVerts = ((TRIANGLE_NUMBER + 1) * (TRIANGLE_NUMBER + 1) + (TRIANGLE_NUMBER + 1)) / 2;
+		int numOfVerts = ((triangleNumber + 1) * (triangleNumber + 1) + (triangleNumber + 1)) / 2;
 		Vertex[] vertices = new Vertex[numOfVerts];
 
 		// use strips to work out indices for triangles
@@ -109,5 +117,10 @@ public class Triangle implements MeshObject {
 
 	public Mesh getMesh() {
 		return mesh;
+	}
+
+	@Override
+	public Matrix4d getTransformation() {
+		return Matrix4d.Transform(position, rotation, scale);
 	}
 }

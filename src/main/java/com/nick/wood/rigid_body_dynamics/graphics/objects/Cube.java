@@ -2,9 +2,13 @@ package com.nick.wood.rigid_body_dynamics.graphics.objects;
 
 import com.nick.wood.rigid_body_dynamics.graphics.Mesh;
 import com.nick.wood.rigid_body_dynamics.graphics.Vertex;
+import com.nick.wood.rigid_body_dynamics.maths.Matrix4d;
 import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
 
 public class Cube implements MeshObject {
+
+	private Vec3d position, scale;
+	private Matrix4d rotation;
 
 	private final Mesh mesh = new Mesh(new Vertex[] {
 			//Back face
@@ -69,10 +73,18 @@ public class Cube implements MeshObject {
 					23, 21, 22
 			});
 
-	public Cube() {
+	public Cube(Vec3d translation, Vec3d scale, Matrix4d rotation) {
+		this.position = translation;
+		this.scale = scale;
+		this.rotation = rotation;
 	}
 
 	public Mesh getMesh() {
 		return mesh;
+	}
+
+	@Override
+	public Matrix4d getTransformation() {
+		return Matrix4d.Transform(position, rotation, scale);
 	}
 }

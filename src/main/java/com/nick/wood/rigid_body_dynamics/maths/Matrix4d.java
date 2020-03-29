@@ -1,5 +1,7 @@
 package com.nick.wood.rigid_body_dynamics.maths;
 
+import com.nick.wood.rigid_body_dynamics.graphics.objects.MeshObject;
+
 import java.util.Arrays;
 
 public class Matrix4d {

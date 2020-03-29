@@ -7,13 +7,13 @@ public class GameObject {
 
 	private Vec3d position, scale;
 	private Matrix4d rotation;
-	private final MeshObject meshObject;
+	private final Group meshGroup;
 
-	public GameObject(Vec3d position, Matrix4d rotation, Vec3d scale, MeshObject meshObject) {
+	public GameObject(Vec3d position, Matrix4d rotation, Vec3d scale, Group meshGroup) {
 		this.position = position;
 		this.rotation = rotation;
 		this.scale = scale;
-		this.meshObject = meshObject;
+		this.meshGroup = meshGroup;
 	}
 
 	public void update() {
@@ -46,8 +46,8 @@ public class GameObject {
 		this.scale = scale;
 	}
 
-	public MeshObject getMeshObject() {
-		return meshObject;
+	public Group getMeshGroup() {
+		return meshGroup;
 	}
 
 	public void rotateLeft() {
@@ -57,4 +57,5 @@ public class GameObject {
 	public void rotateRight() {
 		rotation = rotation.add(Vec3d.Y.scale(-10));
 	}
+
 }

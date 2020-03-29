@@ -5,7 +5,7 @@ import com.nick.wood.rigid_body_dynamics.maths.Quaternion;
 import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
 import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.ode.RigidBodyODEReturnData;
 
-public class RigidBodyCuboid {
+public class RigidBody {
 
 	// const
 	private final double mass;
@@ -13,6 +13,7 @@ public class RigidBodyCuboid {
 	private final Matrix4d IBodyInv;
 	private final Vec3d dimensions;
 	private final double density;
+	private final RigidBodyType rigidBodyType;
 
 	// State variables
 	private Vec3d origin;
@@ -30,7 +31,7 @@ public class RigidBodyCuboid {
 	private Vec3d force;
 	private Vec3d torque;
 
-	public RigidBodyCuboid(double density, Vec3d dimensions, Vec3d origin, Quaternion rotation, Vec3d linearMomentum, Vec3d angularMomentum) {
+	public RigidBody(double density, Vec3d dimensions, Vec3d origin, Quaternion rotation, Vec3d linearMomentum, Vec3d angularMomentum, RigidBodyType rigidBodyType) {
 		this.density = density;
 		this.dimensions = dimensions;
 		this.mass = dimensions.length() * density;
@@ -38,15 +39,44 @@ public class RigidBodyCuboid {
 		this.rotation = rotation.normalise();
 		this.velocity = calcVelocity(linearMomentum, mass);
 		this.angularMomentum = angularMomentum;
-		double xx = dimensions.getX() * dimensions.getX();
-		double yy = dimensions.getY() * dimensions.getY();
-		double zz = dimensions.getZ() * dimensions.getZ();
-		IBody = new Matrix4d(
-				yy + zz, 0.0, 0.0, 0.0,
-				0.0, xx + zz, 0.0, 0.0,
-				0.0, 0.0, xx + yy, 0.0,
-				0.0, 0.0, 0.0, 12/mass
-		).scale(mass/12.0);
+		this.rigidBodyType = rigidBodyType;
+
+		switch (rigidBodyType) {
+			case CUBOID:
+				double xx = dimensions.getX() * dimensions.getX();
+				double yy = dimensions.getY() * dimensions.getY();
+				double zz = dimensions.getZ() * dimensions.getZ();
+				IBody = new Matrix4d(
+						yy + zz, 0.0, 0.0, 0.0,
+						0.0, xx + zz, 0.0, 0.0,
+						0.0, 0.0, xx + yy, 0.0,
+						0.0, 0.0, 0.0, 12/mass
+				).scale(mass/12.0);
+				break;
+			case SPHERE:
+				double a = dimensions.getX()/2;
+				double b = dimensions.getY()/2;
+				double c = dimensions.getZ()/2;
+
+				double aa = a * a;
+				double bb = b * b;
+				double cc = c * c;
+
+				double Ia = 0.2 * mass * (bb * cc);
+				double Ib = 0.2 * mass * (aa * cc);
+				double Ic = 0.2 * mass * (aa * bb);
+
+				IBody = new Matrix4d(
+						Ia, 0.0, 0.0, 0.0,
+						0.0, Ib, 0.0, 0.0,
+						0.0, 0.0, Ic, 0.0,
+						0.0, 0.0, 0.0, 1
+				);
+				break;
+			default:
+				throw new RuntimeException("Type " + rigidBodyType + " not found.");
+		}
+
 		this.IBodyInv = getIBodyInv(IBody);
 		this.linearMomentum = velocity.scale(mass);
 		this.InertialTensor = calcInertialTensor(this.rotation, IBody);
@@ -128,13 +158,13 @@ public class RigidBodyCuboid {
 		return torque;
 	}
 
-	public RigidBodyCuboid incrementAndCopy(RigidBodyODEReturnData increment) {
+	public RigidBody incrementAndCopy(RigidBodyODEReturnData increment) {
 		Vec3d newX = origin.add(increment.Xdot);
 		Quaternion newRotation = rotation.add(increment.Qdot);
 		Vec3d newMomentum = linearMomentum.add(increment.Pdot);
 		Vec3d newAngularMomentum = angularMomentum.add(increment.Ldot);
 
-		return new RigidBodyCuboid(density, dimensions, newX, newRotation, newMomentum, newAngularMomentum);
+		return new RigidBody(density, dimensions, newX, newRotation, newMomentum, newAngularMomentum, rigidBodyType);
 	}
 
 	public Vec3d getAngularVelocity() {

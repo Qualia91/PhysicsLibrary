@@ -1,18 +1,18 @@
 package com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.ode;
 
-import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.RigidBodyCuboid;
+import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.RigidBody;
 
 import java.util.function.Function;
 
 public class RungeKutta {
 
-	private final Function<RigidBodyCuboid, RigidBodyODEReturnData> ddt;
+	private final Function<RigidBody, RigidBodyODEReturnData> ddt;
 
-	public RungeKutta(Function<RigidBodyCuboid, RigidBodyODEReturnData> ddt) {
+	public RungeKutta(Function<RigidBody, RigidBodyODEReturnData> ddt) {
 		this.ddt = ddt;
 	}
 
-	public RigidBodyCuboid solve(RigidBodyCuboid rigidBody, double stepSize) {
+	public RigidBody solve(RigidBody rigidBody, double stepSize) {
 
 		// K1
 		RigidBodyODEReturnData k1 = ddt.apply(rigidBody);
@@ -31,7 +31,7 @@ public class RungeKutta {
 
 	}
 
-	private RigidBodyCuboid makeNewRigidBody(RigidBodyCuboid rigidBody, RigidBodyODEReturnData increment) {
+	private RigidBody makeNewRigidBody(RigidBody rigidBody, RigidBodyODEReturnData increment) {
 
 		return rigidBody.incrementAndCopy(increment);
 

@@ -1,12 +1,9 @@
 package com.nick.wood.rigid_body_dynamics.graphics;
 
+import com.nick.wood.rigid_body_dynamics.graphics.objects.*;
 import com.nick.wood.rigid_body_dynamics.particle_system_dynamics_verbose.Plane;
-import com.nick.wood.rigid_body_dynamics.graphics.objects.Camera;
-import com.nick.wood.rigid_body_dynamics.graphics.objects.Cube;
-import com.nick.wood.rigid_body_dynamics.graphics.objects.GameObject;
 import com.nick.wood.rigid_body_dynamics.maths.Matrix4d;
 import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
-import com.nick.wood.rigid_body_dynamics.graphics.objects.Square;
 import com.nick.wood.rigid_body_dynamics.particle_system_dynamics_verbose.Particle;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
@@ -62,7 +59,10 @@ public class Window {
 
 			Vec3d rotation = new Vec3d(plane.getNormal().getZ(), plane.getNormal().getY(), -plane.getNormal().getX());
 
-			gameObjects.put(UUID.randomUUID(), new GameObject(new Vec3d(plane.getCenter().getX(), plane.getCenter().getZ(), plane.getCenter().getY()), Matrix4d.Rotation(90.0, rotation), new Vec3d(100.0, 100.0, 100.0), new Square()));
+			Group group = new Group();
+			group.getMeshObjectArray().add(new Square());
+
+			gameObjects.put(UUID.randomUUID(), new GameObject(new Vec3d(plane.getCenter().getX(), plane.getCenter().getZ(), plane.getCenter().getY()), Matrix4d.Rotation(90.0, rotation), new Vec3d(100.0, 100.0, 100.0), group));
 		}
 
 		//for (int xPos = -10; xPos < 10; xPos+=2) {
@@ -85,7 +85,7 @@ public class Window {
 		shader.destroy();
 
 		for (GameObject gameObject : gameObjects.values()) {
-			gameObject.getMeshObject().getMesh().destroy();
+			gameObject.getMeshGroup().getMeshObjectArray().forEach(meshObject -> meshObject.getMesh().destroy());
 		}
 
 		// Terminate GLFW and free the error callback
@@ -162,7 +162,7 @@ public class Window {
 		GLFW.glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 		for (GameObject gameObject : gameObjects.values()) {
-			gameObject.getMeshObject().getMesh().create();
+			gameObject.getMeshGroup().getMeshObjectArray().forEach(meshObject -> meshObject.getMesh().create());
 		}
 
 		shader.create();
@@ -277,8 +277,8 @@ public class Window {
 				gameObjects.get(uuid).setPosition(new Vec3d(particle.getPosition().getX(), particle.getPosition().getY(), particle.getPosition().getZ()));
 				gameObjects.get(uuid).setRotation(particle.getRotation());
 			} else {
-				particle.getMeshObject().getMesh().create();
-				gameObjects.put(uuid, new GameObject(new Vec3d(particle.getPosition().getX(), particle.getPosition().getY(), particle.getPosition().getZ()), particle.getRotation(), particle.getScale(), particle.getMeshObject()));
+				particle.getMeshGroup().getMeshObjectArray().forEach(meshObject -> meshObject.getMesh().create());
+				gameObjects.put(uuid, new GameObject(new Vec3d(particle.getPosition().getX(), particle.getPosition().getY(), particle.getPosition().getZ()), particle.getRotation(), particle.getScale(), particle.getMeshGroup()));
 			}
 		});
 

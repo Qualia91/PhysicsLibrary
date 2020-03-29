@@ -8,6 +8,7 @@ public class Vec3d {
 	public static final Vec3d X = new Vec3d(1.0, 0.0, 0.0);
 	public static final Vec3d Y = new Vec3d(0.0, 1.0, 0.0);
 	public static final Vec3d Z = new Vec3d(0.0, 0.0, 1.0);
+	public static final Vec3d ONE = new Vec3d(1.0, 1.0, 1.0);
 
 	private final double x;
 	private final double y;
