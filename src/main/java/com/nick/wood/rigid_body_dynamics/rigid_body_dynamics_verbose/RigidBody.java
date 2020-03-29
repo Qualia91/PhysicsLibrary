@@ -30,6 +30,7 @@ public class RigidBody {
 	// Computer quantities
 	private Vec3d force;
 	private Vec3d torque;
+	private Vec3d moveOriginBy = Vec3d.ZERO;
 
 	public RigidBody(double density, Vec3d dimensions, Vec3d origin, Quaternion rotation, Vec3d linearMomentum, Vec3d angularMomentum, RigidBodyType rigidBodyType) {
 		this.density = density;
@@ -37,6 +38,7 @@ public class RigidBody {
 		this.mass = dimensions.length() * density;
 		this.origin = origin;
 		this.rotation = rotation.normalise();
+		this.linearMomentum = linearMomentum;
 		this.velocity = calcVelocity(linearMomentum, mass);
 		this.angularMomentum = angularMomentum;
 		this.rigidBodyType = rigidBodyType;
@@ -78,7 +80,6 @@ public class RigidBody {
 		}
 
 		this.IBodyInv = getIBodyInv(IBody);
-		this.linearMomentum = velocity.scale(mass);
 		this.InertialTensor = calcInertialTensor(this.rotation, IBody);
 		this.Iinv = calcInertialTensor(this.rotation, IBodyInv);
 		this.angularVelocity = calcAngularVelocity(Iinv, angularMomentum);
@@ -181,5 +182,19 @@ public class RigidBody {
 
 	public Vec3d getDimensions() {
 		return dimensions;
+	}
+
+	public void setVelocity(Vec3d velocity) {
+		this.velocity = velocity;
+		this.linearMomentum = velocity.scale(mass);
+	}
+
+	public void moveOrigin(Vec3d newOrigin) {
+		this.moveOriginBy = this.moveOriginBy.add(newOrigin);
+	}
+
+	public void updateOrigins() {
+		this.origin = this.origin.add(moveOriginBy);
+		moveOriginBy = Vec3d.ZERO;
 	}
 }
