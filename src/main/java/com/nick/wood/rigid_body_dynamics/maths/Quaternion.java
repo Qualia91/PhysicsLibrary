@@ -111,12 +111,6 @@ public class Quaternion {
 				0.0, 0.0, 0.0, 0.5
 		).scale(2);
 
-		//return new Matrix4d(
-		//		0.5 - y2 - z2, xy + xz, xz - wy, 0.0,
-		//		xy - wz, 0.5 - x2 - z2, yz + wx, 0.0,
-		//		xz + wy, yz + wz, 0.5 - x2 - y2, 0.0,
-		//		0.0, 0.0, 0.0, 0.5
-		//).scale(2);
 	}
 
 	public Quaternion scale(double s) {

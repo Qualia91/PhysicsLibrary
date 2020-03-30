@@ -100,9 +100,9 @@ public class RigidBody {
 
 	private Matrix4d getIBodyInv(Matrix4d iBody) {
 		return new Matrix4d(
-				1.0/iBody.getValues()[0], 0.0, 0.0, 0.0,
-				0.0, 1.0/iBody.getValues()[5], 0.0, 0.0,
-				0.0, 0.0, 1.0/iBody.getValues()[10], 0.0,
+				1.0/iBody.get(0, 0), 0.0, 0.0, 0.0,
+				0.0, 1.0/iBody.get(1, 1), 0.0, 0.0,
+				0.0, 0.0, 1.0/iBody.get(2, 2), 0.0,
 				0.0, 0.0, 0.0, 1.0
 		);
 	}

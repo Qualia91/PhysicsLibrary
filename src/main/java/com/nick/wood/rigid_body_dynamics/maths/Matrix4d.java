@@ -112,6 +112,7 @@ public class Matrix4d {
 	}
 
 	public Matrix4d(double... elements) {
+		assert elements.length == 16;
 		this.elements = elements;
 	}
 
@@ -119,7 +120,7 @@ public class Matrix4d {
 		return elements[y * SIZE + x];
 	}
 
-	public double[] getValues() {
+	private double[] getValues() {
 		return elements;
 	}
 
