@@ -3,6 +3,7 @@ package com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose;
 import com.nick.wood.rigid_body_dynamics.SimulationInterface;
 import com.nick.wood.rigid_body_dynamics.graphics.objects.GameObject;
 import com.nick.wood.rigid_body_dynamics.graphics.objects.Group;
+import com.nick.wood.rigid_body_dynamics.graphics.objects.Sphere;
 import com.nick.wood.rigid_body_dynamics.graphics.objects.Triangle;
 import com.nick.wood.rigid_body_dynamics.maths.Matrix4d;
 import com.nick.wood.rigid_body_dynamics.maths.Quaternion;
@@ -45,12 +46,12 @@ public class Simulation implements SimulationInterface {
 			}
 		);
 
-		//for (int i = 0; i < 1; i++) {
-		//		Vec3d mom = Vec3d.Y.scale(10);
+		//for (int i = 0; i < 2; i++) {
+		//		Vec3d mom = Vec3d.Y.scale(0);
 		//		if (i == 1) {
 		//			mom = mom.neg();
 		//		}
-		//		RigidBody rigidBody = new RigidBody(1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(0.0, i*2, i/2.0), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, Vec3d.ZERO, RigidBodyType.SPHERE);
+		//		RigidBody rigidBody = new RigidBody(1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(0.0, i*2, 0.0), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, Vec3d.ZERO, RigidBodyType.SPHERE);
 		//		UUID uuid = UUID.randomUUID();
 		//		uuidRigidBodyHashMap.put(uuid, rigidBody);
 		//		uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
@@ -90,26 +91,8 @@ public class Simulation implements SimulationInterface {
 
 	public GameObject convertToGameObject(RigidBody rigidBody, int triangleNumber) {
 
-		Matrix4d mirror = Matrix4d.Rotation(180.0, Vec3d.Y);
-
-		Triangle one = new Triangle(Vec3d.ZERO, Vec3d.ONE, Matrix4d.Identity, triangleNumber);
-		Triangle two = new Triangle(Vec3d.ZERO, Vec3d.ONE, Matrix4d.Rotation(90.0, Vec3d.Z), triangleNumber);
-		Triangle three = new Triangle(Vec3d.ZERO, Vec3d.ONE, Matrix4d.Rotation(180.0, Vec3d.Z), triangleNumber);
-		Triangle four = new Triangle(Vec3d.ZERO, Vec3d.ONE, Matrix4d.Rotation(270.0, Vec3d.Z), triangleNumber);
-		Triangle five = new Triangle(Vec3d.ZERO, Vec3d.ONE, mirror, triangleNumber);
-		Triangle six = new Triangle(Vec3d.ZERO, Vec3d.ONE, mirror.multiply(Matrix4d.Rotation(90.0, Vec3d.Z)), triangleNumber);
-		Triangle seven = new Triangle(Vec3d.ZERO, Vec3d.ONE, mirror.multiply(Matrix4d.Rotation(180.0, Vec3d.Z)), triangleNumber);
-		Triangle eight = new Triangle(Vec3d.ZERO, Vec3d.ONE, mirror.multiply(Matrix4d.Rotation(270.0, Vec3d.Z)), triangleNumber);
-
 		Group group = new Group();
-		group.getMeshObjectArray().add(one);
-		group.getMeshObjectArray().add(two);
-		group.getMeshObjectArray().add(three);
-		group.getMeshObjectArray().add(four);
-		group.getMeshObjectArray().add(five);
-		group.getMeshObjectArray().add(six);
-		group.getMeshObjectArray().add(seven);
-		group.getMeshObjectArray().add(eight);
+		group.getMeshObjectArray().add(new Sphere(Vec3d.ZERO, Vec3d.ONE, Matrix4d.Identity, triangleNumber));
 
 		return new GameObject(
 				rigidBody.getOrigin(),
