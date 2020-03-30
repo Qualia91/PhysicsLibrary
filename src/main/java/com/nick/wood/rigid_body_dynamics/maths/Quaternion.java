@@ -33,7 +33,31 @@ public class Quaternion {
 		return this.scale(1/this.len());
 	}
 
-	public Quaternion(double... q) {
+	public Quaternion(double s, double i, double j, double k) {
+		q = new double[4];
+		q[0] = s;
+		q[1] = i;
+		q[2] = j;
+		q[3] = k;
+	}
+
+	public double getS() {
+		return q[0];
+	}
+
+	public double getI() {
+		return q[1];
+	}
+
+	public double getJ() {
+		return q[2];
+	}
+
+	public double getK() {
+		return q[3];
+	}
+
+	private Quaternion(double... q) {
 		this.q = q;
 	}
 
@@ -65,16 +89,6 @@ public class Quaternion {
 	public Matrix4d toMatrix() {
 
 		double[] qNorm = (this.normalise()).getQ();
-
-		//double x2 = qNorm[1] * qNorm[1];
-		//double y2 = qNorm[2] * qNorm[2];
-		//double z2 = qNorm[3] * qNorm[3];
-		//double wx = qNorm[0] * qNorm[1];
-		//double wy = qNorm[0] * qNorm[2];
-		//double wz = qNorm[0] * qNorm[3];
-		//double xy = qNorm[1] * qNorm[2];
-		//double xz = qNorm[1] * qNorm[3];
-		//double yz = qNorm[2] * qNorm[3];
 
 		double q00 = qNorm[0] * qNorm[0];
 		double q01 = qNorm[0] * qNorm[1];
@@ -125,7 +139,7 @@ public class Quaternion {
 		return conjugate().scale(1/len());
 	}
 
-	public double[] getQ() {
+	private double[] getQ() {
 		return q;
 	}
 

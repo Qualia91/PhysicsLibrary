@@ -4,7 +4,6 @@ import com.nick.wood.rigid_body_dynamics.SimulationInterface;
 import com.nick.wood.rigid_body_dynamics.graphics.objects.GameObject;
 import com.nick.wood.rigid_body_dynamics.graphics.objects.Group;
 import com.nick.wood.rigid_body_dynamics.graphics.objects.Sphere;
-import com.nick.wood.rigid_body_dynamics.graphics.objects.Triangle;
 import com.nick.wood.rigid_body_dynamics.maths.Matrix4d;
 import com.nick.wood.rigid_body_dynamics.maths.Quaternion;
 import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
@@ -12,13 +11,11 @@ import com.nick.wood.rigid_body_dynamics.particle_system_dynamics_verbose.Plane;
 import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.ode.RigidBodyODEReturnData;
 import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.ode.RungeKutta;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class Simulation implements SimulationInterface {
 
 	private static final double COLLISION_CONST = 0.8;
-	private static final double FRICTION_CONST = 0.8;
 	private final RungeKutta rungeKutta;
 
 	HashMap<UUID, RigidBody> uuidRigidBodyHashMap = new HashMap<>();
