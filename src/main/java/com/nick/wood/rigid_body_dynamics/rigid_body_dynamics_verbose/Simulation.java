@@ -3,6 +3,7 @@ package com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose;
 import com.nick.wood.rigid_body_dynamics.SimulationInterface;
 import com.nick.wood.rigid_body_dynamics.graphics.objects.GameObject;
 import com.nick.wood.rigid_body_dynamics.graphics.objects.Group;
+import com.nick.wood.rigid_body_dynamics.graphics.objects.RigidBodyGameObject;
 import com.nick.wood.rigid_body_dynamics.graphics.objects.Sphere;
 import com.nick.wood.rigid_body_dynamics.maths.Matrix4d;
 import com.nick.wood.rigid_body_dynamics.maths.Quaternion;
@@ -44,6 +45,7 @@ public class Simulation implements SimulationInterface {
 			}
 		);
 
+		// demo 1: 2 lines interacting
 		for (int j = 0; j < 10; j++) {
 			for (int i = 0; i < 2; i++) {
 				Vec3d mom = Vec3d.Y.scale(2 * i);
@@ -57,28 +59,37 @@ public class Simulation implements SimulationInterface {
 			}
 		}
 
-		//for (int i = 0; i < 10; i++) {
-		//	Vec3d mom = Vec3d.Y.scale(10);
-		//	if (i == 9) {
-		//		mom = mom.neg().scale(2);
+
+
+		// demo 2: random box
+		//Random random = new Random();
+		//for (int k = 0; k < 10; k++) {
+		//	for (int j = 0; j < 10; j++) {
+		//		for (int i = 0; i < 10; i++) {
+		//			Vec3d mom = Vec3d.X.scale(random.nextInt(10) - 4).add(Vec3d.Y.scale(random.nextInt(10) - 4)).add(Vec3d.Z.scale(random.nextInt(10) - 4));
+		//			Vec3d angMom = Vec3d.X.scale(random.nextInt(10) - 4).add(Vec3d.Y.scale(random.nextInt(10) - 4)).add(Vec3d.Z.scale(random.nextInt(10) - 4));
+		//			RigidBody rigidBody = new RigidBody(1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(j * 10, i * 10, k*10), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, angMom.scale(0.02), RigidBodyType.SPHERE);
+		//			UUID uuid = UUID.randomUUID();
+		//			uuidRigidBodyHashMap.put(uuid, rigidBody);
+		//			uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
+		//		}
 		//	}
-		//	RigidBody rigidBody = new RigidBody(i, new Vec3d(1.0, 1.0, 1.0), new Vec3d(0.0, i*2, 0.0), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, Vec3d.ZERO, RigidBodyType.SPHERE);
-		//	UUID uuid = UUID.randomUUID();
-		//	uuidRigidBodyHashMap.put(uuid, rigidBody);
-		//	uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
-		//}
-		//for (int i = 0; i < 10; i++) {
-		//	Vec3d mom = Vec3d.Y.scale(10).add(Vec3d.Z.scale(10));
-		//	if (i == 9) {
-		//		mom = mom.neg().scale(2);
-		//	}
-		//	RigidBody rigidBody = new RigidBody(i, new Vec3d(1.0, 1.0, 1.0), new Vec3d(0.0, i*2, 2.0), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, Vec3d.ZERO, RigidBodyType.SPHERE);
-		//	UUID uuid = UUID.randomUUID();
-		//	uuidRigidBodyHashMap.put(uuid, rigidBody);
-		//	uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
 		//}
 
-		//planes.add(new Plane(Vec3d.Z.scale(-10), Vec3d.Z));
+		// demo 3: big bang
+		//Random random = new Random();
+		//for (int k = -5; k < 5; k++) {
+		//	for (int j = -5; j < 5; j++) {
+		//		for (int i = -5; i < 5; i++) {
+		//			Vec3d mom = Vec3d.X.scale(-i).add(Vec3d.Y.scale(-j)).add(Vec3d.Z.scale(-k));
+		//			Vec3d angMom = Vec3d.X.scale(random.nextInt(10) - 4).add(Vec3d.Y.scale(random.nextInt(10) - 4)).add(Vec3d.Z.scale(random.nextInt(10) - 4));
+		//			RigidBody rigidBody = new RigidBody(1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(i * 10, j * 10, k*10), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, angMom.scale(0.02), RigidBodyType.SPHERE);
+		//			UUID uuid = UUID.randomUUID();
+		//			uuidRigidBodyHashMap.put(uuid, rigidBody);
+		//			uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
+		//		}
+		//	}
+		//}
 
 	}
 
@@ -94,7 +105,7 @@ public class Simulation implements SimulationInterface {
 		Group group = new Group();
 		group.getMeshObjectArray().add(new Sphere(Vec3d.ZERO, Vec3d.ONE, Matrix4d.Identity, triangleNumber));
 
-		return new GameObject(
+		return new RigidBodyGameObject(
 				rigidBody.getOrigin(),
 				rigidBody.getRotation().toMatrix(),
 				rigidBody.getDimensions(),
@@ -109,14 +120,16 @@ public class Simulation implements SimulationInterface {
 
 		uuidRigidBodyHashMap.forEach((uuid, rigidBody) -> {
 			RigidBody newRigidBody = rungeKutta.solve(rigidBody, uuid, deltaSeconds);
-			uuidGameObjectHashMap.get(uuid).setPosition(new Vec3d(newRigidBody.getOrigin().getX(), newRigidBody.getOrigin().getY(), newRigidBody.getOrigin().getZ()));
-			uuidGameObjectHashMap.get(uuid).setRotation(newRigidBody.getRotation().toMatrix());
 			tempMap.put(uuid, newRigidBody);
 		});
 
 		tempMap.forEach((uuid, rigidBody) -> collisionDetection(rigidBody, tempMap, uuid));
 
-		tempMap.forEach((uuid, rigidBody) -> rigidBody.applyImpulse());
+		tempMap.forEach((uuid, rigidBody) -> {
+			rigidBody.applyImpulse();
+			uuidGameObjectHashMap.get(uuid).setPosition(new Vec3d(rigidBody.getOrigin().getX(), rigidBody.getOrigin().getY(), rigidBody.getOrigin().getZ()));
+			uuidGameObjectHashMap.get(uuid).setRotation(rigidBody.getRotation().toMatrix());
+		});
 
 		uuidRigidBodyHashMap = tempMap;
 	}

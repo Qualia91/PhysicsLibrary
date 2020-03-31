@@ -47,32 +47,18 @@ public class Window {
 
 	HashMap<UUID, GameObject> gameObjects = new HashMap<>();
 
-	public Window(int WIDTH, int HEIGHT, String title, ArrayList<Plane> planes) {
+	public Window(int WIDTH, int HEIGHT, String title, HashMap<UUID, GameObject> gameObjects) {
 
 		this.WIDTH = WIDTH;
 		this.HEIGHT = HEIGHT;
 		this.title = title;
 		//this.camera = new Camera(new Vec3d(-30.0, 10.0, 0.0),  new Vec3d(-100.0, 180.0, 90.0), 0.5, 0.1);
-		this.camera = new Camera(new Vec3d(-5.0, -1.0, 0.0),  new Vec3d(-100.0, 180.0, 90.0), 0.5, 0.1);
+		this.camera = new Camera(new Vec3d(-100.0, 50.0, 50.0),  new Vec3d(-100.0, 180.0, 90.0), 0.5, 0.1);
 		this.input = new Inputs();
 
-		for (Plane plane : planes) {
-
-			Group group = new Group();
-			group.getMeshObjectArray().add(new Square());
-
-			gameObjects.put(UUID.randomUUID(), new GameObject(plane.getCenter(), Matrix4d.Rotation(90.0, plane.getNormal()), new Vec3d(100.0, 100.0, 100.0), group));
-		}
-
-		//for (int xPos = -10; xPos < 10; xPos+=2) {
-		//	for (int yPos = -10; yPos < 10; yPos += 2) {
-		//		for (int zPos = -10; zPos < 10; zPos += 2) {
-		//			gameObjects.put(UUID.randomUUID(), new GameObject(new Vec3d(xPos, yPos, zPos), Vec3d.ZERO, new Vec3d(1.0, 1.0, 1.0), new Cube()));
-		//		}
-		//	}
-		//}
-
 		this.projectionMatrix = Matrix4d.Projection((double)WIDTH/(double)HEIGHT, Math.toRadians(70.0), 0.01, 1000);
+
+		this.gameObjects = gameObjects;
 	}
 
 	public void destroy() {
@@ -271,15 +257,7 @@ public class Window {
 
 	public void updateDrawables(HashMap<UUID, GameObject> inputGameObject) {
 
-		inputGameObject.forEach((uuid, particle) -> {
-			if (gameObjects.containsKey(uuid)) {
-				gameObjects.get(uuid).setPosition(new Vec3d(particle.getPosition().getX(), particle.getPosition().getY(), particle.getPosition().getZ()));
-				gameObjects.get(uuid).setRotation(particle.getRotation());
-			} else {
-				particle.getMeshGroup().getMeshObjectArray().forEach(meshObject -> meshObject.getMesh().create());
-				gameObjects.put(uuid, new GameObject(new Vec3d(particle.getPosition().getX(), particle.getPosition().getY(), particle.getPosition().getZ()), particle.getRotation(), particle.getScale(), particle.getMeshGroup()));
-			}
-		});
+		gameObjects = inputGameObject;
 
 	}
 }

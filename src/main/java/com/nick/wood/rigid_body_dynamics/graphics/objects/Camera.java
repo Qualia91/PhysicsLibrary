@@ -10,12 +10,25 @@ public class Camera {
 	private double x;
 	private double z;
 	private double y;
+	private GameObject gameObject;
 
 	public Camera(Vec3d pos, Vec3d rot, double moveSpeed, double sensitivity) {
 		this.pos = pos;
 		this.rot = rot;
 		this.moveSpeed = moveSpeed;
 		this.sensitivity = sensitivity;
+	}
+
+	public void attachToGameObject(GameObject gameObject) {
+		this.gameObject = gameObject;
+	}
+
+	public GameObject getGameObject() {
+		return gameObject;
+	}
+
+	public void setGameObject(GameObject gameObject) {
+		this.gameObject = gameObject;
 	}
 
 	public double getMoveSpeed() {

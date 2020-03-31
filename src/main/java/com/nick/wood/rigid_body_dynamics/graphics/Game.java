@@ -19,7 +19,7 @@ public class Game implements Runnable {
 				width,
 				height,
 				"",
-				simulation.getPlanes());
+				simulation.getGameObjects());
 	}
 
 	@Override
