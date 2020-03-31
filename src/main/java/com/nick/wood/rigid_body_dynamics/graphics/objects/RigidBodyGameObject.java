@@ -7,9 +7,9 @@ public class RigidBodyGameObject implements GameObject {
 
 	private Vec3d position, scale;
 	private Matrix4d rotation;
-	private final Group meshGroup;
+	private final MeshGroup meshGroup;
 
-	public RigidBodyGameObject(Vec3d position, Matrix4d rotation, Vec3d scale, Group meshGroup) {
+	public RigidBodyGameObject(Vec3d position, Matrix4d rotation, Vec3d scale, MeshGroup meshGroup) {
 		this.position = position;
 		this.rotation = rotation;
 		this.scale = scale;
@@ -46,15 +46,17 @@ public class RigidBodyGameObject implements GameObject {
 		this.scale = scale;
 	}
 
-	public Group getMeshGroup() {
+	public MeshGroup getMeshGroup() {
 		return meshGroup;
 	}
 
+	@Override
 	public void rotateLeft() {
-		rotation = rotation.add(Vec3d.Y.scale(10));
+
 	}
 
+	@Override
 	public void rotateRight() {
-		rotation = rotation.add(Vec3d.Y.scale(-10));
+
 	}
 }

@@ -1,6 +1,7 @@
 package com.nick.wood.rigid_body_dynamics;
 
 import com.nick.wood.rigid_body_dynamics.graphics.Game;
+import com.nick.wood.rigid_body_dynamics.graphics.Inputs;
 import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
 import com.nick.wood.rigid_body_dynamics.particle_system_dynamics_verbose.*;
 
@@ -17,7 +18,9 @@ public class Main {
 
     public static void main(String[] args) throws ExecutionException, InterruptedException {
 
-        SimulationInterface simulation = new com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.Simulation();
+        Inputs inputs = new Inputs();
+
+        SimulationInterface simulation = new com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.Simulation(inputs);
 
         Game game = new Game(1000, 800, simulation);
 

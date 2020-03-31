@@ -13,7 +13,7 @@ public interface GameObject {
 	void setRotation(Matrix4d rotation);
 	Vec3d getScale();
 	void setScale(Vec3d scale);
-	Group getMeshGroup();
+	MeshGroup getMeshGroup();
 	void rotateLeft();
 	void rotateRight();
 

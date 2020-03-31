@@ -154,6 +154,13 @@ public class Matrix4d {
 
 	}
 
+	public static Matrix4d InverseTransformation(Vec3d pos, Matrix4d rot, Vec3d scale) {
+		Matrix4d translation = Translation(pos);
+		Matrix4d scaleMatrix = Scale(scale);
+
+		return translation.multiply(rot).multiply(scaleMatrix);
+	}
+
 	public static Matrix4d Projection(double aspect, double fov, double near, double far) {
 
 		double tanHalfFov = Math.tan(fov / 2.0);

@@ -1,5 +1,6 @@
 package com.nick.wood.rigid_body_dynamics;
 
+import com.nick.wood.rigid_body_dynamics.graphics.Inputs;
 import com.nick.wood.rigid_body_dynamics.graphics.objects.GameObject;
 import com.nick.wood.rigid_body_dynamics.particle_system_dynamics_verbose.Plane;
 
@@ -14,4 +15,6 @@ public interface SimulationInterface {
 	void iterate(double deltaSeconds);
 
 	ArrayList<Plane> getPlanes();
+
+	Inputs getInputs();
 }

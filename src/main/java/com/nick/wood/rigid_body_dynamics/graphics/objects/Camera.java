@@ -1,5 +1,7 @@
 package com.nick.wood.rigid_body_dynamics.graphics.objects;
 
+import com.nick.wood.rigid_body_dynamics.graphics.Game;
+import com.nick.wood.rigid_body_dynamics.maths.Matrix4d;
 import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
 
 public class Camera {
@@ -10,6 +12,7 @@ public class Camera {
 	private double x;
 	private double z;
 	private double y;
+
 	private GameObject gameObject;
 
 	public Camera(Vec3d pos, Vec3d rot, double moveSpeed, double sensitivity) {
@@ -19,15 +22,7 @@ public class Camera {
 		this.sensitivity = sensitivity;
 	}
 
-	public void attachToGameObject(GameObject gameObject) {
-		this.gameObject = gameObject;
-	}
-
-	public GameObject getGameObject() {
-		return gameObject;
-	}
-
-	public void setGameObject(GameObject gameObject) {
+	public void attachGameObject(GameObject gameObject) {
 		this.gameObject = gameObject;
 	}
 
@@ -85,5 +80,13 @@ public class Camera {
 		this.x = Math.cos(Math.toRadians(rot.getZ())) * moveSpeed;
 		this.y = Math.sin(Math.toRadians(rot.getZ())) * moveSpeed;
 		this.z = Math.cos(Math.toRadians(rot.getX())) * moveSpeed;
+	}
+
+	public Matrix4d getView() {
+
+		// get game object to world transformation
+		Matrix4d transform = Matrix4d.InverseTransformation(gameObject.getPosition().neg(), gameObject.getRotation().transpose(), gameObject.getScale());
+
+		return transform.multiply(Matrix4d.View(pos, rot));
 	}
 }

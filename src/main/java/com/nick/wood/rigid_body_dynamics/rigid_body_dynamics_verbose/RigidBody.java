@@ -4,6 +4,7 @@ import com.nick.wood.rigid_body_dynamics.maths.Matrix4d;
 import com.nick.wood.rigid_body_dynamics.maths.Quaternion;
 import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
 import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.ode.RigidBodyODEReturnData;
+import com.sun.security.jgss.GSSUtil;
 
 public class RigidBody {
 
@@ -17,23 +18,19 @@ public class RigidBody {
 	private final Vec3d dimensions;
 	private final double density;
 	private final RigidBodyType rigidBodyType;
-
 	// State variables
 	private Vec3d origin;
 	private Quaternion rotation;
 	private Vec3d linearMomentum;
 	private Vec3d angularMomentum;
-
 	// Derived quantities
 	private Matrix4d InertialTensor;
 	private Matrix4d Iinv;
 	private Vec3d velocity;
 	private Vec3d angularVelocity;
-
 	// Computer quantities
 	private Vec3d force;
 	private Vec3d torque;
-
 	// Impulse
 	private Vec3d pos = Vec3d.ZERO;
 	private Vec3d momentumImpulse = Vec3d.ZERO;
@@ -167,6 +164,23 @@ public class RigidBody {
 		return torque;
 	}
 
+	public void setData(RigidBody newRigidBody) {
+		origin = origin.add(newRigidBody.getOrigin());
+		rotation = rotation.add(newRigidBody.getRotation());
+		linearMomentum = linearMomentum.add(newRigidBody.getLinearMomentum());
+		angularMomentum = angularMomentum.add(newRigidBody.getAngularMomentum());
+
+		InertialTensor = newRigidBody.getInertialTensor();
+		Iinv = newRigidBody.getIinv();
+		velocity = newRigidBody.getVelocity();
+		angularVelocity = newRigidBody.getAngularVelocity();
+		force = newRigidBody.getForce();
+		torque = newRigidBody.getTorque();
+		pos = Vec3d.ZERO;
+		momentumImpulse = Vec3d.ZERO;
+		angularMomentumImpulse = Vec3d.ZERO;
+	}
+
 	public RigidBody incrementAndCopy(RigidBodyODEReturnData increment) {
 		Vec3d newX = origin.add(increment.Xdot);
 		Quaternion newRotation = rotation.add(increment.Qdot);
@@ -225,5 +239,15 @@ public class RigidBody {
 	private void setAngularMomentum(Vec3d angularMomentum) {
 		this.angularMomentum = angularMomentum;
 		this.angularVelocity = calcAngularVelocity(Iinv, angularMomentum);
+	}
+
+	public void resetAngularMomentum() {
+		this.angularMomentum = Vec3d.ZERO;
+		this.angularVelocity = calcAngularVelocity(Iinv, angularMomentum);
+	}
+
+	public void resetLinearMomentum() {
+		this.linearMomentum = Vec3d.ZERO;
+		this.linearMomentum = linearMomentum.scale(1/mass);
 	}
 }

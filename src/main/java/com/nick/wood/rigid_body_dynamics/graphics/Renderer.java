@@ -33,10 +33,9 @@ public class Renderer {
 
 			// uniform is transformation matrix
 			Matrix4d transform = meshObject.getTransformation().multiply(Matrix4d.Transform(gameObject.getPosition(), gameObject.getRotation(), gameObject.getScale()));
-			Matrix4d view = Matrix4d.View(camera.getPos(), camera.getRot());
 			shader.setUniform("model", transform);
 			shader.setUniform("projection", projectionMatrix);
-			shader.setUniform("view", view);
+			shader.setUniform("view", camera.getView());
 
 			GL11.glDrawElements(GL11.GL_TRIANGLES, meshObject.getMesh().getIndices().length, GL11.GL_UNSIGNED_INT, 0);
 
