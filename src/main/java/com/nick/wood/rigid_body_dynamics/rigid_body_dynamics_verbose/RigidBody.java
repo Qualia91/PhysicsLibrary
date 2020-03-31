@@ -25,17 +25,21 @@ public class RigidBody {
 	private Matrix4d InertialTensor;
 	private Matrix4d Iinv;
 	private Vec3d velocity;
-	private final Vec3d angularVelocity;
+	private Vec3d angularVelocity;
 
 	// Computer quantities
 	private Vec3d force;
 	private Vec3d torque;
-	private Vec3d moveOriginBy = Vec3d.ZERO;
+
+	// Impulse
+	private Vec3d pos = Vec3d.ZERO;
+	private Vec3d momentumImpulse = Vec3d.ZERO;
+	private Vec3d angularMomentumImpulse = Vec3d.ZERO;
 
 	public RigidBody(double density, Vec3d dimensions, Vec3d origin, Quaternion rotation, Vec3d linearMomentum, Vec3d angularMomentum, RigidBodyType rigidBodyType) {
 		this.density = density;
 		this.dimensions = dimensions;
-		this.mass = dimensions.length() * density;
+		this.mass = dimensions.getX() * dimensions.getZ() * dimensions.getZ() * density;
 		this.origin = origin;
 		this.rotation = rotation.normalise();
 		this.linearMomentum = linearMomentum;
@@ -189,12 +193,33 @@ public class RigidBody {
 		this.linearMomentum = velocity.scale(mass);
 	}
 
-	public void moveOrigin(Vec3d newOrigin) {
-		this.moveOriginBy = this.moveOriginBy.add(newOrigin);
+	public void setAngularVelocity(Vec3d newAngularVelocity) {
+		this.angularVelocity = newAngularVelocity;
+		this.angularMomentum = InertialTensor.multiply(this.angularVelocity);
 	}
 
-	public void updateOrigins() {
-		this.origin = this.origin.add(moveOriginBy);
-		moveOriginBy = Vec3d.ZERO;
+	public void addImpulse(Vec3d pos, Vec3d momentum, Vec3d angularMomentum) {
+		this.pos = this.pos.add(pos);
+		this.momentumImpulse = this.momentumImpulse.add(momentum);
+		this.angularMomentumImpulse = this.angularMomentumImpulse.add(angularMomentum);
+	}
+
+	public void applyImpulse() {
+		this.origin = this.origin.add(pos);
+		setMomentum(this.linearMomentum.add(momentumImpulse));
+		setAngularMomentum(this.angularMomentum.add(angularMomentumImpulse));
+		this.pos = Vec3d.ZERO;
+		this.momentumImpulse = Vec3d.ZERO;
+		this.angularMomentumImpulse = Vec3d.ZERO;
+	}
+
+	private void setMomentum(Vec3d linearMomentum) {
+		this.linearMomentum = linearMomentum;
+		this.velocity = linearMomentum.scale(1/mass);
+	}
+
+	private void setAngularMomentum(Vec3d angularMomentum) {
+		this.angularMomentum = angularMomentum;
+		this.angularVelocity = calcAngularVelocity(Iinv, angularMomentum);
 	}
 }

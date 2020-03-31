@@ -10,12 +10,15 @@ import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
 import com.nick.wood.rigid_body_dynamics.particle_system_dynamics_verbose.Plane;
 import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.ode.RigidBodyODEReturnData;
 import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.ode.RungeKutta;
+import org.lwjgl.system.CallbackI;
 
 import java.util.*;
 
 public class Simulation implements SimulationInterface {
 
 	private static final double COLLISION_CONST = 0.8;
+	private static final double Cr = 1;
+	private static final double LOADING_FACTOR_CONST = 2.0 / 3.0;
 	private final RungeKutta rungeKutta;
 
 	HashMap<UUID, RigidBody> uuidRigidBodyHashMap = new HashMap<>();
@@ -43,37 +46,39 @@ public class Simulation implements SimulationInterface {
 			}
 		);
 
-		//for (int i = 0; i < 2; i++) {
-		//		Vec3d mom = Vec3d.Y.scale(0);
-		//		if (i == 1) {
-		//			mom = mom.neg();
-		//		}
-		//		RigidBody rigidBody = new RigidBody(1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(0.0, i*2, 0.0), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, Vec3d.ZERO, RigidBodyType.SPHERE);
-		//		UUID uuid = UUID.randomUUID();
-		//		uuidRigidBodyHashMap.put(uuid, rigidBody);
-		//		uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
-		//}
+		for (int j = 0; j < 10; j++) {
+			for (int i = 0; i < 2; i++) {
+				Vec3d mom = Vec3d.Y.scale(2 * i);
+				if (i == 1) {
+					mom = mom.neg();
+				}
+				RigidBody rigidBody = new RigidBody(1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(j*1.5, i * 8, 0.0), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, Vec3d.Z.scale(0.5).scale(j), RigidBodyType.SPHERE);
+				UUID uuid = UUID.randomUUID();
+				uuidRigidBodyHashMap.put(uuid, rigidBody);
+				uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
+			}
+		}
 
-		for (int i = 0; i < 10; i++) {
-			Vec3d mom = Vec3d.Y.scale(10);
-			if (i == 9) {
-				mom = mom.neg().scale(2);
-			}
-			RigidBody rigidBody = new RigidBody(i, new Vec3d(1.0, 1.0, 1.0), new Vec3d(0.0, i*2, 0.0), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, Vec3d.ZERO, RigidBodyType.SPHERE);
-			UUID uuid = UUID.randomUUID();
-			uuidRigidBodyHashMap.put(uuid, rigidBody);
-			uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
-		}
-		for (int i = 0; i < 10; i++) {
-			Vec3d mom = Vec3d.Y.scale(10).add(Vec3d.Z.scale(10));
-			if (i == 9) {
-				mom = mom.neg().scale(2);
-			}
-			RigidBody rigidBody = new RigidBody(i, new Vec3d(1.0, 1.0, 1.0), new Vec3d(0.0, i*2, 2.0), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, Vec3d.ZERO, RigidBodyType.SPHERE);
-			UUID uuid = UUID.randomUUID();
-			uuidRigidBodyHashMap.put(uuid, rigidBody);
-			uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
-		}
+		//for (int i = 0; i < 10; i++) {
+		//	Vec3d mom = Vec3d.Y.scale(10);
+		//	if (i == 9) {
+		//		mom = mom.neg().scale(2);
+		//	}
+		//	RigidBody rigidBody = new RigidBody(i, new Vec3d(1.0, 1.0, 1.0), new Vec3d(0.0, i*2, 0.0), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, Vec3d.ZERO, RigidBodyType.SPHERE);
+		//	UUID uuid = UUID.randomUUID();
+		//	uuidRigidBodyHashMap.put(uuid, rigidBody);
+		//	uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
+		//}
+		//for (int i = 0; i < 10; i++) {
+		//	Vec3d mom = Vec3d.Y.scale(10).add(Vec3d.Z.scale(10));
+		//	if (i == 9) {
+		//		mom = mom.neg().scale(2);
+		//	}
+		//	RigidBody rigidBody = new RigidBody(i, new Vec3d(1.0, 1.0, 1.0), new Vec3d(0.0, i*2, 2.0), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, Vec3d.ZERO, RigidBodyType.SPHERE);
+		//	UUID uuid = UUID.randomUUID();
+		//	uuidRigidBodyHashMap.put(uuid, rigidBody);
+		//	uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
+		//}
 
 		planes.add(new Plane(Vec3d.Z.scale(-10), Vec3d.Z));
 
@@ -81,8 +86,8 @@ public class Simulation implements SimulationInterface {
 
 	private Vec3d calculateForce(RigidBody rigidBody, UUID uuid, ArrayList<Force> forces) {
 
-		//return Vec3d.ZERO;
-		return new Vec3d(0.0, 0.0, -9.81 * rigidBody.getMass());
+		return Vec3d.ZERO;
+		//return new Vec3d(0.0, 0.0, -9.81 * rigidBody.getMass());
 
 	}
 
@@ -106,98 +111,105 @@ public class Simulation implements SimulationInterface {
 
 		uuidRigidBodyHashMap.forEach((uuid, rigidBody) -> {
 			RigidBody newRigidBody = rungeKutta.solve(rigidBody, uuid, deltaSeconds);
-			collisionDetection(newRigidBody, uuidRigidBodyHashMap, uuid);
-			newRigidBody.updateOrigins();
 			uuidGameObjectHashMap.get(uuid).setPosition(new Vec3d(newRigidBody.getOrigin().getX(), newRigidBody.getOrigin().getY(), newRigidBody.getOrigin().getZ()));
 			uuidGameObjectHashMap.get(uuid).setRotation(newRigidBody.getRotation().toMatrix());
 			tempMap.put(uuid, newRigidBody);
 		});
+
+		tempMap.forEach((uuid, rigidBody) -> collisionDetection(rigidBody, tempMap, uuid));
+
+		tempMap.forEach((uuid, rigidBody) -> rigidBody.applyImpulse());
 
 		uuidRigidBodyHashMap = tempMap;
 	}
 
 	private void collisionDetection(RigidBody rigidBody, HashMap<UUID, RigidBody> rigidBodyMap, UUID uuid) {
 
-		boolean collision = false;
-		double sumX = 0;
-		double sumY = 0;
-		double sumZ = 0;
-
 		for (Map.Entry<UUID, RigidBody> uuidRigidBodyEntry : rigidBodyMap.entrySet()) {
 
 			if (!uuidRigidBodyEntry.getKey().equals(uuid)) {
 
-				Optional<Vec3d> sphereCollisionVector = sphereCollision(rigidBody, uuidRigidBodyEntry.getValue());
-
-				if (sphereCollisionVector.isPresent()) {
-
-					sumX += sphereCollisionVector.get().getX();
-					sumY += sphereCollisionVector.get().getY();
-					sumZ += sphereCollisionVector.get().getZ();
-					collision = true;
-
-				}
+				sphereCollision(rigidBody, uuidRigidBodyEntry.getValue());
 
 			}
 		}
 
 		// ground collision
-		for (Plane plane : planes) {
-			// if this is bigger than 0 it hasnt collided
-			Vec3d unitVectorFromRigidBodyToPlane = rigidBody.getOrigin().subtract(plane.getCenter());
-			double radiusInThatDirection = rigidBody.getRotation().toMatrix().multiply(rigidBody.getDimensions()).dot(plane.getNormal())/2;
-			double distanceFromEdgeOfSphereToPlane = unitVectorFromRigidBodyToPlane.dot(plane.getNormal()) - radiusInThatDirection;
-			if (distanceFromEdgeOfSphereToPlane <= 0) {
-				// calculate normal component of vector
-				rigidBody.moveOrigin(plane.getNormal().scale(-distanceFromEdgeOfSphereToPlane));
-				Vec3d velInDirOfNormalOfPlane = plane.getNormal().scale(plane.getNormal().dot(rigidBody.getVelocity()) * -COLLISION_CONST * 2).add(rigidBody.getVelocity());
-				sumX += velInDirOfNormalOfPlane.getX();
-				sumY += velInDirOfNormalOfPlane.getY();
-				sumZ += velInDirOfNormalOfPlane.getZ();
-				collision = true;
-			}
-		}
-
-		if (collision) {
-			rigidBody.setVelocity(new Vec3d(sumX, sumY, sumZ));
-		}
+		//for (Plane plane : planes) {
+		//	// if this is bigger than 0 it hasnt collided
+		//	Vec3d unitVectorFromRigidBodyToPlane = rigidBody.getOrigin().subtract(plane.getCenter());
+		//	double radiusInThatDirection = rigidBody.getRotation().toMatrix().multiply(rigidBody.getDimensions()).dot(plane.getNormal())/2;
+		//	double distanceFromEdgeOfSphereToPlane = unitVectorFromRigidBodyToPlane.dot(plane.getNormal()) - radiusInThatDirection;
+		//	if (distanceFromEdgeOfSphereToPlane <= 0) {
+		//		// calculate normal component of vector
+		//		rigidBody.moveOrigin(plane.getNormal().scale(-distanceFromEdgeOfSphereToPlane));
+		//		Vec3d velInDirOfNormalOfPlane = plane.getNormal().scale(plane.getNormal().dot(rigidBody.getVelocity()) * -COLLISION_CONST * 2).add(rigidBody.getVelocity());
+		//		sumX += velInDirOfNormalOfPlane.getX();
+		//		sumY += velInDirOfNormalOfPlane.getY();
+		//		sumZ += velInDirOfNormalOfPlane.getZ();
+		//		collision = true;
+		//	}
+		//}
 
 	}
 
-	private Optional<Vec3d> sphereCollision(RigidBody rigidBody, RigidBody otherBody) {
+	private void sphereCollision(RigidBody rigidBody, RigidBody otherBody) {
 
 		// get radius of both spheres
 		// use x dimension for now
 		double rigidBodyRadius = rigidBody.getDimensions().getX() / 2;
 		double otherBodyRadius = otherBody.getDimensions().getX() / 2;
-		double totalRadSqr = (rigidBodyRadius + otherBodyRadius) * (rigidBodyRadius + otherBodyRadius);
+		double totalRadSqr = (rigidBodyRadius + otherBodyRadius);
 
 		// get vec between the 2 centers
-		Vec3d fromOtherBodyToRigid = otherBody.getOrigin().subtract(rigidBody.getOrigin());
-		double length2 = fromOtherBodyToRigid.length2();
+		Vec3d fromOtherBodyToRigid = rigidBody.getOrigin().subtract(otherBody.getOrigin());
+		double length = fromOtherBodyToRigid.length();
 
-		double collisionDist = length2 - totalRadSqr;
+		double collisionDist = length - totalRadSqr;
+
 
 		// check if collision
 		if (collisionDist < 0) {
 
-			rigidBody.moveOrigin(fromOtherBodyToRigid.normalise().scale(collisionDist));
-			otherBody.moveOrigin(fromOtherBodyToRigid.normalise().neg().scale(collisionDist));
-			double massSum = rigidBody.getMass() + otherBody.getMass();
-			double constant = (2 * otherBody.getMass())/(massSum);
-			Vec3d v1mv2 = rigidBody.getVelocity().subtract(otherBody.getVelocity());
-			Vec3d x1mx2 = rigidBody.getOrigin().subtract(otherBody.getOrigin());
-			double len2 = x1mx2.length2();
-			double innerProd = v1mv2.dot(x1mx2);
-			double val = constant * (innerProd/len2);
+			Vec3d nRigidBody = fromOtherBodyToRigid.normalise();
+			Vec3d nOtherBody = nRigidBody.neg();
 
-			Vec3d newVel = rigidBody.getVelocity().subtract(x1mx2.scale(val));
+			Vec3d displacementFromCenterOfRotationToPointOfContactRigidBody = nOtherBody.scale(0.5);
+			Vec3d displacementFromCenterOfRotationToPointOfContactOtherBody = nRigidBody.scale(0.5);
 
-			// collision, get impulse that needs to happen
-			return Optional.of(newVel);
+			// diff in vel, +ve towards rigid body
+			Vec3d totalVelocityRigidBody = rigidBody.getVelocity().add(rigidBody.getAngularVelocity().cross(displacementFromCenterOfRotationToPointOfContactRigidBody));
+			Vec3d totalVelocityOtherBody = otherBody.getVelocity().add(otherBody.getAngularVelocity().cross(displacementFromCenterOfRotationToPointOfContactOtherBody));
+			Vec3d diffInVelocitiesWithAngular = totalVelocityRigidBody.subtract(totalVelocityOtherBody);
+			Vec3d diffInVelocities = rigidBody.getVelocity().subtract(otherBody.getVelocity());
+
+			Vec3d rigidBodyPart = rigidBody.getIinv().multiply(displacementFromCenterOfRotationToPointOfContactRigidBody.cross(nRigidBody)).cross(displacementFromCenterOfRotationToPointOfContactRigidBody);
+			Vec3d otherBodyPart = otherBody.getIinv().multiply(displacementFromCenterOfRotationToPointOfContactOtherBody.cross(nRigidBody)).cross(displacementFromCenterOfRotationToPointOfContactOtherBody);
+
+			double weirdAngularPartOfJ = (rigidBodyPart.add(otherBodyPart).dot(nRigidBody));
+
+			// calculate j
+			double jLinear = -(1.0 + Cr) * diffInVelocities.dot(nRigidBody) / ((1/rigidBody.getMass() + 1/otherBody.getMass()));
+			double jAngular = (-(1.0 + Cr) * diffInVelocitiesWithAngular.dot(nRigidBody)) / ((1/rigidBody.getMass() + 1/otherBody.getMass()) + weirdAngularPartOfJ);
+
+			// calculate linear velocity impulse
+			Vec3d momentumCorrectionRigidBody = nRigidBody.scale(jLinear);
+
+			// calculate angular velocity impulse
+			Vec3d angularMomentumImpulseRigidBody = displacementFromCenterOfRotationToPointOfContactRigidBody.cross(nRigidBody.cross(rigidBody.getAngularMomentum().scale(jAngular))).neg();
+			Vec3d angularMomentumImpulseOtherBody = displacementFromCenterOfRotationToPointOfContactOtherBody.cross(nOtherBody.cross(otherBody.getAngularMomentum().scale(jAngular)));
+
+			// calculate the linear momentum from angular components on collision
+			Vec3d linearMomentumImpulseRigidBody = displacementFromCenterOfRotationToPointOfContactRigidBody.cross(angularMomentumImpulseOtherBody);
+			Vec3d linearMomentumImpulseOtherBody = displacementFromCenterOfRotationToPointOfContactOtherBody.cross(angularMomentumImpulseRigidBody);
+
+			// calculate the position displacement needed so they dont overlap
+			Vec3d displacementVectorRigidBody = nRigidBody.scale(-collisionDist/2);
+
+			rigidBody.addImpulse(displacementVectorRigidBody, momentumCorrectionRigidBody.add(linearMomentumImpulseRigidBody), angularMomentumImpulseRigidBody);
+			rigidBody.addImpulse(Vec3d.ZERO, linearMomentumImpulseOtherBody, angularMomentumImpulseOtherBody);
 
 		}
-		return Optional.empty();
 	}
 
 	@Override

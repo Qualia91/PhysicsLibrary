@@ -13,10 +13,10 @@ public class Sphere implements MeshObject {
 
 	private Mesh mesh;
 
-	public Sphere(Vec3d translation, Vec3d scale, Matrix4d rotation, int triangleNumber) {
+	public Sphere(Vec3d translation, Vec3d dimensions, Matrix4d rotation, int triangleNumber) {
 
 		this.position = translation;
-		this.scale = scale;
+		this.scale = dimensions;
 		this.rotation = rotation;
 		this.triangleNumber = triangleNumber;
 
@@ -96,7 +96,6 @@ public class Sphere implements MeshObject {
 						int nextIndex = nextStartIndex + i;
 						int nextNextIndex = nextStartIndex + i + 1;
 						// get vertex in the next strip equal to the current index of vertex, and +1 to this index
-						System.out.println(nextVertexArray[i]);
 						vertices[vertexStartingNumber + nextIndex] = nextVertexArray[i];
 						vertices[vertexStartingNumber + nextNextIndex] = nextVertexArray[i + 1];
 
