@@ -20,6 +20,13 @@ public class Vec3d {
 		this.z = z;
 	}
 
+	// Create a restricted vector. user for limiting momentums
+	public Vec3d(Vec3d momentumUnrestricted, double linearSpeedLimit) {
+		x = Math.min(momentumUnrestricted.getX(), linearSpeedLimit);
+		y = Math.min(momentumUnrestricted.getY(), linearSpeedLimit);
+		z = Math.min(momentumUnrestricted.getZ(), linearSpeedLimit);
+	}
+
 	public double getX() {
 		return x;
 	}

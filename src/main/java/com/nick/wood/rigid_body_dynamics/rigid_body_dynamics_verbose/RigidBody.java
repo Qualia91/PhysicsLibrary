@@ -7,6 +7,9 @@ import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.ode.RigidBo
 
 public class RigidBody {
 
+	private static final double LINEAR_SPEED_LIMIT = 50.0;
+	private static final double ANGULAR_SPEED_LIMIT = 100.0;
+
 	// const
 	private final double mass;
 	private final Matrix4d IBody;
@@ -90,7 +93,8 @@ public class RigidBody {
 	}
 
 	private Vec3d calcVelocity(Vec3d momentum, double mass) {
-		return momentum.scale(1/mass);
+		Vec3d momentumUnrestricted = momentum.scale(1 / mass);
+		return new Vec3d(momentumUnrestricted, LINEAR_SPEED_LIMIT);
 	}
 
 	private Vec3d calcMomentum(Vec3d velocity, double mass) {
@@ -112,7 +116,7 @@ public class RigidBody {
 	}
 
 	private Vec3d calcAngularVelocity(Matrix4d Iinv, Vec3d angularMomentum) {
-		return Iinv.multiply(angularMomentum);
+		return new Vec3d(Iinv.multiply(angularMomentum), ANGULAR_SPEED_LIMIT);
 	}
 
 	public double getMass() {

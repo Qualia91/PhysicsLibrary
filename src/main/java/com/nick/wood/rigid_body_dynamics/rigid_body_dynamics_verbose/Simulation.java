@@ -16,9 +16,7 @@ import java.util.*;
 
 public class Simulation implements SimulationInterface {
 
-	private static final double COLLISION_CONST = 0.8;
 	private static final double Cr = 1;
-	private static final double LOADING_FACTOR_CONST = 2.0 / 3.0;
 	private final RungeKutta rungeKutta;
 
 	HashMap<UUID, RigidBody> uuidRigidBodyHashMap = new HashMap<>();
@@ -52,7 +50,7 @@ public class Simulation implements SimulationInterface {
 				if (i == 1) {
 					mom = mom.neg();
 				}
-				RigidBody rigidBody = new RigidBody(1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(j*1.5, i * 8, 0.0), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, Vec3d.Z.scale(0.5).scale(j), RigidBodyType.SPHERE);
+				RigidBody rigidBody = new RigidBody(1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(j*1.5, i * 8, 0.0), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, Vec3d.Z.scale(0.1).scale(j), RigidBodyType.SPHERE);
 				UUID uuid = UUID.randomUUID();
 				uuidRigidBodyHashMap.put(uuid, rigidBody);
 				uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
@@ -80,7 +78,7 @@ public class Simulation implements SimulationInterface {
 		//	uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
 		//}
 
-		planes.add(new Plane(Vec3d.Z.scale(-10), Vec3d.Z));
+		//planes.add(new Plane(Vec3d.Z.scale(-10), Vec3d.Z));
 
 	}
 
@@ -174,8 +172,8 @@ public class Simulation implements SimulationInterface {
 			Vec3d nRigidBody = fromOtherBodyToRigid.normalise();
 			Vec3d nOtherBody = nRigidBody.neg();
 
-			Vec3d displacementFromCenterOfRotationToPointOfContactRigidBody = nOtherBody.scale(0.5);
-			Vec3d displacementFromCenterOfRotationToPointOfContactOtherBody = nRigidBody.scale(0.5);
+			Vec3d displacementFromCenterOfRotationToPointOfContactRigidBody = nOtherBody.scale(rigidBodyRadius);
+			Vec3d displacementFromCenterOfRotationToPointOfContactOtherBody = nRigidBody.scale(otherBodyRadius);
 
 			// diff in vel, +ve towards rigid body
 			Vec3d totalVelocityRigidBody = rigidBody.getVelocity().add(rigidBody.getAngularVelocity().cross(displacementFromCenterOfRotationToPointOfContactRigidBody));
