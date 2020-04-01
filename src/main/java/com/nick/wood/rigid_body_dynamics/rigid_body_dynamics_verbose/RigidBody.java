@@ -231,6 +231,11 @@ public class RigidBody {
 		this.angularMomentumImpulse = Vec3d.ZERO;
 	}
 
+	public void setMomentums(Vec3d linearMomentum, Vec3d angularMomentum) {
+		setMomentum(linearMomentum);
+		setAngularMomentum(angularMomentum);
+	}
+
 	private void setMomentum(Vec3d linearMomentum) {
 		this.linearMomentum = linearMomentum;
 		this.velocity = linearMomentum.scale(1/mass);

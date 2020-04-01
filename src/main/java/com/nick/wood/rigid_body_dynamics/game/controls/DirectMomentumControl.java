@@ -1,8 +1,9 @@
 package com.nick.wood.rigid_body_dynamics.game.controls;
 
+import com.nick.wood.rigid_body_dynamics.maths.Matrix4d;
 import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
 
-public class DirectMomentumControl {
+public class DirectMomentumControl implements Control {
 
 	private double sensitivity;
 	private double moveSpeed;
@@ -14,17 +15,9 @@ public class DirectMomentumControl {
 		this.moveSpeed = moveSpeed;
 	}
 
-	public void resetImpulses() {
+	public void reset() {
 		linearMomentumImpulse = Vec3d.ZERO;
 		angularMomentumImpulse = Vec3d.ZERO;
-	}
-
-	public Vec3d getLinearMomentumImpulse() {
-		return linearMomentumImpulse;
-	}
-
-	public Vec3d getAngularMomentumImpulse() {
-		return angularMomentumImpulse;
 	}
 
 	public void mouseMove(double dx, double dy) {
@@ -50,21 +43,41 @@ public class DirectMomentumControl {
 		//linearMomentumImpulse = Vec3d.X.scale(-moveSpeed);
 	}
 
-	public void leftAngular() {
+	public void leftRoll() {
 		angularMomentumImpulse = Vec3d.Z.scale(sensitivity);
 	}
-	public void rightAngular() {
+	public void rightRoll() {
 		angularMomentumImpulse = Vec3d.Z.scale(-sensitivity);
 	}
-	public void upAngular() {
+	public void upPitch() {
 		angularMomentumImpulse = Vec3d.Y.scale(sensitivity);
 	}
-	public void downAngular() {
+	public void downPitch() {
 		angularMomentumImpulse = Vec3d.Y.scale(-sensitivity);
+	}
+
+	@Override
+	public void leftYaw() {
+
+	}
+
+	@Override
+	public void rightYaw() {
+
 	}
 
 	public void action() {
 		//uuidRigidBodyHashMap.get(playerRigidBodyUUID).resetLinearMomentum();
 		//uuidRigidBodyHashMap.get(playerRigidBodyUUID).resetAngularMomentum();
+	}
+
+	@Override
+	public Vec3d getLinearMomentum(Matrix4d rotation, Vec3d currentLinearMomentum) {
+		return currentLinearMomentum.add(rotation.multiply(linearMomentumImpulse));
+	}
+
+	@Override
+	public Vec3d getAngularMomentum(Matrix4d rotation, Vec3d currentAngularMomentum) {
+		return currentAngularMomentum.add(rotation.multiply(angularMomentumImpulse));
 	}
 }

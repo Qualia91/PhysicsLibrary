@@ -1,7 +1,8 @@
 package com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose;
 
 import com.nick.wood.rigid_body_dynamics.SimulationInterface;
-import com.nick.wood.rigid_body_dynamics.game.controls.DirectMomentumControl;
+import com.nick.wood.rigid_body_dynamics.game.controls.Control;
+import com.nick.wood.rigid_body_dynamics.game.controls.FlightAssistControl;
 import com.nick.wood.rigid_body_dynamics.game.controls.Inputs;
 import com.nick.wood.rigid_body_dynamics.game.game_objects.GameObject;
 import com.nick.wood.rigid_body_dynamics.game.game_objects.PlayerGameObject;
@@ -25,7 +26,7 @@ public class Simulation implements SimulationInterface {
 	private final RungeKutta rungeKutta;
 	private final Inputs input;
 	private final UUID playerRigidBodyUUID;
-	private final DirectMomentumControl directMomentumControl;
+	private final Control control;
 
 	HashMap<UUID, RigidBody> uuidRigidBodyHashMap = new HashMap<>();
 	HashMap<UUID, GameObject> uuidGameObjectHashMap = new HashMap<>();
@@ -39,7 +40,7 @@ public class Simulation implements SimulationInterface {
 
 		this.input = input;
 
-		this.directMomentumControl = new DirectMomentumControl(0.001, 1.0);
+		this.control = new FlightAssistControl(0.005, 5.0);
 
 		this.rungeKutta = new RungeKutta(
 			(RigidBody rigidBody, UUID uuid) -> {
@@ -61,22 +62,22 @@ public class Simulation implements SimulationInterface {
 		);
 
 		// demo 1: 2 lines interacting
-		for (int j = 0; j < 10; j++) {
-			for (int i = 0; i < 2; i++) {
-				Vec3d mom = Vec3d.Y.scale(2 * i);
-				if (i == 1) {
-					mom = mom.neg();
-				}
-				RigidBody rigidBody = new RigidBody(1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(j*1.5, i * 8, 0.0), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, Vec3d.Z.scale(0.01).scale(j), RigidBodyType.SPHERE);
-				UUID uuid = UUID.randomUUID();
-				uuidRigidBodyHashMap.put(uuid, rigidBody);
-				uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
-			}
-		}
+		//for (int j = 0; j < 10; j++) {
+		//	for (int i = 0; i < 2; i++) {
+		//		Vec3d mom = Vec3d.Y.scale(2 * i);
+		//		if (i == 1) {
+		//			mom = mom.neg();
+		//		}
+		//		RigidBody rigidBody = new RigidBody(1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(j*1.5, i * 8, 0.0), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, Vec3d.Z.scale(0.01).scale(j), RigidBodyType.SPHERE);
+		//		UUID uuid = UUID.randomUUID();
+		//		uuidRigidBodyHashMap.put(uuid, rigidBody);
+		//		uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
+		//	}
+		//}
 
 		// create player
 		playerRigidBodyUUID = UUID.randomUUID();
-		RigidBody playerRigidBody = new RigidBody(1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(-5, 0, 0.0), new Quaternion(1.0, 0.0, 0.0, 0.0), Vec3d.ZERO, Vec3d.Z.scale(0.0), RigidBodyType.SPHERE);
+		RigidBody playerRigidBody = new RigidBody(1, new Vec3d(2.0, 2.0, 1.0), new Vec3d(-5, 0, 0.0), new Quaternion(1.0, 0.0, 0.0, 0.0), Vec3d.ZERO, Vec3d.Z.scale(0.0), RigidBodyType.SPHERE);
 		uuidRigidBodyHashMap.put(playerRigidBodyUUID, playerRigidBody);
 
 		MeshGroup meshGroup = new MeshGroup();
@@ -93,19 +94,19 @@ public class Simulation implements SimulationInterface {
 
 
 		// demo 2: random box
-		//Random random = new Random();
-		//for (int k = 0; k < 10; k++) {
-		//	for (int j = 0; j < 10; j++) {
-		//		for (int i = 0; i < 10; i++) {
-		//			Vec3d mom = Vec3d.X.scale(random.nextInt(10) - 4).add(Vec3d.Y.scale(random.nextInt(10) - 4)).add(Vec3d.Z.scale(random.nextInt(10) - 4));
-		//			Vec3d angMom = Vec3d.X.scale(random.nextInt(10) - 4).add(Vec3d.Y.scale(random.nextInt(10) - 4)).add(Vec3d.Z.scale(random.nextInt(10) - 4));
-		//			RigidBody rigidBody = new RigidBody(1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(j * 10, i * 10, k*10), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, angMom.scale(0.02), RigidBodyType.SPHERE);
-		//			UUID uuid = UUID.randomUUID();
-		//			uuidRigidBodyHashMap.put(uuid, rigidBody);
-		//			uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
-		//		}
-		//	}
-		//}
+		Random random = new Random();
+		for (int k = 0; k < 10; k++) {
+			for (int j = 0; j < 10; j++) {
+				for (int i = 0; i < 10; i++) {
+					Vec3d mom = Vec3d.X.scale(random.nextInt(10) - 4).add(Vec3d.Y.scale(random.nextInt(10) - 4)).add(Vec3d.Z.scale(random.nextInt(10) - 4));
+					Vec3d angMom = Vec3d.X.scale(random.nextInt(10) - 4).add(Vec3d.Y.scale(random.nextInt(10) - 4)).add(Vec3d.Z.scale(random.nextInt(10) - 4));
+					RigidBody rigidBody = new RigidBody(1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(j * 10, i * 10, k*10), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, angMom.scale(0.02), RigidBodyType.SPHERE);
+					UUID uuid = UUID.randomUUID();
+					uuidRigidBodyHashMap.put(uuid, rigidBody);
+					uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
+				}
+			}
+		}
 
 		// demo 3: big bang
 		//Random random = new Random();
@@ -158,36 +159,47 @@ public class Simulation implements SimulationInterface {
 		oldMouseX = newMouseX;
 		oldMouseY = newMouseY;
 
-		System.out.println(dx);
-		System.out.println(dy);
-
 		if (Math.abs(dx) > 0.0000001 && Math.abs(dy) > 0.0000001) {
-			directMomentumControl.mouseMove(dx, dy);
+			control.mouseMove(dx, dy);
 		}
 
 		if (input.isKeyPressed(GLFW_KEY_A)) {
-			directMomentumControl.leftLinear();
+			control.leftLinear();
 		}
 		if (input.isKeyPressed(GLFW_KEY_W)) {
-			directMomentumControl.forwardLinear();
+			control.forwardLinear();
 		}
 		if (input.isKeyPressed(GLFW_KEY_D)) {
-			directMomentumControl.rightLinear();
+			control.rightLinear();
 		}
 		if (input.isKeyPressed(GLFW_KEY_S)) {
-			directMomentumControl.backLinear();
+			control.backLinear();
+		}
+		if (input.isKeyPressed(GLFW_KEY_Q)) {
+			control.upLinear();
+		}
+		if (input.isKeyPressed(GLFW_KEY_E)) {
+			control.downLinear();
 		}
 		if (input.isKeyPressed(GLFW_KEY_LEFT)) {
-			directMomentumControl.leftAngular();
+			if (input.isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
+				control.leftYaw();
+			} else {
+				control.leftRoll();
+			}
 		}
 		if (input.isKeyPressed(GLFW_KEY_RIGHT)) {
-			directMomentumControl.rightAngular();
+			if (input.isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
+				control.rightYaw();
+			} else {
+				control.rightRoll();
+			}
 		}
 		if (input.isKeyPressed(GLFW_KEY_UP)) {
-			directMomentumControl.upAngular();
+			control.upPitch();
 		}
 		if (input.isKeyPressed(GLFW_KEY_DOWN)) {
-			directMomentumControl.downAngular();
+			control.downPitch();
 		}
 
 		if (input.isKeyPressed(GLFW_KEY_SPACE)) {
@@ -201,9 +213,9 @@ public class Simulation implements SimulationInterface {
 		for (Map.Entry<UUID, RigidBody> uuidRigidBodyEntry : uuidRigidBodyHashMap.entrySet()) {
 
 			if (uuidRigidBodyEntry.getKey().equals(playerRigidBodyUUID)) {
-				uuidRigidBodyEntry.getValue().addImpulse(Vec3d.ZERO, uuidRigidBodyEntry.getValue().getRotation().toMatrix().multiply(directMomentumControl.getLinearMomentumImpulse()), uuidRigidBodyEntry.getValue().getRotation().toMatrix().multiply(directMomentumControl.getAngularMomentumImpulse()));
-				uuidRigidBodyEntry.getValue().applyImpulse();
-				directMomentumControl.resetImpulses();
+				uuidRigidBodyEntry.getValue().setMomentums(control.getLinearMomentum(uuidRigidBodyEntry.getValue().getRotation().toMatrix(), uuidRigidBodyEntry.getValue().getLinearMomentum()), control.getAngularMomentum(uuidRigidBodyEntry.getValue().getRotation().toMatrix(), uuidRigidBodyEntry.getValue().getAngularMomentum()));
+
+				control.reset();
 			}
 			tempMap.put(uuidRigidBodyEntry.getKey(), rungeKutta.solve(uuidRigidBodyEntry.getValue(), uuidRigidBodyEntry.getKey(), deltaSeconds));
 		};
