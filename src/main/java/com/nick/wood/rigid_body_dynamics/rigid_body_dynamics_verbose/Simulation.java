@@ -2,6 +2,7 @@ package com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose;
 
 import com.nick.wood.rigid_body_dynamics.SimulationInterface;
 import com.nick.wood.rigid_body_dynamics.game.controls.Control;
+import com.nick.wood.rigid_body_dynamics.game.controls.DirectMomentumControl;
 import com.nick.wood.rigid_body_dynamics.game.controls.FlightAssistControl;
 import com.nick.wood.rigid_body_dynamics.game.controls.Inputs;
 import com.nick.wood.rigid_body_dynamics.game.game_objects.GameObject;
@@ -62,22 +63,22 @@ public class Simulation implements SimulationInterface {
 		);
 
 		// demo 1: 2 lines interacting
-		//for (int j = 0; j < 10; j++) {
-		//	for (int i = 0; i < 2; i++) {
-		//		Vec3d mom = Vec3d.Y.scale(2 * i);
-		//		if (i == 1) {
-		//			mom = mom.neg();
-		//		}
-		//		RigidBody rigidBody = new RigidBody(1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(j*1.5, i * 8, 0.0), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, Vec3d.Z.scale(0.01).scale(j), RigidBodyType.SPHERE);
-		//		UUID uuid = UUID.randomUUID();
-		//		uuidRigidBodyHashMap.put(uuid, rigidBody);
-		//		uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
-		//	}
-		//}
+		for (int j = 0; j < 10; j++) {
+			for (int i = 0; i < 2; i++) {
+				Vec3d mom = Vec3d.Y.scale(4 * i);
+				if (i == 1) {
+					mom = mom.neg();
+				}
+				RigidBody rigidBody = new RigidBody(1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(j*1.5, i * 8, 0.0), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, Vec3d.Z.scale(0.01).scale(j), RigidBodyType.SPHERE);
+				UUID uuid = UUID.randomUUID();
+				uuidRigidBodyHashMap.put(uuid, rigidBody);
+				uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
+			}
+		}
 
 		// create player
 		playerRigidBodyUUID = UUID.randomUUID();
-		RigidBody playerRigidBody = new RigidBody(1, new Vec3d(2.0, 2.0, 1.0), new Vec3d(-5, 0, 0.0), new Quaternion(1.0, 0.0, 0.0, 0.0), Vec3d.ZERO, Vec3d.Z.scale(0.0), RigidBodyType.SPHERE);
+		RigidBody playerRigidBody = new RigidBody(1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(0.0, -2, 0.0), new Quaternion(1.0, 0.0, 0.0, 0.0), Vec3d.ZERO, Vec3d.Z.scale(0.0), RigidBodyType.SPHERE);
 		uuidRigidBodyHashMap.put(playerRigidBodyUUID, playerRigidBody);
 
 		MeshGroup meshGroup = new MeshGroup();
@@ -94,19 +95,19 @@ public class Simulation implements SimulationInterface {
 
 
 		// demo 2: random box
-		Random random = new Random();
-		for (int k = 0; k < 10; k++) {
-			for (int j = 0; j < 10; j++) {
-				for (int i = 0; i < 10; i++) {
-					Vec3d mom = Vec3d.X.scale(random.nextInt(10) - 4).add(Vec3d.Y.scale(random.nextInt(10) - 4)).add(Vec3d.Z.scale(random.nextInt(10) - 4));
-					Vec3d angMom = Vec3d.X.scale(random.nextInt(10) - 4).add(Vec3d.Y.scale(random.nextInt(10) - 4)).add(Vec3d.Z.scale(random.nextInt(10) - 4));
-					RigidBody rigidBody = new RigidBody(1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(j * 10, i * 10, k*10), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, angMom.scale(0.02), RigidBodyType.SPHERE);
-					UUID uuid = UUID.randomUUID();
-					uuidRigidBodyHashMap.put(uuid, rigidBody);
-					uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
-				}
-			}
-		}
+		//Random random = new Random();
+		//for (int k = 0; k < 10; k++) {
+		//	for (int j = 0; j < 10; j++) {
+		//		for (int i = 0; i < 10; i++) {
+		//			Vec3d mom = Vec3d.X.scale(random.nextInt(10) - 4).add(Vec3d.Y.scale(random.nextInt(10) - 4)).add(Vec3d.Z.scale(random.nextInt(10) - 4));
+		//			Vec3d angMom = Vec3d.X.scale(random.nextInt(10) - 4).add(Vec3d.Y.scale(random.nextInt(10) - 4)).add(Vec3d.Z.scale(random.nextInt(10) - 4));
+		//			RigidBody rigidBody = new RigidBody(1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(j * 10, i * 10, k*10), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, angMom.scale(0.02), RigidBodyType.SPHERE);
+		//			UUID uuid = UUID.randomUUID();
+		//			uuidRigidBodyHashMap.put(uuid, rigidBody);
+		//			uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
+		//		}
+		//	}
+		//}
 
 		// demo 3: big bang
 		//Random random = new Random();
@@ -154,13 +155,19 @@ public class Simulation implements SimulationInterface {
 
 		newMouseX = input.getMouseX();
 		newMouseY = input.getMouseY();
+		if (Math.abs(oldMouseX) <= 0.000001) {
+			oldMouseX = newMouseX;
+		}
+		if (Math.abs(oldMouseY) <= 0.000001) {
+			oldMouseY = newMouseY;
+		}
 		double dx = newMouseX - oldMouseX;
 		double dy = newMouseY - oldMouseY;
 		oldMouseX = newMouseX;
 		oldMouseY = newMouseY;
 
-		if (Math.abs(dx) > 0.0000001 && Math.abs(dy) > 0.0000001) {
-			control.mouseMove(dx, dy);
+		if (Math.abs(dx) > 0.00001 && Math.abs(dy) > 0.00001) {
+			control.mouseMove(Math.copySign(Math.min(Math.abs(dx), 100.0), dx)  , Math.copySign(Math.min(Math.abs(dy), 100.0), dy), input.isKeyPressed(GLFW_KEY_LEFT_SHIFT));
 		}
 
 		if (input.isKeyPressed(GLFW_KEY_A)) {

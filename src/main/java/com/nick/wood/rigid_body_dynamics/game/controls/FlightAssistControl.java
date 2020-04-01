@@ -41,13 +41,17 @@ public class FlightAssistControl implements Control {
 		return currentSpeed;
 	}
 
-	public void mouseMove(double dx, double dy) {
-		speedZRotate = addToValueWithMax(speedZRotate, -dx*sensitivity*0.1, maxRotation);
-		speedYRotate = addToValueWithMax(speedYRotate, dy*sensitivity*0.1, maxRotation);
+	public void mouseMove(double dx, double dy, boolean shiftPressed) {
+		if (shiftPressed) {
+			speedXRotate = addToValueWithMax(speedXRotate, -dx * sensitivity * 0.01, maxRotation);
+		} else {
+			speedZRotate = addToValueWithMax(speedZRotate, -dx * sensitivity * 0.01, maxRotation);
+		}
+		speedYRotate = addToValueWithMax(speedYRotate, dy * sensitivity * 0.01, maxRotation);
 	}
 
 	private double addToValueWithMax(double val, double add, double max) {
-		if (val < max) {
+		if (Math.abs(val) < max) {
 			return val + add;
 		} else {
 			return val;
@@ -93,8 +97,6 @@ public class FlightAssistControl implements Control {
 	}
 
 	public void action() {
-		//uuidRigidBodyHashMap.get(playerRigidBodyUUID).resetLinearMomentum();
-		//uuidRigidBodyHashMap.get(playerRigidBodyUUID).resetAngularMomentum();
 	}
 
 	@Override

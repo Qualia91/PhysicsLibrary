@@ -20,7 +20,7 @@ public class DirectMomentumControl implements Control {
 		angularMomentumImpulse = Vec3d.ZERO;
 	}
 
-	public void mouseMove(double dx, double dy) {
+	public void mouseMove(double dx, double dy, boolean shiftPressed) {
 		angularMomentumImpulse = new Vec3d(0.0, -dy*sensitivity*0.001,-dx*sensitivity*0.001);
 	}
 

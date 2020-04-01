@@ -6,7 +6,7 @@ import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
 public interface Control {
 
 	void reset();
-	void mouseMove(double dx, double dy);
+	void mouseMove(double dx, double dy, boolean shiftPressed);
 	void leftLinear();
 	void rightLinear();
 	void forwardLinear();
