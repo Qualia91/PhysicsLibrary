@@ -1,7 +1,7 @@
 package com.nick.wood.rigid_body_dynamics;
 
-import com.nick.wood.rigid_body_dynamics.graphics.Inputs;
-import com.nick.wood.rigid_body_dynamics.graphics.objects.GameObject;
+import com.nick.wood.rigid_body_dynamics.game.controls.Inputs;
+import com.nick.wood.rigid_body_dynamics.game.game_objects.GameObject;
 import com.nick.wood.rigid_body_dynamics.particle_system_dynamics_verbose.Plane;
 
 import java.util.ArrayList;

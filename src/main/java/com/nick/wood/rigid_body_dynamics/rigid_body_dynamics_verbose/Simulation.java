@@ -1,8 +1,12 @@
 package com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose;
 
 import com.nick.wood.rigid_body_dynamics.SimulationInterface;
-import com.nick.wood.rigid_body_dynamics.graphics.Inputs;
-import com.nick.wood.rigid_body_dynamics.graphics.objects.*;
+import com.nick.wood.rigid_body_dynamics.game.controls.DirectMomentumControl;
+import com.nick.wood.rigid_body_dynamics.game.controls.Inputs;
+import com.nick.wood.rigid_body_dynamics.game.game_objects.GameObject;
+import com.nick.wood.rigid_body_dynamics.game.game_objects.PlayerGameObject;
+import com.nick.wood.rigid_body_dynamics.game.game_objects.RigidBodyGameObject;
+import com.nick.wood.rigid_body_dynamics.graphics.mesh_objects.*;
 import com.nick.wood.rigid_body_dynamics.maths.Matrix4d;
 import com.nick.wood.rigid_body_dynamics.maths.Quaternion;
 import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
@@ -17,10 +21,11 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_RIGHT;
 
 public class Simulation implements SimulationInterface {
 
-	private static final double Cr = 1;
+	private static final double Cr = 0.5;
 	private final RungeKutta rungeKutta;
 	private final Inputs input;
 	private final UUID playerRigidBodyUUID;
+	private final DirectMomentumControl directMomentumControl;
 
 	HashMap<UUID, RigidBody> uuidRigidBodyHashMap = new HashMap<>();
 	HashMap<UUID, GameObject> uuidGameObjectHashMap = new HashMap<>();
@@ -29,12 +34,12 @@ public class Simulation implements SimulationInterface {
 	private double newMouseY = 0.0;
 	private double oldMouseX = 0.0;
 	private double oldMouseY = 0.0;
-	private double sensitivity = 0.001;
-	private double moveSpeed = 1.0;
 
 	public Simulation(Inputs input) {
 
 		this.input = input;
+
+		this.directMomentumControl = new DirectMomentumControl(0.001, 1.0);
 
 		this.rungeKutta = new RungeKutta(
 			(RigidBody rigidBody, UUID uuid) -> {
@@ -58,7 +63,7 @@ public class Simulation implements SimulationInterface {
 		// demo 1: 2 lines interacting
 		for (int j = 0; j < 10; j++) {
 			for (int i = 0; i < 2; i++) {
-				Vec3d mom = Vec3d.Y.scale(0 * i);
+				Vec3d mom = Vec3d.Y.scale(2 * i);
 				if (i == 1) {
 					mom = mom.neg();
 				}
@@ -71,7 +76,7 @@ public class Simulation implements SimulationInterface {
 
 		// create player
 		playerRigidBodyUUID = UUID.randomUUID();
-		RigidBody playerRigidBody = new RigidBody(1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(-200, 0, 0.0), new Quaternion(1.0, 0.0, 0.0, 0.0), Vec3d.ZERO, Vec3d.Z.scale(0.0), RigidBodyType.SPHERE);
+		RigidBody playerRigidBody = new RigidBody(1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(-5, 0, 0.0), new Quaternion(1.0, 0.0, 0.0, 0.0), Vec3d.ZERO, Vec3d.Z.scale(0.0), RigidBodyType.SPHERE);
 		uuidRigidBodyHashMap.put(playerRigidBodyUUID, playerRigidBody);
 
 		MeshGroup meshGroup = new MeshGroup();
@@ -146,9 +151,6 @@ public class Simulation implements SimulationInterface {
 	@Override
 	public void iterate(double deltaSeconds) {
 
-		Vec3d linearMomentumImpulse = Vec3d.ZERO;
-		//Vec3d angularMomentumImpulse = Vec3d.ZERO;
-
 		newMouseX = input.getMouseX();
 		newMouseY = input.getMouseY();
 		double dx = newMouseX - oldMouseX;
@@ -156,31 +158,36 @@ public class Simulation implements SimulationInterface {
 		oldMouseX = newMouseX;
 		oldMouseY = newMouseY;
 
-		Vec3d angularMomentumImpulse = new Vec3d(0.0, -dy*sensitivity*0.001,-dx*sensitivity*0.001);
+		System.out.println(dx);
+		System.out.println(dy);
+
+		if (Math.abs(dx) > 0.0000001 && Math.abs(dy) > 0.0000001) {
+			directMomentumControl.mouseMove(dx, dy);
+		}
 
 		if (input.isKeyPressed(GLFW_KEY_A)) {
-			linearMomentumImpulse = Vec3d.Y.scale(moveSpeed);
+			directMomentumControl.leftLinear();
 		}
 		if (input.isKeyPressed(GLFW_KEY_W)) {
-			linearMomentumImpulse = Vec3d.X.scale(moveSpeed);
+			directMomentumControl.forwardLinear();
 		}
 		if (input.isKeyPressed(GLFW_KEY_D)) {
-			linearMomentumImpulse = Vec3d.Y.scale(-moveSpeed);
+			directMomentumControl.rightLinear();
 		}
 		if (input.isKeyPressed(GLFW_KEY_S)) {
-			linearMomentumImpulse = Vec3d.X.scale(-moveSpeed);
+			directMomentumControl.backLinear();
 		}
 		if (input.isKeyPressed(GLFW_KEY_LEFT)) {
-			angularMomentumImpulse = Vec3d.Z.scale(sensitivity);
+			directMomentumControl.leftAngular();
 		}
 		if (input.isKeyPressed(GLFW_KEY_RIGHT)) {
-			angularMomentumImpulse = Vec3d.Z.scale(-sensitivity);
+			directMomentumControl.rightAngular();
 		}
 		if (input.isKeyPressed(GLFW_KEY_UP)) {
-			angularMomentumImpulse = Vec3d.Y.scale(sensitivity);
+			directMomentumControl.upAngular();
 		}
 		if (input.isKeyPressed(GLFW_KEY_DOWN)) {
-			angularMomentumImpulse = Vec3d.Y.scale(-sensitivity);
+			directMomentumControl.downAngular();
 		}
 
 		if (input.isKeyPressed(GLFW_KEY_SPACE)) {
@@ -194,8 +201,9 @@ public class Simulation implements SimulationInterface {
 		for (Map.Entry<UUID, RigidBody> uuidRigidBodyEntry : uuidRigidBodyHashMap.entrySet()) {
 
 			if (uuidRigidBodyEntry.getKey().equals(playerRigidBodyUUID)) {
-				uuidRigidBodyEntry.getValue().addImpulse(Vec3d.ZERO, uuidRigidBodyEntry.getValue().getRotation().toMatrix().multiply(linearMomentumImpulse), uuidRigidBodyEntry.getValue().getRotation().toMatrix().multiply(angularMomentumImpulse));
+				uuidRigidBodyEntry.getValue().addImpulse(Vec3d.ZERO, uuidRigidBodyEntry.getValue().getRotation().toMatrix().multiply(directMomentumControl.getLinearMomentumImpulse()), uuidRigidBodyEntry.getValue().getRotation().toMatrix().multiply(directMomentumControl.getAngularMomentumImpulse()));
 				uuidRigidBodyEntry.getValue().applyImpulse();
+				directMomentumControl.resetImpulses();
 			}
 			tempMap.put(uuidRigidBodyEntry.getKey(), rungeKutta.solve(uuidRigidBodyEntry.getValue(), uuidRigidBodyEntry.getKey(), deltaSeconds));
 		};
@@ -222,44 +230,7 @@ public class Simulation implements SimulationInterface {
 			}
 		}
 	}
-
-	/**public void left() {
-	 rigidBody.addForce(rotation.multiply(new Vec3d(0, 1, 0.0)));
-	 }
-
-	 public void right() {
-	 rigidBody.addForce(rotation.multiply(new Vec3d(0, -1, 0.0)));
-	 //rigidBody.moveOrigin(new Vec3d(-x, -y, 0.0));
-	 }
-
-	 public void forward() {
-	 rigidBody.addForce(rotation.multiply(new Vec3d(1, 0, 0)));
-	 //rigidBody.moveOrigin(new Vec3d(y, -x, z));
-	 }
-
-	 public void back() {
-	 rigidBody.addForce(rotation.multiply(new Vec3d(-1, 0, 0)));
-	 //rigidBody.moveOrigin(new Vec3d(-y, x, -z));
-	 }
-
-	 public void up() {
-	 rigidBody.addForce(new Vec3d(0.0, 0.0, moveSpeed));
-	 }
-
-	 public void down() {
-	 rigidBody.addForce(new Vec3d(0.0, 0.0, -moveSpeed));
-	 }
-
-	 public void rotate(double dx, double dy) {
-
-	 rigidBody.addAngularMomentum(new Vec3d(dy*sensitivity, 0.0, dx*sensitivity));
-	 //rigidBody.addAngularMomentum(new Vec3d(0.0, 0.0, dx*sensitivity));
-
-	 //this.x = Math.cos(Math.toRadians(rotation.getZ())) * moveSpeed;
-	 //this.y = Math.sin(Math.toRadians(rotation.getZ())) * moveSpeed;
-	 //this.z = Math.cos(Math.toRadians(rotation.getX())) * moveSpeed;
-	 }**/
-
+	
 	private void sphereCollision(RigidBody rigidBody, RigidBody otherBody) {
 
 		// get radius of both spheres

@@ -1,4 +1,4 @@
-package com.nick.wood.rigid_body_dynamics.graphics.objects;
+package com.nick.wood.rigid_body_dynamics.graphics.mesh_objects;
 
 import com.nick.wood.rigid_body_dynamics.graphics.Mesh;
 import com.nick.wood.rigid_body_dynamics.graphics.Vertex;

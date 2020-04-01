@@ -1,10 +1,8 @@
-package com.nick.wood.rigid_body_dynamics.graphics.objects;
+package com.nick.wood.rigid_body_dynamics.game.game_objects;
 
+import com.nick.wood.rigid_body_dynamics.graphics.mesh_objects.MeshGroup;
 import com.nick.wood.rigid_body_dynamics.maths.Matrix4d;
 import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
-import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.RigidBody;
-
-import java.util.UUID;
 
 public class PlayerGameObject implements GameObject {
 	private Vec3d position, scale;

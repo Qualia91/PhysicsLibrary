@@ -1,6 +1,6 @@
-package com.nick.wood.rigid_body_dynamics.graphics.objects;
+package com.nick.wood.rigid_body_dynamics.graphics.mesh_objects;
 
-import com.nick.wood.rigid_body_dynamics.graphics.Game;
+import com.nick.wood.rigid_body_dynamics.game.game_objects.GameObject;
 import com.nick.wood.rigid_body_dynamics.maths.Matrix4d;
 import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
 
@@ -85,7 +85,7 @@ public class Camera {
 	public Matrix4d getView() {
 
 		// get game object to world transformation
-		Matrix4d transform = Matrix4d.InverseTransformation(gameObject.getPosition().neg(), gameObject.getRotation().transpose(), gameObject.getScale());
+		Matrix4d transform = Matrix4d.InverseTransformation(gameObject.getPosition().neg(), gameObject.getRotation().transpose(), Vec3d.ONE);
 
 		return transform.multiply(Matrix4d.View(pos, rot));
 	}

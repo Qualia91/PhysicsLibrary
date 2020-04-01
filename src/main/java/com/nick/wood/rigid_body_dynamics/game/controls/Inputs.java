@@ -1,6 +1,5 @@
-package com.nick.wood.rigid_body_dynamics.graphics;
+package com.nick.wood.rigid_body_dynamics.game.controls;
 
-import com.nick.wood.rigid_body_dynamics.graphics.objects.Camera;
 import org.lwjgl.glfw.*;
 
 public class Inputs {

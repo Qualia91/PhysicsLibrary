@@ -1,10 +1,11 @@
 package com.nick.wood.rigid_body_dynamics.graphics;
 
-import com.nick.wood.rigid_body_dynamics.graphics.objects.*;
-import com.nick.wood.rigid_body_dynamics.particle_system_dynamics_verbose.Plane;
+import com.nick.wood.rigid_body_dynamics.game.controls.Inputs;
+import com.nick.wood.rigid_body_dynamics.game.game_objects.GameObject;
+import com.nick.wood.rigid_body_dynamics.game.game_objects.PlayerGameObject;
+import com.nick.wood.rigid_body_dynamics.graphics.mesh_objects.*;
 import com.nick.wood.rigid_body_dynamics.maths.Matrix4d;
 import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
-import com.nick.wood.rigid_body_dynamics.particle_system_dynamics_verbose.Particle;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -15,7 +16,6 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.IntBuffer;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -53,7 +53,7 @@ public class Window {
 		this.WIDTH = WIDTH;
 		this.HEIGHT = HEIGHT;
 		this.title = title;
-		this.camera = new Camera(new Vec3d(-5.0, 0.0, 1.0),  new Vec3d(-100.0, 180.0, 90.0), 0.5, 0.1);
+		this.camera = new Camera(new Vec3d(-5, 0.0, 2.0),  new Vec3d(-100.0, 180.0, 90.0), 0.5, 0.1);
 		//this.camera = new Camera(new Vec3d(0.0, 10.0, 0.0),  new Vec3d(-100.0, 180.0, 90.0), 0.5, 0.1);
 
 		gameObjects.forEach(
@@ -89,7 +89,7 @@ public class Window {
 		glfwSetErrorCallback(null).free();
 	}
 
-	void init() {
+	public void init() {
 
 		shader = new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl");
 		renderer = new Renderer(this);
@@ -181,7 +181,7 @@ public class Window {
 
 	}
 
-	void loop() {
+	public void loop() {
 
 		// user inputs
 		if (input.isKeyPressed(GLFW_KEY_ESCAPE)) {
