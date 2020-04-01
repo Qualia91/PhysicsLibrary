@@ -3,8 +3,11 @@ package com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose;
 import com.nick.wood.rigid_body_dynamics.maths.Matrix4d;
 import com.nick.wood.rigid_body_dynamics.maths.Quaternion;
 import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
+import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.forces.Force;
 import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.ode.RigidBodyODEReturnData;
 import com.sun.security.jgss.GSSUtil;
+
+import java.util.ArrayList;
 
 public class RigidBody {
 
@@ -16,7 +19,6 @@ public class RigidBody {
 	private final Matrix4d IBody;
 	private final Matrix4d IBodyInv;
 	private final Vec3d dimensions;
-	private final double density;
 	private final RigidBodyType rigidBodyType;
 	// State variables
 	private Vec3d origin;
@@ -35,17 +37,17 @@ public class RigidBody {
 	private Vec3d pos = Vec3d.ZERO;
 	private Vec3d momentumImpulse = Vec3d.ZERO;
 	private Vec3d angularMomentumImpulse = Vec3d.ZERO;
+	private ArrayList<Force> forces;
 
-	public RigidBody(double density, Vec3d dimensions, Vec3d origin, Quaternion rotation, Vec3d linearMomentum, Vec3d angularMomentum, RigidBodyType rigidBodyType) {
-		this.density = density;
+	public RigidBody(double mass, Vec3d dimensions, Vec3d origin, Quaternion rotation, Vec3d linearMomentum, Vec3d angularMomentum, RigidBodyType rigidBodyType, ArrayList<Force> forces) {
 		this.dimensions = dimensions;
-		this.mass = dimensions.getX() * dimensions.getZ() * dimensions.getZ() * density;
+		this.forces = forces;
 		this.origin = origin;
 		this.rotation = rotation.normalise();
 		this.linearMomentum = linearMomentum;
-		this.velocity = calcVelocity(linearMomentum, mass);
 		this.angularMomentum = angularMomentum;
 		this.rigidBodyType = rigidBodyType;
+		this.mass = mass;
 
 		switch (rigidBodyType) {
 			case CUBOID:
@@ -83,6 +85,7 @@ public class RigidBody {
 				throw new RuntimeException("Type " + rigidBodyType + " not found.");
 		}
 
+		this.velocity = calcVelocity(linearMomentum, mass);
 		this.IBodyInv = getIBodyInv(IBody);
 		this.InertialTensor = calcInertialTensor(this.rotation, IBody);
 		this.Iinv = calcInertialTensor(this.rotation, IBodyInv);
@@ -164,30 +167,13 @@ public class RigidBody {
 		return torque;
 	}
 
-	public void setData(RigidBody newRigidBody) {
-		origin = origin.add(newRigidBody.getOrigin());
-		rotation = rotation.add(newRigidBody.getRotation());
-		linearMomentum = linearMomentum.add(newRigidBody.getLinearMomentum());
-		angularMomentum = angularMomentum.add(newRigidBody.getAngularMomentum());
-
-		InertialTensor = newRigidBody.getInertialTensor();
-		Iinv = newRigidBody.getIinv();
-		velocity = newRigidBody.getVelocity();
-		angularVelocity = newRigidBody.getAngularVelocity();
-		force = newRigidBody.getForce();
-		torque = newRigidBody.getTorque();
-		pos = Vec3d.ZERO;
-		momentumImpulse = Vec3d.ZERO;
-		angularMomentumImpulse = Vec3d.ZERO;
-	}
-
 	public RigidBody incrementAndCopy(RigidBodyODEReturnData increment) {
 		Vec3d newX = origin.add(increment.Xdot);
 		Quaternion newRotation = rotation.add(increment.Qdot);
 		Vec3d newMomentum = linearMomentum.add(increment.Pdot);
 		Vec3d newAngularMomentum = angularMomentum.add(increment.Ldot);
 
-		return new RigidBody(density, dimensions, newX, newRotation, newMomentum, newAngularMomentum, rigidBodyType);
+		return new RigidBody(mass, dimensions, newX, newRotation, newMomentum, newAngularMomentum, rigidBodyType, forces);
 	}
 
 	public Vec3d getAngularVelocity() {
@@ -254,5 +240,9 @@ public class RigidBody {
 	public void resetLinearMomentum() {
 		this.linearMomentum = Vec3d.ZERO;
 		this.linearMomentum = linearMomentum.scale(1/mass);
+	}
+
+	public ArrayList<Force> getForces() {
+		return forces;
 	}
 }

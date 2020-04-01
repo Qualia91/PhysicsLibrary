@@ -53,7 +53,7 @@ public class Window {
 		this.WIDTH = WIDTH;
 		this.HEIGHT = HEIGHT;
 		this.title = title;
-		this.camera = new Camera(new Vec3d(-5, 0.0, 2.0),  new Vec3d(-100.0, 180.0, 90.0), 0.5, 0.1);
+		this.camera = new Camera(new Vec3d(-5, 0.0, 1),  new Vec3d(-100.0, 180.0, 90.0), 0.5, 0.1);
 		//this.camera = new Camera(new Vec3d(0.0, 10.0, 0.0),  new Vec3d(-100.0, 180.0, 90.0), 0.5, 0.1);
 
 		gameObjects.forEach(
@@ -67,7 +67,7 @@ public class Window {
 
 		this.input = input;
 
-		this.projectionMatrix = Matrix4d.Projection((double)WIDTH/(double)HEIGHT, Math.toRadians(70.0), 0.01, 1000);
+		this.projectionMatrix = Matrix4d.Projection((double)WIDTH/(double)HEIGHT, Math.toRadians(70.0), 0.1, 100000);
 
 		this.gameObjects = gameObjects;
 	}
@@ -188,36 +188,38 @@ public class Window {
 			glfwSetWindowShouldClose(window, true);
 		}
 
-		//newMouseX = input.getMouseX();
-		//newMouseY = input.getMouseY();
-		//double dx = newMouseX - oldMouseX;
-		//double dy = newMouseY - oldMouseY;
-		//if (oldMouseX == 0 && oldMouseY == 0) {
-		//	dx = 0.0;
-		//	dy = 0.0;
-		//}
-		//oldMouseX = newMouseX;
-		//oldMouseY = newMouseY;
+		if (playerObjectUUID == null) {
+			newMouseX = input.getMouseX();
+			newMouseY = input.getMouseY();
+			double dx = newMouseX - oldMouseX;
+			double dy = newMouseY - oldMouseY;
+			if (oldMouseX == 0 && oldMouseY == 0) {
+				dx = 0.0;
+				dy = 0.0;
+			}
+			oldMouseX = newMouseX;
+			oldMouseY = newMouseY;
 
-		//camera.rotate(dx, dy);
-		//if (input.isKeyPressed(GLFW_KEY_A)) {
-		//	camera.left();
-		//}
-		//if (input.isKeyPressed(GLFW_KEY_W)) {
-		//	camera.forward();
-		//}
-		//if (input.isKeyPressed(GLFW_KEY_D)) {
-		//	camera.right();
-		//}
-		//if (input.isKeyPressed(GLFW_KEY_S)) {
-		//	camera.back();
-		//}
-		//if (input.isKeyPressed(GLFW_KEY_SPACE)) {
-		//	camera.up();
-		//}
-		//if (input.isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
-		//	camera.down();
-		//}
+			camera.rotate(dx, dy);
+			if (input.isKeyPressed(GLFW_KEY_A)) {
+				camera.left();
+			}
+			if (input.isKeyPressed(GLFW_KEY_W)) {
+				camera.forward();
+			}
+			if (input.isKeyPressed(GLFW_KEY_D)) {
+				camera.right();
+			}
+			if (input.isKeyPressed(GLFW_KEY_S)) {
+				camera.back();
+			}
+			if (input.isKeyPressed(GLFW_KEY_SPACE)) {
+				camera.up();
+			}
+			if (input.isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
+				camera.down();
+			}
+		}
 
 		if (windowSizeChanged) {
 			glViewport(0, 0, WIDTH, HEIGHT);
