@@ -68,25 +68,37 @@ public class Simulation implements SimulationInterface {
 
 		// tests
 		//for (int i = 0; i < 2; i++) {
-		//	Vec3d mom = Vec3d.Z.scale(i * 2);
-		//	Vec3d angMom = Vec3d.Z.scale(i*0);
+		//	Vec3d mom = Vec3d.X.scale(i * 2);
+		//	Vec3d angMom = Vec3d.Z.scale(i*0.01);
 		//	if (i == 1) {
 		//		mom = mom.neg();
 		//		angMom = angMom.neg();
 		//	}
 		//	UUID uuid = UUID.randomUUID();
-		//	RigidBody rigidBody = new RigidBody(uuid, 1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(0.0, i/2.0, i * 8), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, angMom, RigidBodyType.SPHERE,forces);
+		//	RigidBody rigidBody = new RigidBody(uuid, 1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(i*4.0, i/2.0, 0.0), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, angMom, RigidBodyType.SPHERE,forces);
+		//	rigidBodies.add(rigidBody);
+		//	uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
+		//}
+		//for (int i = 0; i < 2; i++) {
+		//	Vec3d mom = Vec3d.Z.scale(i * 2);
+		//	Vec3d angMom = Vec3d.Z.scale(i*0.1);
+		//	if (i == 1) {
+		//		mom = mom.neg();
+		//		angMom = angMom.neg();
+		//	}
+		//	UUID uuid = UUID.randomUUID();
+		//	RigidBody rigidBody = new RigidBody(uuid, 1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(0, i/2.0, i*4), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, angMom, RigidBodyType.SPHERE,forces);
 		//	rigidBodies.add(rigidBody);
 		//	uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
 		//}
 
 		// demo 1: 2 lines interacting
 		//for (int j = 0; j < 15; j++) {
-		//	for (int i = 0; i < 2; i++) {
-		//		Vec3d mom = Vec3d.Z.scale(2 * i);// * (j/10.0));
-		//		Vec3d ang = Vec3d.X.scale(0.02).scale(j);
+		//	for (int i = 0; i < 3; i++) {
+		//		Vec3d mom = Vec3d.Z.scale(i + j/10.0);// * (j/10.0));
+		//		Vec3d ang = Vec3d.X.scale(0.001).scale(j);
 		//		//Vec3d ang = Vec3d.ZERO;
-		//		if (i == 1) {
+		//		if (i > 0) {
 		//			mom = mom.neg();
 		//			//ang = ang.neg();
 		//			//ang = Vec3d.X.scale(0.01).scale(j);
@@ -352,14 +364,6 @@ public class Simulation implements SimulationInterface {
 			// initial relative velocity of point on B
 			Vec3d wba1 = wb1.subtract(wa1);
 
-			// above values but in the direction of n
-			Vec3d wab1n = n.scale(wab1.dot(n));
-			Vec3d wba1n = n.scale(wba1.dot(n));
-
-			// Value transferred in line with coefficient of restitution
-			Vec3d vab2n = vab1n.scale(Cr);
-			Vec3d vba2n = vba1n.scale(Cr);
-
 			// intertal tensor inverse
 			Matrix4d Ia = rigidBody.getInertialTensor();
 			Matrix4d Ib = otherBody.getInertialTensor();
@@ -409,7 +413,7 @@ public class Simulation implements SimulationInterface {
 
 			// add impulse
 			rigidBody.addImpulse(n.scale(-collisionDist/2.0), va2, la2f.add(angularMomentumReceivedA).subtract(angularMomentumSentA));
-			otherBody.addImpulse(n.scale(collisionDist/2.0), vb2.neg(), lb2f.add(angularMomentumReceivedB).subtract(angularMomentumSentB));
+			otherBody.addImpulse(n.scale(collisionDist/2.0), vb2.neg(), lb2f.neg().add(angularMomentumReceivedB).subtract(angularMomentumSentB));
 
 		}
 	}
