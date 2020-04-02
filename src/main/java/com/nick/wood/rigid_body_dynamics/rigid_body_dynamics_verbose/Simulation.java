@@ -13,7 +13,6 @@ import com.nick.wood.rigid_body_dynamics.maths.Quaternion;
 import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
 import com.nick.wood.rigid_body_dynamics.particle_system_dynamics_verbose.Plane;
 import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.forces.Force;
-import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.forces.Gravity;
 import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.ode.RigidBodyODEReturnData;
 import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.ode.RungeKutta;
 
@@ -25,7 +24,7 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_RIGHT;
 public class Simulation implements SimulationInterface {
 
 	private static final double Cr = 1;
-	private static final double ANGULAR_MOMENTUM_SPLIT = 0.5;
+	private static final double ANGULAR_MOMENTUM_LOST = 0.5;
 	private static final double FRICTION = 0.1;
 	private final RungeKutta rungeKutta;
 	private final Inputs input;
@@ -82,23 +81,23 @@ public class Simulation implements SimulationInterface {
 		//}
 
 		// demo 1: 2 lines interacting
-		for (int j = 0; j < 10; j++) {
-			for (int i = 0; i < 2; i++) {
-				Vec3d mom = Vec3d.Z.scale(2 * i);// * (j/10.0));
-				Vec3d ang = Vec3d.X.scale(0.03).scale(j);
-				//Vec3d ang = Vec3d.ZERO;
-				if (i == 1) {
-					mom = mom.neg();
-					//ang = ang.neg();
-					//ang = Vec3d.X.scale(0.01).scale(j);
-					ang = Vec3d.ZERO;
-				}
-				UUID uuid = UUID.randomUUID();
-				RigidBody rigidBody = new RigidBody(uuid, 1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(5.0, j*3.0/* - 2*i/3.0*/, i * 8), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, ang, RigidBodyType.SPHERE,forces);
-				rigidBodies.add(rigidBody);
-				uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
-			}
-		}
+		//for (int j = 0; j < 15; j++) {
+		//	for (int i = 0; i < 2; i++) {
+		//		Vec3d mom = Vec3d.Z.scale(2 * i);// * (j/10.0));
+		//		Vec3d ang = Vec3d.X.scale(0.02).scale(j);
+		//		//Vec3d ang = Vec3d.ZERO;
+		//		if (i == 1) {
+		//			mom = mom.neg();
+		//			//ang = ang.neg();
+		//			//ang = Vec3d.X.scale(0.01).scale(j);
+		//			ang = Vec3d.ZERO;
+		//		}
+		//		UUID uuid = UUID.randomUUID();
+		//		RigidBody rigidBody = new RigidBody(uuid, 1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(5.0, j*3.0 - 2*i/3.0, i * 8), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, ang, RigidBodyType.SPHERE,forces);
+		//		rigidBodies.add(rigidBody);
+		//		uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
+		//	}
+		//}
 
 		// demo 2: random box
 		//Random random = new Random();
@@ -398,19 +397,19 @@ public class Simulation implements SimulationInterface {
 			Vec3d lb2f = IbInv.multiply(rbp.cross((n.neg().add(tbl.normalise().scale(FRICTION))).scale(jb)));
 
 			// now just do a hack where i transfer some angular velocity from one to other in proportion to mass, likes it linear momentum
-			Vec3d angularTransferAB = rigidBody.getAngularVelocity().scale(ANGULAR_MOMENTUM_SPLIT*jal/ma);
-			Vec3d angularTransferBA = otherBody.getAngularVelocity().scale(ANGULAR_MOMENTUM_SPLIT*jbl/mb);
+			Vec3d angularMomentumSentA = rigidBody.getAngularVelocity().scale(ma / (ma + mb));
+			Vec3d angularMomentumSentB = otherBody.getAngularVelocity().scale(mb / (ma + mb));
+
+			Vec3d angularMomentumReceivedA = angularMomentumSentB.scale(mb * ANGULAR_MOMENTUM_LOST);
+			Vec3d angularMomentumReceivedB = angularMomentumSentA.scale(ma * ANGULAR_MOMENTUM_LOST);
 
 			// velocity impulse
 			Vec3d va2 = (n.add(tal.scale(FRICTION))).scale(ja/ma);
 			Vec3d vb2 = (n.neg().add(tbl.scale(FRICTION))).scale(jb/mb);
 
-			System.out.println(la2f.subtract(angularTransferAB).add(angularTransferBA.scale(FRICTION)));
-			System.out.println(lb2f.subtract(angularTransferBA).add(angularTransferAB.scale(FRICTION)));
-
 			// add impulse
-			rigidBody.addImpulse(n.scale(-collisionDist/2.0), va2, la2f.subtract(angularTransferAB).add(angularTransferBA.scale(FRICTION)));
-			otherBody.addImpulse(n.scale(collisionDist/2.0), vb2.neg(), lb2f.subtract(angularTransferBA).add(angularTransferAB.scale(FRICTION)));
+			rigidBody.addImpulse(n.scale(-collisionDist/2.0), va2, la2f.add(angularMomentumReceivedA).subtract(angularMomentumSentA));
+			otherBody.addImpulse(n.scale(collisionDist/2.0), vb2.neg(), lb2f.add(angularMomentumReceivedB).subtract(angularMomentumSentB));
 
 		}
 	}
