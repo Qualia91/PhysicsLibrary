@@ -65,26 +65,27 @@ public class Simulation implements SimulationInterface {
 
 		ArrayList<Force> forces = new ArrayList<>();
 		//forces.add(new Gravity());
+		//forces.add(new Drag());
 
 		// tests
 		//for (int i = 0; i < 2; i++) {
-		//	Vec3d mom = Vec3d.X.scale(i * 2);
+		//	Vec3d mom = Vec3d.Z.scale(i * 2);
 		//	Vec3d angMom = Vec3d.Z.scale(i*0);
 		//	if (i == 1) {
 		//		mom = mom.neg();
 		//		angMom = angMom.neg();
 		//	}
-		//	RigidBody rigidBody = new RigidBody(1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(i * 4, 0.0, 10 + i*0.5), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, angMom, RigidBodyType.SPHERE,forces);
 		//	UUID uuid = UUID.randomUUID();
-		//	uuidRigidBodyHashMap.put(uuid, rigidBody);
+		//	RigidBody rigidBody = new RigidBody(uuid, 1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(0.0, i/2.0, i * 8), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, angMom, RigidBodyType.SPHERE,forces);
+		//	rigidBodies.add(rigidBody);
 		//	uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
 		//}
 
 		// demo 1: 2 lines interacting
 		for (int j = 0; j < 10; j++) {
 			for (int i = 0; i < 2; i++) {
-				Vec3d mom = Vec3d.Z.scale(2 * i);
-				Vec3d ang = Vec3d.X.scale(0.1).scale(j);
+				Vec3d mom = Vec3d.Z.scale(2 * i);// * (j/10.0));
+				Vec3d ang = Vec3d.X.scale(0.03).scale(j);
 				//Vec3d ang = Vec3d.ZERO;
 				if (i == 1) {
 					mom = mom.neg();
@@ -93,7 +94,7 @@ public class Simulation implements SimulationInterface {
 					ang = Vec3d.ZERO;
 				}
 				UUID uuid = UUID.randomUUID();
-				RigidBody rigidBody = new RigidBody(uuid, 1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(5.0, j*2.0, i * 8), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, ang, RigidBodyType.SPHERE,forces);
+				RigidBody rigidBody = new RigidBody(uuid, 1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(5.0, j*3.0/* - 2*i/3.0*/, i * 8), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, ang, RigidBodyType.SPHERE,forces);
 				rigidBodies.add(rigidBody);
 				uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
 			}
@@ -318,7 +319,7 @@ public class Simulation implements SimulationInterface {
 			// distance vec from center of mass of A to point of impact
 			Vec3d rap = n.neg().scale(rigidBodyRadius);
 			// distance vec from center of mass of B to point of impact
-			Vec3d rbp = n.neg().scale(rigidBodyRadius);
+			Vec3d rbp = n.scale(rigidBodyRadius);
 
 			// initial angular velocities
 			Vec3d wa1 = rigidBody.getAngularVelocity();
@@ -332,6 +333,11 @@ public class Simulation implements SimulationInterface {
 			Vec3d vap1 = va1.add(wa1.cross(rap));
 			// initial velocity of impact point on B
 			Vec3d vbp1 = vb1.add(wb1.cross(rbp));
+
+			// initial relative velocity of point on A
+			Vec3d vabDiff = va1.subtract(vb1);
+			// initial relative velocity of point on B
+			Vec3d vbaDiff = vb1.subtract(va1);
 
 			// initial relative velocity of point on A
 			Vec3d vab1 = vap1.subtract(vbp1);
@@ -362,40 +368,49 @@ public class Simulation implements SimulationInterface {
 			Matrix4d IbInv = otherBody.getIinv();
 
 			// impulse param j
-			double ja = -(1.0+Cr) * vab1.dot(n) / (
+			double jal = -(1.0+Cr) * vab1.dot(n) / (
+					(1.0/ma) +
+							(1.0/mb)
+			);
+			double jbl = -(1.0+Cr) * vba1.dot(n) / (
+					(1.0/ma) +
+							(1.0/mb)
+			);
+			double ja = -(1.0+Cr) * vabDiff.dot(n) / (
 					(1.0/ma) +
 							(1.0/mb) +
 							(IaInv.multiply(rap.cross(n)).cross(rap)).add((IbInv.multiply(rbp.cross(n)).cross(rbp))).dot(n)
 			);
-			double jb = -(1.0+Cr) * vba1.dot(n) / (
-					(1.0/mb) +
-							(1.0/ma) +
-							(IbInv.multiply(rbp.cross(n)).cross(rbp)).add((IaInv.multiply(rap.cross(n)).cross(rap))).dot(n)
+			double jb = -(1.0+Cr) * vbaDiff.dot(n) / (
+					(1.0/ma) +
+							(1.0/mb) +
+							(IaInv.multiply(rbp.cross(n)).cross(rbp)).add((IbInv.multiply(rap.cross(n)).cross(rap))).dot(n)
 			);
 
-			// velocity impulse
-			Vec3d va2 = n.scale(ja/ma);
-			Vec3d vb2 = n.scale(jb/mb);
 
 			// now work out friction parts
 			// direction of friction linear
-			Vec3d tal = (n.cross(vab1)).cross(n).neg();
-			Vec3d tbl = (n.cross(vba1)).cross(n).neg();
-			// direction of friction angular
-			Vec3d taa = (n.cross(wab1)).normalise();
-			Vec3d tba = (n.cross(wba1)).normalise();
+			Vec3d tal = (n.cross(vab1)).cross(n);
+			Vec3d tbl = (n.cross(vba1)).cross(n);
 
 			// angular velocity impulse
-			Vec3d la2f = IaInv.multiply(rap.cross((n.add(taa.scale(FRICTION))).scale(ja)));
-			Vec3d lb2f = IbInv.multiply(rbp.cross((n.add(tba.scale(FRICTION))).scale(jb)));
+			Vec3d la2f = IaInv.multiply(rap.cross((n.add(tal.normalise().scale(FRICTION))).scale(ja)));
+			Vec3d lb2f = IbInv.multiply(rbp.cross((n.neg().add(tbl.normalise().scale(FRICTION))).scale(jb)));
 
-			// velocity impulse from friction
-			Vec3d va2lf = tal.scale(FRICTION/ma);
-			Vec3d vb2lf = tbl.scale(FRICTION/mb);
+			// now just do a hack where i transfer some angular velocity from one to other in proportion to mass, likes it linear momentum
+			Vec3d angularTransferAB = rigidBody.getAngularVelocity().scale(ANGULAR_MOMENTUM_SPLIT*jal/ma);
+			Vec3d angularTransferBA = otherBody.getAngularVelocity().scale(ANGULAR_MOMENTUM_SPLIT*jbl/mb);
+
+			// velocity impulse
+			Vec3d va2 = (n.add(tal.scale(FRICTION))).scale(ja/ma);
+			Vec3d vb2 = (n.neg().add(tbl.scale(FRICTION))).scale(jb/mb);
+
+			System.out.println(la2f.subtract(angularTransferAB).add(angularTransferBA.scale(FRICTION)));
+			System.out.println(lb2f.subtract(angularTransferBA).add(angularTransferAB.scale(FRICTION)));
 
 			// add impulse
-			rigidBody.addImpulse(n.scale(-collisionDist/2.0), va2.add(va2lf), la2f);
-			otherBody.addImpulse(n.scale(collisionDist/2.0), vb2.add(vb2lf), lb2f);
+			rigidBody.addImpulse(n.scale(-collisionDist/2.0), va2, la2f.subtract(angularTransferAB).add(angularTransferBA.scale(FRICTION)));
+			otherBody.addImpulse(n.scale(collisionDist/2.0), vb2.neg(), lb2f.subtract(angularTransferBA).add(angularTransferAB.scale(FRICTION)));
 
 		}
 	}
