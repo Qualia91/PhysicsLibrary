@@ -53,7 +53,7 @@ public class Window {
 		this.WIDTH = WIDTH;
 		this.HEIGHT = HEIGHT;
 		this.title = title;
-		this.camera = new Camera(new Vec3d(-5, 0.0, 1),  new Vec3d(-100.0, 180.0, 90.0), 0.5, 0.1);
+		this.camera = new Camera(new Vec3d(2, 0.0, 1),  new Vec3d(-100.0, 180.0, 90.0), 0.5, 0.1);
 		//this.camera = new Camera(new Vec3d(0.0, 10.0, 0.0),  new Vec3d(-100.0, 180.0, 90.0), 0.5, 0.1);
 
 		gameObjects.forEach(

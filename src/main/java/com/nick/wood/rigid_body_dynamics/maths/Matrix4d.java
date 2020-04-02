@@ -226,4 +226,15 @@ public class Matrix4d {
 		return new Matrix4d(newElements);
 	}
 
+	public Vec3d getXVec() {
+		return new Vec3d(get(0,0), get(0,1), get(0,2));
+	}
+
+	public Vec3d getYVec() {
+		return new Vec3d(get(1,0), get(1,1), get(1,2));
+	}
+
+	public Vec3d getZVec() {
+		return new Vec3d(get(2,0), get(2,1), get(2,2));
+	}
 }

@@ -79,6 +79,9 @@ public class Vec3d {
 	}
 
 	public Vec3d normalise() {
+		if (this.length() == 0.0 ) {
+			return Vec3d.ZERO;
+		}
 		return this.scale(1/this.length());
 	}
 
@@ -105,7 +108,7 @@ public class Vec3d {
 	public Vec3d cross(Vec3d vec3d) {
 		return new Vec3d(
 				this.y * vec3d.z - this.z * vec3d.y,
-				this.z * vec3d.x - this.x * vec3d.z,
+				this.x * vec3d.z - this.z * vec3d.x,
 				this.x * vec3d.y - this.y * vec3d.x
 		);
 	}
@@ -145,5 +148,13 @@ public class Vec3d {
 	@Override
 	public String toString() {
 		return x + ", " + y + ", " + z;
+	}
+
+	public Vec3d multiply(Matrix4d m) {
+		return new Vec3d(
+				this.dot(m.getXVec()),
+				this.dot(m.getYVec()),
+				this.dot(m.getZVec())
+		);
 	}
 }

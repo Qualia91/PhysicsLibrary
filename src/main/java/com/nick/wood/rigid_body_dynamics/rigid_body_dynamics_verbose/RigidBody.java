@@ -5,11 +5,13 @@ import com.nick.wood.rigid_body_dynamics.maths.Quaternion;
 import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
 import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.forces.Force;
 import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.ode.RigidBodyODEReturnData;
-import com.sun.security.jgss.GSSUtil;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class RigidBody {
+
+	private final UUID uuid;
 
 	private static final double LINEAR_SPEED_LIMIT = 50.0;
 	private static final double ANGULAR_SPEED_LIMIT = 100.0;
@@ -35,15 +37,16 @@ public class RigidBody {
 	private Vec3d torque;
 	// Impulse
 	private Vec3d pos = Vec3d.ZERO;
-	private Vec3d momentumImpulse = Vec3d.ZERO;
-	private Vec3d angularMomentumImpulse = Vec3d.ZERO;
+	private Vec3d velocityImpulse = Vec3d.ZERO;
+	private Vec3d angularVelocityImpulse = Vec3d.ZERO;
 	private ArrayList<Force> forces;
 
-	public RigidBody(double mass, Vec3d dimensions, Vec3d origin, Quaternion rotation, Vec3d linearMomentum, Vec3d angularMomentum, RigidBodyType rigidBodyType, ArrayList<Force> forces) {
+	public RigidBody(UUID uuid, double mass, Vec3d dimensions, Vec3d origin, Quaternion rotation, Vec3d linearMomentum, Vec3d angularMomentum, RigidBodyType rigidBodyType, ArrayList<Force> forces) {
+		this.uuid = uuid;
 		this.dimensions = dimensions;
 		this.forces = forces;
 		this.origin = origin;
-		this.rotation = rotation.normalise();
+		this.rotation = rotation;
 		this.linearMomentum = linearMomentum;
 		this.angularMomentum = angularMomentum;
 		this.rigidBodyType = rigidBodyType;
@@ -173,7 +176,7 @@ public class RigidBody {
 		Vec3d newMomentum = linearMomentum.add(increment.Pdot);
 		Vec3d newAngularMomentum = angularMomentum.add(increment.Ldot);
 
-		return new RigidBody(mass, dimensions, newX, newRotation, newMomentum, newAngularMomentum, rigidBodyType, forces);
+		return new RigidBody(this.uuid, mass, dimensions, newX, newRotation, newMomentum, newAngularMomentum, rigidBodyType, forces);
 	}
 
 	public Vec3d getAngularVelocity() {
@@ -202,19 +205,19 @@ public class RigidBody {
 		this.angularMomentum = InertialTensor.multiply(this.angularVelocity);
 	}
 
-	public void addImpulse(Vec3d pos, Vec3d momentum, Vec3d angularMomentum) {
+	public void addImpulse(Vec3d pos, Vec3d velocity, Vec3d angularVelocity) {
 		this.pos = this.pos.add(pos);
-		this.momentumImpulse = this.momentumImpulse.add(momentum);
-		this.angularMomentumImpulse = this.angularMomentumImpulse.add(angularMomentum);
+		this.velocityImpulse = this.velocityImpulse.add(velocity);
+		this.angularVelocityImpulse = this.angularVelocityImpulse.add(angularVelocity);
 	}
 
 	public void applyImpulse() {
 		this.origin = this.origin.add(pos);
-		setMomentum(this.linearMomentum.add(momentumImpulse));
-		setAngularMomentum(this.angularMomentum.add(angularMomentumImpulse));
+		setVelocity(this.velocity.add(velocityImpulse));
+		setAngularVelocity(this.angularVelocity.add(angularVelocityImpulse));
 		this.pos = Vec3d.ZERO;
-		this.momentumImpulse = Vec3d.ZERO;
-		this.angularMomentumImpulse = Vec3d.ZERO;
+		this.velocityImpulse = Vec3d.ZERO;
+		this.angularVelocityImpulse = Vec3d.ZERO;
 	}
 
 	public void setMomentums(Vec3d linearMomentum, Vec3d angularMomentum) {
@@ -244,5 +247,9 @@ public class RigidBody {
 
 	public ArrayList<Force> getForces() {
 		return forces;
+	}
+
+	public UUID getUuid() {
+		return uuid;
 	}
 }

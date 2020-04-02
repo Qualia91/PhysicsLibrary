@@ -24,15 +24,15 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_RIGHT;
 
 public class Simulation implements SimulationInterface {
 
-	private static final double Cr = 0.5;
+	private static final double Cr = 1;
 	private static final double ANGULAR_MOMENTUM_SPLIT = 0.5;
-	private static final double FRICTION = 0.12;
+	private static final double FRICTION = 0.1;
 	private final RungeKutta rungeKutta;
 	private final Inputs input;
 	private UUID playerRigidBodyUUID;
 	private final Control control;
 
-	HashMap<UUID, RigidBody> uuidRigidBodyHashMap = new HashMap<>();
+	ArrayList<RigidBody> rigidBodies = new ArrayList<>();
 	HashMap<UUID, GameObject> uuidGameObjectHashMap = new HashMap<>();
 	ArrayList<Plane> planes = new ArrayList<>();
 	private double newMouseX = 0.0;
@@ -64,35 +64,40 @@ public class Simulation implements SimulationInterface {
 		);
 
 		ArrayList<Force> forces = new ArrayList<>();
-		forces.add(new Gravity());
+		//forces.add(new Gravity());
 
-		for (int i = 0; i < 2; i++) {
-			Vec3d mom = Vec3d.X.scale(i * 2);
-			Vec3d angMom = Vec3d.Z.scale(i*0.1);
-			if (i == 1) {
-				mom = mom.neg();
-				angMom = angMom.neg();
-			}
-			RigidBody rigidBody = new RigidBody(1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(i * 4, 0.0, 10 + i/2.0), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, angMom, RigidBodyType.SPHERE,forces);
-			UUID uuid = UUID.randomUUID();
-			uuidRigidBodyHashMap.put(uuid, rigidBody);
-			uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
-		}
-
-		// demo 1: 2 lines interacting
-		//for (int j = 0; j < 10; j++) {
-		//	for (int i = 0; i < 2; i++) {
-		//		Vec3d mom = Vec3d.Y.scale(4 * i);
-		//		if (i == 1) {
-		//			mom = mom.neg();
-		//		}
-		//		RigidBody rigidBody = new RigidBody(1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(j*1.5, i * 8, 10), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, Vec3d.Z.scale(0.01).scale(j), RigidBodyType.SPHERE,forces);
-		//		UUID uuid = UUID.randomUUID();
-		//		uuidRigidBodyHashMap.put(uuid, rigidBody);
-		//		uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
+		// tests
+		//for (int i = 0; i < 2; i++) {
+		//	Vec3d mom = Vec3d.X.scale(i * 2);
+		//	Vec3d angMom = Vec3d.Z.scale(i*0);
+		//	if (i == 1) {
+		//		mom = mom.neg();
+		//		angMom = angMom.neg();
 		//	}
+		//	RigidBody rigidBody = new RigidBody(1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(i * 4, 0.0, 10 + i*0.5), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, angMom, RigidBodyType.SPHERE,forces);
+		//	UUID uuid = UUID.randomUUID();
+		//	uuidRigidBodyHashMap.put(uuid, rigidBody);
+		//	uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
 		//}
 
+		// demo 1: 2 lines interacting
+		for (int j = 0; j < 10; j++) {
+			for (int i = 0; i < 2; i++) {
+				Vec3d mom = Vec3d.Z.scale(2 * i);
+				Vec3d ang = Vec3d.X.scale(0.1).scale(j);
+				//Vec3d ang = Vec3d.ZERO;
+				if (i == 1) {
+					mom = mom.neg();
+					//ang = ang.neg();
+					//ang = Vec3d.X.scale(0.01).scale(j);
+					ang = Vec3d.ZERO;
+				}
+				UUID uuid = UUID.randomUUID();
+				RigidBody rigidBody = new RigidBody(uuid, 1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(5.0, j*2.0, i * 8), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, ang, RigidBodyType.SPHERE,forces);
+				rigidBodies.add(rigidBody);
+				uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
+			}
+		}
 
 		// demo 2: random box
 		//Random random = new Random();
@@ -126,8 +131,8 @@ public class Simulation implements SimulationInterface {
 
 		// create player
 		playerRigidBodyUUID = UUID.randomUUID();
-		RigidBody playerRigidBody = new RigidBody(1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(-5.0, 0.0, 10), new Quaternion(1.0, 0.0, 0.0, 0.0), Vec3d.ZERO, Vec3d.Z.scale(0.0), RigidBodyType.SPHERE, forces);
-		uuidRigidBodyHashMap.put(playerRigidBodyUUID, playerRigidBody);
+		RigidBody playerRigidBody = new RigidBody(playerRigidBodyUUID, 1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(-5.0, 0.0, 3), new Quaternion(1.0, 0.0, 0.0, 0.0), Vec3d.ZERO, Vec3d.Z.scale(0.0), RigidBodyType.SPHERE, forces);
+		rigidBodies.add(playerRigidBody);
 		MeshGroup meshGroup = new MeshGroup();
 		meshGroup.getMeshObjectArray().add(new Sphere(Vec3d.ZERO, Vec3d.ONE, Matrix4d.Identity, 10));
 		PlayerGameObject playerGameObject = new PlayerGameObject(
@@ -143,10 +148,10 @@ public class Simulation implements SimulationInterface {
 
 		Vec3d sumVec = Vec3d.ZERO;
 
-		for (Map.Entry<UUID, RigidBody> uuidRigidBodyEntry : uuidRigidBodyHashMap.entrySet()) {
-			if (!uuid.equals(uuidRigidBodyEntry.getKey())) {
+		for (RigidBody otherRigidBody : rigidBodies) {
+			if (!uuid.equals(otherRigidBody.getUuid())) {
 				for (Force force : rigidBody.getForces()) {
-					Vec3d act = force.act(rigidBody, uuidRigidBodyEntry.getValue());
+					Vec3d act = force.act(rigidBody, otherRigidBody);
 					sumVec = sumVec.add(act);
 				}
 			}
@@ -234,49 +239,54 @@ public class Simulation implements SimulationInterface {
 		}
 
 		if (input.isKeyPressed(GLFW_KEY_SPACE)) {
-			uuidRigidBodyHashMap.get(playerRigidBodyUUID).resetLinearMomentum();
-			uuidRigidBodyHashMap.get(playerRigidBodyUUID).resetAngularMomentum();
+			for (RigidBody rigidBody : rigidBodies) {
+				if (rigidBody.getUuid().equals(playerRigidBodyUUID)) {
+					rigidBody.resetLinearMomentum();
+					rigidBody.resetAngularMomentum();
+				}
+			}
 		}
 
 		// user controls
-		HashMap<UUID, RigidBody> tempMap = new HashMap<>();
+		ArrayList<RigidBody> tempList= new ArrayList<>();
 
-		for (Map.Entry<UUID, RigidBody> uuidRigidBodyEntry : uuidRigidBodyHashMap.entrySet()) {
+		for (RigidBody rigidBody : rigidBodies) {
 
-			if (uuidRigidBodyEntry.getKey().equals(playerRigidBodyUUID)) {
-				uuidRigidBodyEntry.getValue().setMomentums(control.getLinearMomentum(uuidRigidBodyEntry.getValue().getRotation().toMatrix(), uuidRigidBodyEntry.getValue().getLinearMomentum()), control.getAngularMomentum(uuidRigidBodyEntry.getValue().getRotation().toMatrix(), uuidRigidBodyEntry.getValue().getAngularMomentum()));
-
+			if (rigidBody.getUuid().equals(playerRigidBodyUUID)) {
+				rigidBody.setMomentums(control.getLinearMomentum(rigidBody.getRotation().toMatrix(), rigidBody.getLinearMomentum()), control.getAngularMomentum(rigidBody.getRotation().toMatrix(), rigidBody.getAngularMomentum()));
 				control.reset();
 			}
-			tempMap.put(uuidRigidBodyEntry.getKey(), rungeKutta.solve(uuidRigidBodyEntry.getValue(), uuidRigidBodyEntry.getKey(), deltaSeconds));
+			tempList.add(rungeKutta.solve(rigidBody, rigidBody.getUuid(), deltaSeconds));
 		};
 
-		tempMap.forEach((uuid, rigidBody) -> collisionDetection(rigidBody, tempMap, uuid));
+		collisionDetection(tempList);
 
 		Vec3d totLinearMomentum = Vec3d.ZERO;
 		Vec3d totAngularMomentum = Vec3d.ZERO;
 
-		for (Map.Entry<UUID, RigidBody> uuidRigidBodyEntry : tempMap.entrySet()) {
-			uuidRigidBodyEntry.getValue().applyImpulse();
-			totLinearMomentum = totLinearMomentum.add(uuidRigidBodyEntry.getValue().getLinearMomentum());
-			totAngularMomentum = totAngularMomentum.add(uuidRigidBodyEntry.getValue().getAngularMomentum());
-			uuidGameObjectHashMap.get(uuidRigidBodyEntry.getKey()).setPosition(uuidRigidBodyEntry.getValue().getOrigin());
-			uuidGameObjectHashMap.get(uuidRigidBodyEntry.getKey()).setRotation(uuidRigidBodyEntry.getValue().getRotation().toMatrix());
+		for (RigidBody rigidBody : tempList) {
+			rigidBody.applyImpulse();
+			totLinearMomentum = totLinearMomentum.add(rigidBody.getLinearMomentum());
+			totAngularMomentum = totAngularMomentum.add(rigidBody.getAngularMomentum());
+			uuidGameObjectHashMap.get(rigidBody.getUuid()).setPosition(rigidBody.getOrigin());
+			uuidGameObjectHashMap.get(rigidBody.getUuid()).setRotation(rigidBody.getRotation().toMatrix());
 		}
 
-		uuidRigidBodyHashMap = tempMap;
+		rigidBodies = tempList;
 	}
 
-	private void collisionDetection(RigidBody rigidBody, HashMap<UUID, RigidBody> rigidBodyMap, UUID uuid) {
+	private void collisionDetection(ArrayList<RigidBody> rigidBodyList) {
 
-		for (Map.Entry<UUID, RigidBody> uuidRigidBodyEntry : rigidBodyMap.entrySet()) {
-
-			if (!uuidRigidBodyEntry.getKey().equals(uuid)) {
-
-				sphereCollision(rigidBody, uuidRigidBodyEntry.getValue());
-
+		for (int i = 0; i < rigidBodyList.size() - 1; i++) {
+			for (int j = i+1; j < rigidBodyList.size(); j++) {
+		//for (int i = 0; i < rigidBodyList.size(); i++) {
+		//	for (int j = 0; j < rigidBodyList.size(); j++) {
+				if (i != j) {
+					sphereCollision(rigidBodyList.get(i), rigidBodyList.get(j));
+				}
 			}
 		}
+
 	}
 	
 	private void sphereCollision(RigidBody rigidBody, RigidBody otherBody) {
@@ -297,36 +307,95 @@ public class Simulation implements SimulationInterface {
 		// check if collision
 		if (collisionDist < 0) {
 
-			Vec3d nRigidBody = fromOtherBodyToRigid.normalise();
-			Vec3d nOtherBody = nRigidBody.neg();
+			// this is all the maths that will work even if they aren't spheres
+			// for spheres, most of it wont do anything
 
-			Vec3d displacementFromCenterOfRotationToPointOfContactRigidBody = nOtherBody.scale(rigidBodyRadius);
-			Vec3d displacementFromCenterOfRotationToPointOfContactOtherBody = nRigidBody.scale(otherBodyRadius);
+			double ma = rigidBody.getMass();
+			double mb = otherBody.getMass();
+			// normal of impact point on other body
+			Vec3d n = fromOtherBodyToRigid.normalise();
 
-			// diff in vel, +ve towards rigid body
-			Vec3d totalVelocityRigidBody = rigidBody.getVelocity().add(rigidBody.getAngularVelocity().cross(displacementFromCenterOfRotationToPointOfContactRigidBody));
-			Vec3d diffInVelocitiesWithAngular = totalVelocityRigidBody.subtract(otherBody.getVelocity());
+			// distance vec from center of mass of A to point of impact
+			Vec3d rap = n.neg().scale(rigidBodyRadius);
+			// distance vec from center of mass of B to point of impact
+			Vec3d rbp = n.neg().scale(rigidBodyRadius);
 
-			Vec3d rigidBodyPart = rigidBody.getIinv().multiply(displacementFromCenterOfRotationToPointOfContactRigidBody.cross(nRigidBody)).cross(displacementFromCenterOfRotationToPointOfContactRigidBody);
-			Vec3d otherBodyPart = otherBody.getIinv().multiply(displacementFromCenterOfRotationToPointOfContactOtherBody.cross(nRigidBody)).cross(displacementFromCenterOfRotationToPointOfContactOtherBody);
+			// initial angular velocities
+			Vec3d wa1 = rigidBody.getAngularVelocity();
+			Vec3d wb1 = otherBody.getAngularVelocity();
 
-			double weirdAngularPartOfJ = (rigidBodyPart.add(otherBodyPart).dot(nRigidBody));
+			// initial velocities
+			Vec3d va1 = rigidBody.getVelocity();
+			Vec3d vb1 = otherBody.getVelocity();
 
-			Vec3d t = nRigidBody.cross(diffInVelocitiesWithAngular).cross(nRigidBody).normalise();
+			// initial velocity of impact point on A
+			Vec3d vap1 = va1.add(wa1.cross(rap));
+			// initial velocity of impact point on B
+			Vec3d vbp1 = vb1.add(wb1.cross(rbp));
 
-			// calculate j
-			double jAngular = (-(1.0 + Cr) * diffInVelocitiesWithAngular.dot(nRigidBody)) / ((1/rigidBody.getMass() + 1/otherBody.getMass()) + weirdAngularPartOfJ);
+			// initial relative velocity of point on A
+			Vec3d vab1 = vap1.subtract(vbp1);
+			// initial relative velocity of point on B
+			Vec3d vba1 = vbp1.subtract(vap1);
 
-			// calculate linear momentum impulse due to collision
-			Vec3d momentumCorrectionRigidBody = nRigidBody.subtract(t.scale(FRICTION)).scale(jAngular / rigidBody.getMass());
+			// above values but in the direction of n
+			Vec3d vab1n = n.scale(vab1.dot(n));
+			Vec3d vba1n = n.scale(vba1.dot(n));
 
-			// calculate angular momentum impulse due to collision
-			Vec3d angularMomentumImpulseRigidBody = displacementFromCenterOfRotationToPointOfContactOtherBody.cross(nRigidBody.add(t.scale(FRICTION)).scale(jAngular));
+			// initial relative angular velocity of point on A
+			Vec3d wab1 = wa1.subtract(wb1);
+			// initial relative velocity of point on B
+			Vec3d wba1 = wb1.subtract(wa1);
 
-			// calculate the position displacement needed so they dont overlap
-			Vec3d displacementVectorRigidBody = nRigidBody.scale(-collisionDist/2);
+			// above values but in the direction of n
+			Vec3d wab1n = n.scale(wab1.dot(n));
+			Vec3d wba1n = n.scale(wba1.dot(n));
 
-			rigidBody.addImpulse(displacementVectorRigidBody, momentumCorrectionRigidBody, angularMomentumImpulseRigidBody);
+			// Value transferred in line with coefficient of restitution
+			Vec3d vab2n = vab1n.scale(Cr);
+			Vec3d vba2n = vba1n.scale(Cr);
+
+			// intertal tensor inverse
+			Matrix4d Ia = rigidBody.getInertialTensor();
+			Matrix4d Ib = otherBody.getInertialTensor();
+			Matrix4d IaInv = rigidBody.getIinv();
+			Matrix4d IbInv = otherBody.getIinv();
+
+			// impulse param j
+			double ja = -(1.0+Cr) * vab1.dot(n) / (
+					(1.0/ma) +
+							(1.0/mb) +
+							(IaInv.multiply(rap.cross(n)).cross(rap)).add((IbInv.multiply(rbp.cross(n)).cross(rbp))).dot(n)
+			);
+			double jb = -(1.0+Cr) * vba1.dot(n) / (
+					(1.0/mb) +
+							(1.0/ma) +
+							(IbInv.multiply(rbp.cross(n)).cross(rbp)).add((IaInv.multiply(rap.cross(n)).cross(rap))).dot(n)
+			);
+
+			// velocity impulse
+			Vec3d va2 = n.scale(ja/ma);
+			Vec3d vb2 = n.scale(jb/mb);
+
+			// now work out friction parts
+			// direction of friction linear
+			Vec3d tal = (n.cross(vab1)).cross(n).neg();
+			Vec3d tbl = (n.cross(vba1)).cross(n).neg();
+			// direction of friction angular
+			Vec3d taa = (n.cross(wab1)).normalise();
+			Vec3d tba = (n.cross(wba1)).normalise();
+
+			// angular velocity impulse
+			Vec3d la2f = IaInv.multiply(rap.cross((n.add(taa.scale(FRICTION))).scale(ja)));
+			Vec3d lb2f = IbInv.multiply(rbp.cross((n.add(tba.scale(FRICTION))).scale(jb)));
+
+			// velocity impulse from friction
+			Vec3d va2lf = tal.scale(FRICTION/ma);
+			Vec3d vb2lf = tbl.scale(FRICTION/mb);
+
+			// add impulse
+			rigidBody.addImpulse(n.scale(-collisionDist/2.0), va2.add(va2lf), la2f);
+			otherBody.addImpulse(n.scale(collisionDist/2.0), vb2.add(vb2lf), lb2f);
 
 		}
 	}
