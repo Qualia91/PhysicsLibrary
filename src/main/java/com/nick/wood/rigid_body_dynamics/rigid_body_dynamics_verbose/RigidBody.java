@@ -252,4 +252,8 @@ public class RigidBody {
 	public UUID getUuid() {
 		return uuid;
 	}
+
+	public RigidBodyType getType() {
+		return rigidBodyType;
+	}
 }

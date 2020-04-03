@@ -1,5 +1,7 @@
 package com.nick.wood.rigid_body_dynamics.maths;
 
+import org.lwjgl.system.CallbackI;
+
 import java.util.Objects;
 
 public class Vec3d {
@@ -108,7 +110,7 @@ public class Vec3d {
 	public Vec3d cross(Vec3d vec3d) {
 		return new Vec3d(
 				this.y * vec3d.z - this.z * vec3d.y,
-				this.x * vec3d.z - this.z * vec3d.x,
+				this.z * vec3d.x - this.x * vec3d.z,
 				this.x * vec3d.y - this.y * vec3d.x
 		);
 	}
@@ -156,5 +158,56 @@ public class Vec3d {
 				this.dot(m.getYVec()),
 				this.dot(m.getZVec())
 		);
+	}
+
+	// element wise multiplication
+	public Vec3d multiply(Vec3d n) {
+		return new Vec3d(
+				x * n.getX(),
+				y * n.getY(),
+				z * n.getZ()
+		);
+	}
+
+	public static Vec3d Min(Vec3d a, Vec3d b) {
+		return new Vec3d(
+				Math.min(a.getX(), b.getX()),
+				Math.min(a.getY(), b.getY()),
+				Math.min(a.getZ(), b.getZ())
+		);
+	}
+
+	public static Vec3d Max(Vec3d a, Vec3d b) {
+		return new Vec3d(
+				Math.max(a.getX(), b.getX()),
+				Math.max(a.getY(), b.getY()),
+				Math.max(a.getZ(), b.getZ())
+		);
+	}
+
+	public Vec3d getLargestAxis() {
+
+
+
+		if (x > y && x > z) {
+			return Vec3d.X;
+		}
+		else if (y > x && y > z) {
+			return Vec3d.X;
+		}
+		else if (z > x && z > y) {
+			return Vec3d.X;
+		}
+		else if (x == y) {
+			return Vec3d.X.add(Vec3d.Y);
+		}
+		else if (x == z) {
+			return Vec3d.X.add(Vec3d.Z);
+		}
+		else if (y == z) {
+			return Vec3d.Y.add(Vec3d.Z);
+		} else {
+			return Vec3d.Y.add(Vec3d.Z).add(Vec3d.X);
+		}
 	}
 }
