@@ -184,30 +184,4 @@ public class Vec3d {
 				Math.max(a.getZ(), b.getZ())
 		);
 	}
-
-	public Vec3d getLargestAxis() {
-
-
-
-		if (x > y && x > z) {
-			return Vec3d.X;
-		}
-		else if (y > x && y > z) {
-			return Vec3d.X;
-		}
-		else if (z > x && z > y) {
-			return Vec3d.X;
-		}
-		else if (x == y) {
-			return Vec3d.X.add(Vec3d.Y);
-		}
-		else if (x == z) {
-			return Vec3d.X.add(Vec3d.Z);
-		}
-		else if (y == z) {
-			return Vec3d.Y.add(Vec3d.Z);
-		} else {
-			return Vec3d.Y.add(Vec3d.Z).add(Vec3d.X);
-		}
-	}
 }

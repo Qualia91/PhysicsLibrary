@@ -67,7 +67,7 @@ public class Window {
 
 		this.input = input;
 
-		this.projectionMatrix = Matrix4d.Projection((double)WIDTH/(double)HEIGHT, Math.toRadians(70.0), 0.1, 100000);
+		this.projectionMatrix = Matrix4d.Projection((double)WIDTH/(double)HEIGHT, Math.toRadians(70.0), 1, 10000000000.0);
 
 		this.gameObjects = gameObjects;
 	}
