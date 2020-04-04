@@ -1,7 +1,7 @@
 package com.nick.wood.rigid_body_dynamics.game;
 
+import com.nick.wood.graphics_library.Window;
 import com.nick.wood.rigid_body_dynamics.SimulationInterface;
-import com.nick.wood.rigid_body_dynamics.graphics.Window;
 
 import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
 

@@ -1,6 +1,7 @@
 package com.nick.wood.rigid_body_dynamics.game.game_objects;
 
-import com.nick.wood.rigid_body_dynamics.graphics.mesh_objects.MeshGroup;
+import com.nick.wood.graphics_library.GameObject;
+import com.nick.wood.graphics_library.mesh_objects.MeshGroup;
 import com.nick.wood.rigid_body_dynamics.maths.Matrix4d;
 import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
 
@@ -27,6 +28,11 @@ public class PlayerGameObject implements GameObject {
 		//position = position.add(new Vec3d(0.0, 0.0, -0.01));
 		//scale = scale.add(Vec3d.Y.scale(0.0));
 		//rotation = rotation.add(Vec3d.Y.scale(1));
+	}
+
+	@Override
+	public boolean isPlayer() {
+		return true;
 	}
 
 	public Vec3d getPosition() {

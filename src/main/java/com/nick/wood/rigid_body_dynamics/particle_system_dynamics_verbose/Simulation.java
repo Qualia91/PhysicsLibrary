@@ -1,8 +1,8 @@
 package com.nick.wood.rigid_body_dynamics.particle_system_dynamics_verbose;
 
 import com.nick.wood.rigid_body_dynamics.SimulationInterface;
-import com.nick.wood.rigid_body_dynamics.game.controls.Inputs;
-import com.nick.wood.rigid_body_dynamics.game.game_objects.GameObject;
+import com.nick.wood.graphics_library.Inputs;
+import com.nick.wood.graphics_library.GameObject;
 import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
 
 import java.util.ArrayList;

@@ -1,24 +1,23 @@
 package com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose;
 
+import com.nick.wood.graphics_library.mesh_objects.Cube;
+import com.nick.wood.graphics_library.mesh_objects.MeshGroup;
+import com.nick.wood.graphics_library.mesh_objects.Sphere;
 import com.nick.wood.rigid_body_dynamics.SimulationInterface;
 import com.nick.wood.rigid_body_dynamics.game.controls.Control;
 import com.nick.wood.rigid_body_dynamics.game.controls.FlightAssistControl;
-import com.nick.wood.rigid_body_dynamics.game.controls.Inputs;
-import com.nick.wood.rigid_body_dynamics.game.game_objects.GameObject;
+import com.nick.wood.graphics_library.Inputs;
+import com.nick.wood.graphics_library.GameObject;
 import com.nick.wood.rigid_body_dynamics.game.game_objects.PlayerGameObject;
 import com.nick.wood.rigid_body_dynamics.game.game_objects.RigidBodyGameObject;
-import com.nick.wood.rigid_body_dynamics.graphics.mesh_objects.*;
 import com.nick.wood.rigid_body_dynamics.maths.Matrix4d;
 import com.nick.wood.rigid_body_dynamics.maths.Quaternion;
 import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
 import com.nick.wood.rigid_body_dynamics.particle_system_dynamics_verbose.Plane;
 import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.forces.Force;
-import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.forces.Gravity;
-import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.forces.GravityBasic;
 import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.ode.RigidBodyODEReturnData;
 import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.ode.RungeKutta;
 
-import java.awt.geom.QuadCurve2D;
 import java.util.*;
 
 import static org.lwjgl.glfw.GLFW.*;
