@@ -1,8 +1,10 @@
 package com.nick.wood.rigid_body_dynamics.graphics.mesh_objects;
 
+import com.nick.wood.rigid_body_dynamics.graphics.Material;
 import com.nick.wood.rigid_body_dynamics.graphics.Mesh;
 import com.nick.wood.rigid_body_dynamics.graphics.Vertex;
 import com.nick.wood.rigid_body_dynamics.maths.Matrix4d;
+import com.nick.wood.rigid_body_dynamics.maths.Vec2f;
 import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
 
 public class Triangle implements MeshObject {
@@ -45,7 +47,8 @@ public class Triangle implements MeshObject {
 
 				vertexArray[triangleDownIndex] = new Vertex(
 						newPos.normalise().scale(0.5),
-						newPos
+						newPos,
+						new Vec2f(0.0f, 0.0f)
 				);
 
 			}
@@ -107,7 +110,7 @@ public class Triangle implements MeshObject {
 
 		}
 
-		mesh = new Mesh(vertices, indexList);
+		mesh = new Mesh(vertices, indexList, new Material("/textures/texture.png"));
 	}
 
 	public Mesh getMesh() {

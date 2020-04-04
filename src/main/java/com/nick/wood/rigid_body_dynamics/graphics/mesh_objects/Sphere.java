@@ -1,8 +1,10 @@
 package com.nick.wood.rigid_body_dynamics.graphics.mesh_objects;
 
+import com.nick.wood.rigid_body_dynamics.graphics.Material;
 import com.nick.wood.rigid_body_dynamics.graphics.Mesh;
 import com.nick.wood.rigid_body_dynamics.graphics.Vertex;
 import com.nick.wood.rigid_body_dynamics.maths.Matrix4d;
+import com.nick.wood.rigid_body_dynamics.maths.Vec2f;
 import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
 
 public class Sphere implements MeshObject {
@@ -33,11 +35,16 @@ public class Sphere implements MeshObject {
 		int numOfIndices = (3 * ((triangleNumber + 1) * (triangleNumber + 1))) * 8;
 		int[] indexList = new int[numOfIndices];
 
+		float spacingBetweenTextCoord = 1.0f / (triangleNumber * 8.0f);
+		float xCoord = 0.0f;
+
 		Vertex[] vertices = new Vertex[numOfVerts];
 
 		for (int zRotation = 0; zRotation < 360; zRotation+= 90) {
 
 			Matrix4d zRotationMatrix = Matrix4d.Rotation(zRotation, Vec3d.Z);
+
+			float yCoord = 0.0f;
 
 			for (int yRotation = 0; yRotation < 360; yRotation+= 180) {
 
@@ -68,8 +75,11 @@ public class Sphere implements MeshObject {
 
 						vertexArray[triangleDownIndex] = new Vertex(
 								newPos.normalise().scale(0.5),
-								newPos
+								newPos,
+								new Vec2f(xCoord, yCoord)
 						);
+
+						yCoord += spacingBetweenTextCoord;
 
 					}
 
@@ -125,12 +135,14 @@ public class Sphere implements MeshObject {
 
 				vertexStartingNumber += pascalNum;
 
+				xCoord += spacingBetweenTextCoord;
+
 			}
 		}
 
 
 
-		mesh = new Mesh(vertices, indexList);
+		mesh = new Mesh(vertices, indexList, new Material("/textures/texture.png"));
 	}
 
 	public Mesh getMesh() {

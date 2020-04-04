@@ -65,17 +65,17 @@ public class Simulation implements SimulationInterface {
 		//forces.add(new GravityBasic());
 		//forces.add(new Drag());
 
-		ArrayList<Force> forces2 = new ArrayList<>();
-		UUID uuid = UUID.randomUUID();
-		RigidBody rigidBody = new RigidBody(uuid, 1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(2.0, 0.0, 0.0), new Quaternion(1.0, 0.0, 0.0, 0.0), Vec3d.X.scale(10), Vec3d.Y.scale(0.1), RigidBodyType.SPHERE,forces);
-		rigidBodies.add(rigidBody);
-		uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
+		//ArrayList<Force> forces2 = new ArrayList<>();
+		//UUID uuid = UUID.randomUUID();
+		//RigidBody rigidBody = new RigidBody(uuid, 1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(2.0, 0.0, 0.0), new Quaternion(1.0, 0.0, 0.0, 0.0), Vec3d.X.scale(10), Vec3d.Y.scale(0.1), RigidBodyType.SPHERE,forces);
+		//rigidBodies.add(rigidBody);
+		//uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
 
-		// Arena
-		UUID uuidArena = UUID.randomUUID();
-		RigidBody rigidBodyArena = new RigidBody(uuidArena, 10000, new Vec3d(100, 100, 100), new Vec3d(0.0, 0.0, 0.0), new Quaternion(1.0, 0.0, 0.0, 0.0), Vec3d.ZERO, Vec3d.ZERO, RigidBodyType.SPHERE_INNER, forces);
-		rigidBodies.add(rigidBodyArena);
-		uuidGameObjectHashMap.put(uuidArena, convertToGameObject(rigidBodyArena, 10));
+		//// Arena
+		//UUID uuidArena = UUID.randomUUID();
+		//RigidBody rigidBodyArena = new RigidBody(uuidArena, 10000, new Vec3d(100, 100, 100), new Vec3d(0.0, 0.0, 0.0), new Quaternion(1.0, 0.0, 0.0, 0.0), Vec3d.ZERO, Vec3d.ZERO, RigidBodyType.SPHERE_INNER, forces);
+		//rigidBodies.add(rigidBodyArena);
+		//uuidGameObjectHashMap.put(uuidArena, convertToGameObject(rigidBodyArena, 10));
 
 		// tests
 		//for (int i = 0; i < 2; i++) {
@@ -90,11 +90,11 @@ public class Simulation implements SimulationInterface {
 		//	rigidBodies.add(rigidBody);
 		//	uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
 		//}
-		//UUID uuid = UUID.randomUUID();
-		//Quaternion quaternion = Quaternion.RotationX(0.0);
-		//RigidBody rigidBody = new RigidBody(uuid, 1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(0.0, 0.0, 5.0), quaternion, Vec3d.ZERO, Vec3d.X.scale(0.1), RigidBodyType.CUBOID,forces);
-		//rigidBodies.add(rigidBody);
-		//uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
+		UUID uuid = UUID.randomUUID();
+		Quaternion quaternion = Quaternion.RotationX(0.0);
+		RigidBody rigidBody = new RigidBody(uuid, 1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(10.0, 0.0, 0.0), quaternion, Vec3d.ZERO, Vec3d.X.scale(0.1), RigidBodyType.CUBOID,forces);
+		rigidBodies.add(rigidBody);
+		uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
 
 		//UUID uuid2 = UUID.randomUUID();
 		//RigidBody rigidBody2 = new RigidBody(uuid2, 1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(0.0, -3.0, 5.0 - 0.5), new Quaternion(1.0, 0.0, 0.0, 0.0), Vec3d.Y, Vec3d.X.scale(0), RigidBodyType.SPHERE, forces);

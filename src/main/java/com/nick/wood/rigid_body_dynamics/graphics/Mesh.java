@@ -7,6 +7,7 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.DoubleBuffer;
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -15,14 +16,17 @@ public class Mesh {
 
 	private Vertex[] vertices;
 	private int[] indices;
-	private int vao, pbo, ibo, cbo;
+	private Material material;
+	private int vao, pbo, ibo, cbo, tbo;
 
-	public Mesh(Vertex[] vertices, int[] indices) {
+	public Mesh(Vertex[] vertices, int[] indices, Material material) {
 		this.vertices = vertices;
 		this.indices = indices;
+		this.material = material;
 	}
 
 	public void create() {
+		material.create();
 		vao = GL30.glGenVertexArrays();
 		GL30.glBindVertexArray(vao);
 
@@ -44,15 +48,30 @@ public class Mesh {
 			GL20.glVertexAttribPointer(1, 3, GL11.GL_DOUBLE, false, 0, 0);
 		});
 
+		FloatBuffer textureBuffer = MemoryUtil.memAllocFloat(vertices.length * 2);
+		float[] textData = new float[vertices.length * 2];
+		for (int i = 0; i < vertices.length; i++) {
+			textData[i * 2] = vertices[i].getTextureCoord().getX();
+			textData[i * 2 + 1] = vertices[i].getTextureCoord().getY();
+		}
+		textureBuffer.put(textData).flip();
+		tbo = writeDataToBuffer(GL15.GL_ARRAY_BUFFER, bufferType -> {
+			GL15.glBufferData(bufferType, textureBuffer, GL15.GL_STATIC_DRAW);
+			// shader stuff
+			GL20.glVertexAttribPointer(2, 2, GL11.GL_FLOAT, false, 0, 0);
+		});
+
 		IntBuffer indicesBuffer = createIntBufferAndPutData(indices.length, indices);
 		ibo = writeDataToBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, bufferType -> GL15.glBufferData(bufferType, indicesBuffer, GL15.GL_STATIC_DRAW));
 
 	}
 
 	public void destroy() {
+		material.destroy();
 		GL15.glDeleteBuffers(pbo);
 		GL15.glDeleteBuffers(cbo);
 		GL15.glDeleteBuffers(ibo);
+		GL30.glDeleteTextures(tbo);
 		GL30.glDeleteVertexArrays(vao);
 	}
 
@@ -111,5 +130,17 @@ public class Mesh {
 
 	public int getIbo() {
 		return ibo;
+	}
+
+	public int getCbo() {
+		return cbo;
+	}
+
+	public int getTbo() {
+		return tbo;
+	}
+
+	public Material getMaterial() {
+		return material;
 	}
 }
