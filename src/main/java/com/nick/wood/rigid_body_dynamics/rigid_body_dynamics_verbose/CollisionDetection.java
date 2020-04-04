@@ -29,6 +29,14 @@ public class CollisionDetection {
 			sphereCollision(rigidBody, otherBody);
 		}
 
+		// if both spheres, use sphere collision
+		else if (rigidBody.getType().equals(RigidBodyType.SPHERE_INNER) && otherBody.getType().equals(RigidBodyType.SPHERE)) {
+			sphereInnerCollision(rigidBody, otherBody);
+		}
+		else if (rigidBody.getType().equals(RigidBodyType.SPHERE) && otherBody.getType().equals(RigidBodyType.SPHERE_INNER)) {
+			sphereInnerCollision(otherBody, rigidBody);
+		}
+
 		// if one sphere and one cuboid
 		else if (rigidBody.getType().equals(RigidBodyType.CUBOID) && otherBody.getType().equals(RigidBodyType.SPHERE)) {
 			sphereCuboidCollision(rigidBody, otherBody);
@@ -195,11 +203,7 @@ public class CollisionDetection {
 			Matrix4d IaInv = rigidBody.getIinv();
 			Matrix4d IbInv = otherBody.getIinv();
 
-			double jal = -(1.0+Cr) *  (rigidBody.getVelocity().subtract(otherBody.getVelocity()).dot(n)) / (
-					(1.0/ma) +
-							(1.0/mb)// +
-					//((IaInv.multiply(rap.cross(n)).cross(rap)).add((IbInv.multiply(rbp.cross(n)).cross(rbp)))).dot(n)
-			);
+			// impulse param j
 			double jaa = -(1.0+Cr) *  (rigidBody.getVelocity().subtract(otherBody.getVelocity()).dot(n)) / (
 					(1.0/ma) +
 							(1.0/mb) +
@@ -212,9 +216,6 @@ public class CollisionDetection {
 			);
 
 			// now work out friction parts
-			// direction of friction linear
-			Vec3d tal = (n.cross(vabDiff)).cross(n).normalise();
-
 			Vec3d taa = (n.cross(vba1)).cross(n).normalise();
 
 			// angular velocity impulse
@@ -222,12 +223,97 @@ public class CollisionDetection {
 			Vec3d lb2f = IbInv.multiply(rbp.cross((n.scale(jba).add(taa.scale(FRICTION)))));
 
 			// velocity impulse
-			Vec3d va2 = (n.scale(jal/ma).add(tal.scale(FRICTION/ma)));
-			Vec3d vb2 = (n.scale(jal/mb).subtract(tal.scale(FRICTION/mb)));
+			Vec3d va2 = (n.scale(jaa/ma).add(taa.scale(FRICTION/ma)));
+			Vec3d vb2 = (n.scale(jba/mb).subtract(taa.scale(FRICTION/mb)));
 
 			// add impulse
 			rigidBody.addImpulse(rbp.normalise().scale(-collisionDistance/2.0), va2, la2f);
-			otherBody.addImpulse(rbp.normalise().scale(collisionDistance/2.0), vb2.neg(), lb2f.neg());
+			otherBody.addImpulse(rbp.normalise().scale(collisionDistance/2.0), vb2, lb2f.neg());
+
+		}
+	}
+
+	private void sphereInnerCollision(RigidBody sphereInner, RigidBody sphere) {
+
+		// get radius of both spheres
+		// use x dimension for now
+		double rigidBodyRadius = sphereInner.getDimensions().getX() / 2.0;
+		double otherBodyRadius = sphere.getDimensions().getX() / 2.0;
+		double totalRadSqr = (rigidBodyRadius + otherBodyRadius);
+
+		// get vec between the 2 centers
+		Vec3d fromOtherBodyToRigid = sphereInner.getOrigin().subtract(sphere.getOrigin());
+		double length = fromOtherBodyToRigid.length();
+
+		double collisionDistance = length - totalRadSqr;
+
+
+		// check if collision
+		if (collisionDistance > 0) {
+
+			// this is all the maths that will work even if they aren't spheres
+			// for spheres, most of it wont do anything
+
+			double ma = sphereInner.getMass();
+			double mb = sphere.getMass();
+			// normal of impact point on other body
+			Vec3d n = fromOtherBodyToRigid.normalise().neg();
+
+			// distance vec from center of mass of A to point of impact
+			Vec3d rap = n.scale(rigidBodyRadius);
+			// distance vec from center of mass of B to point of impact
+			Vec3d rbp = n.neg().scale(otherBodyRadius);
+
+			// initial angular velocities
+			Vec3d wa1 = sphereInner.getAngularVelocity();
+			Vec3d wb1 = sphere.getAngularVelocity();
+
+			// initial velocities
+			Vec3d va1 = sphereInner.getVelocity();
+			Vec3d vb1 = sphere.getVelocity();
+
+			// initial velocity of impact point on A
+			Vec3d vap1 = va1.add(wa1.cross(rap));
+			// initial velocity of impact point on B
+			Vec3d vbp1 = vb1.add(wb1.cross(rbp));
+
+			// initial relative velocity of point on A
+			Vec3d vabDiff = va1.subtract(vb1);
+
+			// initial relative velocity of point on B
+			Vec3d vba1 = vbp1.subtract(vap1);
+
+			// intertal tensor inverse
+			Matrix4d IaInv = sphereInner.getIinv();
+			Matrix4d IbInv = sphere.getIinv();
+
+
+			// impulse param j
+			double jaa = -(1.0+Cr) *  (sphereInner.getVelocity().subtract(sphere.getVelocity()).dot(n)) / (
+					(1.0/ma) +
+							(1.0/mb) +
+							((IaInv.multiply(rap.cross(n)).cross(rap)).add((IbInv.multiply(rbp.cross(n)).cross(rbp)))).dot(n)
+			);
+			double jba = -(1.0+Cr) * (sphere.getVelocity().subtract(sphereInner.getVelocity()).dot(n)) / (
+					(1.0/ma) +
+							(1.0/mb) +
+							((IaInv.multiply(rap.cross(n)).cross(rap)).add((IbInv.multiply(rbp.cross(n)).cross(rbp)))).dot(n)
+			);
+
+			// now work out friction parts
+			Vec3d taa = (n.cross(vba1)).cross(n).normalise();
+
+			// angular velocity impulse
+			Vec3d la2f = IaInv.multiply(rap.cross((n.scale(jaa).add(taa.scale(FRICTION)))));
+			Vec3d lb2f = IbInv.multiply(rbp.cross((n.scale(jba).add(taa.scale(FRICTION)))));
+
+			// velocity impulse
+			Vec3d va2 = (n.scale(jaa/ma).add(taa.scale(FRICTION/ma)));
+			Vec3d vb2 = (n.scale(jba/mb).subtract(taa.scale(FRICTION/mb)));
+
+			// add impulse
+			sphereInner.addImpulse(rbp.normalise().scale(-collisionDistance/2.0), va2, la2f);
+			sphere.addImpulse(rbp.normalise().scale(collisionDistance/2.0), vb2, lb2f.neg());
 
 		}
 	}

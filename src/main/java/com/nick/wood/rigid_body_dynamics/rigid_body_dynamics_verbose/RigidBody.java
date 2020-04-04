@@ -65,6 +65,7 @@ public class RigidBody {
 				).scale(mass/12.0);
 				break;
 			case SPHERE:
+			case SPHERE_INNER:
 				double a = dimensions.getX()/2;
 				double b = dimensions.getY()/2;
 				double c = dimensions.getZ()/2;
@@ -84,6 +85,7 @@ public class RigidBody {
 						0.0, 0.0, 0.0, 1
 				);
 				break;
+
 			default:
 				throw new RuntimeException("Type " + rigidBodyType + " not found.");
 		}
