@@ -14,6 +14,7 @@ import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
 import com.nick.wood.rigid_body_dynamics.particle_system_dynamics_verbose.Plane;
 import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.forces.Force;
 import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.forces.Gravity;
+import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.forces.GravityBasic;
 import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.ode.RigidBodyODEReturnData;
 import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.ode.RungeKutta;
 
@@ -47,7 +48,7 @@ public class Simulation implements SimulationInterface {
 
 				Quaternion dDot = Quaternion.FromVec(0.0, rigidBody.getAngularVelocity()).multiply(rigidBody.getRotation()).scale(0.5);
 
-				resolveForces(rigidBody, uuid);
+				resolveForces(rigidBody);
 
 				return new RigidBodyODEReturnData(
 						rigidBody.getVelocity(),
@@ -60,8 +61,10 @@ public class Simulation implements SimulationInterface {
 		);
 
 		ArrayList<Force> forces = new ArrayList<>();
-		//forces.add(new Gravity());
+		forces.add(new GravityBasic());
 		//forces.add(new Drag());
+
+		ArrayList<Force> forces2 = new ArrayList<>();
 
 		// tests
 		//for (int i = 0; i < 2; i++) {
@@ -76,16 +79,26 @@ public class Simulation implements SimulationInterface {
 		//	rigidBodies.add(rigidBody);
 		//	uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
 		//}
-		UUID uuid = UUID.randomUUID();
-		Quaternion quaternion = Quaternion.RotationX(0.0);
-		RigidBody rigidBody = new RigidBody(uuid, 1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(0.0, 0.0, 5.0), quaternion, Vec3d.ZERO, Vec3d.X.scale(0.1), RigidBodyType.CUBOID,forces);
-		rigidBodies.add(rigidBody);
-		uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
+		//UUID uuid = UUID.randomUUID();
+		//Quaternion quaternion = Quaternion.RotationX(0.0);
+		//RigidBody rigidBody = new RigidBody(uuid, 1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(0.0, 0.0, 5.0), quaternion, Vec3d.ZERO, Vec3d.X.scale(0.1), RigidBodyType.CUBOID,forces);
+		//rigidBodies.add(rigidBody);
+		//uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
 
 		UUID uuid2 = UUID.randomUUID();
 		RigidBody rigidBody2 = new RigidBody(uuid2, 1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(0.0, -3.0, 5.0 - 0.5), new Quaternion(1.0, 0.0, 0.0, 0.0), Vec3d.Y, Vec3d.X.scale(0), RigidBodyType.SPHERE, forces);
 		rigidBodies.add(rigidBody2);
 		uuidGameObjectHashMap.put(uuid2, convertToGameObject(rigidBody2, 10));
+
+		UUID floorUUID = UUID.randomUUID();
+		RigidBody floorRigidBody = new RigidBody(floorUUID, 10000, new Vec3d(1000.0, 1000.0, 1.0), new Vec3d(0.0, 0.0, -1.0), Quaternion.RotationY(0.0), Vec3d.ZERO, Vec3d.ZERO, RigidBodyType.CUBOID, forces2);
+		rigidBodies.add(floorRigidBody);
+		uuidGameObjectHashMap.put(floorUUID, convertToGameObject(floorRigidBody, 10));
+
+		//UUID uuid3 = UUID.randomUUID();
+		//RigidBody rigidBody3 = new RigidBody(uuid3, 10, new Vec3d(10.0, 10.0, 10.0), new Vec3d(0.0, 0.0, 0.0), new Quaternion(1.0, 0.0, 0.0, 0.0), Vec3d.ZERO, Vec3d.X.scale(0), RigidBodyType.SPHERE, forces);
+		//rigidBodies.add(rigidBody3);
+		//uuidGameObjectHashMap.put(uuid3, convertToGameObject(rigidBody3, 10));
 
 
 		// cube/sphere intersection tests
@@ -127,10 +140,10 @@ public class Simulation implements SimulationInterface {
 		//			//ang = Vec3d.X.scale(0.01).scale(j);
 		//			ang = Vec3d.ZERO;
 		//		}
-		//		UUID uuid = UUID.randomUUID();
-		//		RigidBody rigidBody = new RigidBody(uuid, 1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(5.0, j*3.0 - 2*i/3.0, i * 8), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, ang, RigidBodyType.SPHERE,forces);
-		//		rigidBodies.add(rigidBody);
-		//		uuidGameObjectHashMap.put(uuid, convertToGameObject(rigidBody, 10));
+		//		UUID uuidR = UUID.randomUUID();
+		//		RigidBody rigidBodyR = new RigidBody(uuidR, 1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(5.0, j*3.0 - 2*i/3.0, i * 8), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, ang, RigidBodyType.SPHERE,forces);
+		//		rigidBodies.add(rigidBodyR);
+		//		uuidGameObjectHashMap.put(uuidR, convertToGameObject(rigidBodyR, 10));
 		//	}
 		//}
 
@@ -178,11 +191,6 @@ public class Simulation implements SimulationInterface {
 		);
 		uuidGameObjectHashMap.put(playerRigidBodyUUID, playerGameObject);
 
-		// add earth
-		//uuidGameObjectHashMap.put(UUID.randomUUID(), sphere(6371e3/2, 6371e3));
-		// add skybox
-		//uuidGameObjectHashMap.put(UUID.randomUUID(), sphere(6371e3/2, 7371e3));
-
 		this.collisionDetection = new CollisionDetection();
 	}
 
@@ -199,17 +207,13 @@ public class Simulation implements SimulationInterface {
 		);
 	}
 
-	private void resolveForces(RigidBody rigidBody, UUID uuid) {
+	private void resolveForces(RigidBody rigidBody) {
 
 		Vec3d sumVec = Vec3d.ZERO;
 
-		for (RigidBody otherRigidBody : rigidBodies) {
-			if (!uuid.equals(otherRigidBody.getUuid())) {
-				for (Force force : rigidBody.getForces()) {
-					Vec3d act = force.act(rigidBody, otherRigidBody);
-					sumVec = sumVec.add(act);
-				}
-			}
+		for (Force force : rigidBody.getForces()) {
+			Vec3d act = force.act(rigidBody);
+			sumVec = sumVec.add(act);
 		}
 
 		rigidBody.setForce(sumVec);
@@ -320,17 +324,12 @@ public class Simulation implements SimulationInterface {
 				control.reset();
 			}
 			tempList.add(rungeKutta.solve(rigidBody, rigidBody.getUuid(), deltaSeconds));
-		};
+		}
 
 		collisionDetection.collisionDetection(tempList);
 
-		Vec3d totLinearMomentum = Vec3d.ZERO;
-		Vec3d totAngularMomentum = Vec3d.ZERO;
-
 		for (RigidBody rigidBody : tempList) {
 			rigidBody.applyImpulse();
-			totLinearMomentum = totLinearMomentum.add(rigidBody.getLinearMomentum());
-			totAngularMomentum = totAngularMomentum.add(rigidBody.getAngularMomentum());
 			uuidGameObjectHashMap.get(rigidBody.getUuid()).setPosition(rigidBody.getOrigin());
 			uuidGameObjectHashMap.get(rigidBody.getUuid()).setRotation(rigidBody.getRotation().toMatrix());
 		}

@@ -13,8 +13,8 @@ public class RigidBody {
 
 	private final UUID uuid;
 
-	private static final double LINEAR_SPEED_LIMIT = 20.0;
-	private static final double ANGULAR_SPEED_LIMIT = 2.0;
+	private static final double LINEAR_SPEED_LIMIT = 50.0;
+	private static final double ANGULAR_SPEED_LIMIT = 10.0;
 
 	// const
 	private final double mass;
