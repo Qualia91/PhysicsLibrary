@@ -1,18 +1,18 @@
 package com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose;
 
+import com.nick.wood.graphics_library.Game3DInputs;
 import com.nick.wood.graphics_library.mesh_objects.Cube;
 import com.nick.wood.graphics_library.mesh_objects.MeshGroup;
 import com.nick.wood.graphics_library.mesh_objects.Sphere;
 import com.nick.wood.rigid_body_dynamics.SimulationInterface;
-import com.nick.wood.rigid_body_dynamics.game.controls.Control;
 import com.nick.wood.rigid_body_dynamics.game.controls.FlightAssistControl;
-import com.nick.wood.graphics_library.Inputs;
+import com.nick.wood.graphics_library.input.*;
 import com.nick.wood.graphics_library.GameObject;
 import com.nick.wood.rigid_body_dynamics.game.game_objects.PlayerGameObject;
 import com.nick.wood.rigid_body_dynamics.game.game_objects.RigidBodyGameObject;
-import com.nick.wood.rigid_body_dynamics.maths.Matrix4d;
-import com.nick.wood.rigid_body_dynamics.maths.Quaternion;
-import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
+import com.nick.wood.maths.objects.Matrix4d;
+import com.nick.wood.maths.objects.Quaternion;
+import com.nick.wood.maths.objects.Vec3d;
 import com.nick.wood.rigid_body_dynamics.particle_system_dynamics_verbose.Plane;
 import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.forces.Force;
 import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.ode.RigidBodyODEReturnData;
@@ -20,28 +20,25 @@ import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.ode.RungeKu
 
 import java.util.*;
 
-import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_RIGHT;
-
 public class Simulation implements SimulationInterface {
 
 	private final RungeKutta rungeKutta;
 	private final Inputs input;
 	private final CollisionDetection collisionDetection;
+	private final Game3DInputs game3DInputs;
 	private UUID playerRigidBodyUUID;
 	private final Control control;
 
 	ArrayList<RigidBody> rigidBodies = new ArrayList<>();
 	HashMap<UUID, GameObject> uuidGameObjectHashMap = new HashMap<>();
 	ArrayList<Plane> planes = new ArrayList<>();
-	private double oldMouseX = 0.0;
-	private double oldMouseY = 0.0;
 
 	public Simulation(Inputs input) {
 
 		this.input = input;
 
 		this.control = new FlightAssistControl(0.005, 5.0);
+		this.game3DInputs = new Game3DInputs(input, control);
 
 		this.rungeKutta = new RungeKutta(
 			(RigidBody rigidBody, UUID uuid) -> {
@@ -260,71 +257,6 @@ public class Simulation implements SimulationInterface {
 	@Override
 	public void iterate(double deltaSeconds) {
 
-		double newMouseX = input.getMouseX();
-		double newMouseY = input.getMouseY();
-		if (Math.abs(oldMouseX) <= 0.000001) {
-			oldMouseX = newMouseX;
-		}
-		if (Math.abs(oldMouseY) <= 0.000001) {
-			oldMouseY = newMouseY;
-		}
-		double dx = newMouseX - oldMouseX;
-		double dy = newMouseY - oldMouseY;
-		oldMouseX = newMouseX;
-		oldMouseY = newMouseY;
-
-		if (Math.abs(dx) > 0.00001 && Math.abs(dy) > 0.00001) {
-			control.mouseMove(Math.copySign(Math.min(Math.abs(dx), 100.0), dx) , Math.copySign(Math.min(Math.abs(dy), 100.0), dy), input.isKeyPressed(GLFW_KEY_LEFT_SHIFT));
-		}
-
-		if (input.isKeyPressed(GLFW_KEY_A)) {
-			control.leftLinear();
-		}
-		if (input.isKeyPressed(GLFW_KEY_W)) {
-			control.forwardLinear();
-		}
-		if (input.isKeyPressed(GLFW_KEY_D)) {
-			control.rightLinear();
-		}
-		if (input.isKeyPressed(GLFW_KEY_S)) {
-			control.backLinear();
-		}
-		if (input.isKeyPressed(GLFW_KEY_Q)) {
-			control.upLinear();
-		}
-		if (input.isKeyPressed(GLFW_KEY_E)) {
-			control.downLinear();
-		}
-		if (input.isKeyPressed(GLFW_KEY_LEFT)) {
-			if (input.isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
-				control.leftYaw();
-			} else {
-				control.leftRoll();
-			}
-		}
-		if (input.isKeyPressed(GLFW_KEY_RIGHT)) {
-			if (input.isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
-				control.rightYaw();
-			} else {
-				control.rightRoll();
-			}
-		}
-		if (input.isKeyPressed(GLFW_KEY_UP)) {
-			control.upPitch();
-		}
-		if (input.isKeyPressed(GLFW_KEY_DOWN)) {
-			control.downPitch();
-		}
-
-		if (input.isKeyPressed(GLFW_KEY_SPACE)) {
-			for (RigidBody rigidBody : rigidBodies) {
-				if (rigidBody.getUuid().equals(playerRigidBodyUUID)) {
-					rigidBody.resetLinearMomentum();
-					rigidBody.resetAngularMomentum();
-				}
-			}
-		}
-
 		// user controls
 		ArrayList<RigidBody> tempList = new ArrayList<>();
 
@@ -338,6 +270,8 @@ public class Simulation implements SimulationInterface {
 		}
 
 		collisionDetection.collisionDetection(tempList);
+
+		game3DInputs.checkInputs();
 
 		for (RigidBody rigidBody : tempList) {
 			rigidBody.applyImpulse();

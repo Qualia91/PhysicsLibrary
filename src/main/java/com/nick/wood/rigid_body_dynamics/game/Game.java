@@ -3,8 +3,6 @@ package com.nick.wood.rigid_body_dynamics.game;
 import com.nick.wood.graphics_library.Window;
 import com.nick.wood.rigid_body_dynamics.SimulationInterface;
 
-import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
-
 public class Game implements Runnable {
 
 	private final SimulationInterface simulation;
@@ -33,7 +31,7 @@ public class Game implements Runnable {
 
 		double deltaSeconds = 0.0;
 
-		while (!glfwWindowShouldClose(window.getWindow())) {
+		while (!window.shouldClose()) {
 
 			long now = System.nanoTime();
 

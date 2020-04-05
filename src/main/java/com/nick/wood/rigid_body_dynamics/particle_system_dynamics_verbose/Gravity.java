@@ -1,6 +1,6 @@
 package com.nick.wood.rigid_body_dynamics.particle_system_dynamics_verbose;
 
-import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
+import com.nick.wood.maths.objects.Vec3d;
 
 /**Z down frame of reference
  *

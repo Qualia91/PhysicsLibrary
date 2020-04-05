@@ -1,8 +1,8 @@
 package com.nick.wood.rigid_body_dynamics;
 
+import com.nick.wood.graphics_library.input.Inputs;
+import com.nick.wood.maths.objects.Vec3d;
 import com.nick.wood.rigid_body_dynamics.game.Game;
-import com.nick.wood.graphics_library.Inputs;
-import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
 import com.nick.wood.rigid_body_dynamics.particle_system_dynamics_verbose.*;
 
 import java.util.ArrayList;
@@ -33,8 +33,6 @@ public class Main {
 
         // closes executor service
         executor.shutdown();
-        
-
 
     }
 

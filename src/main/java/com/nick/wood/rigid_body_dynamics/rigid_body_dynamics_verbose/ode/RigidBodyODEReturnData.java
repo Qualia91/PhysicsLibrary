@@ -1,7 +1,7 @@
 package com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.ode;
 
-import com.nick.wood.rigid_body_dynamics.maths.Quaternion;
-import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
+import com.nick.wood.maths.objects.Quaternion;
+import com.nick.wood.maths.objects.Vec3d;
 
 public class RigidBodyODEReturnData {
 

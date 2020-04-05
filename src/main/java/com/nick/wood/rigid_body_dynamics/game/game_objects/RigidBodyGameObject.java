@@ -2,8 +2,8 @@ package com.nick.wood.rigid_body_dynamics.game.game_objects;
 
 import com.nick.wood.graphics_library.GameObject;
 import com.nick.wood.graphics_library.mesh_objects.MeshGroup;
-import com.nick.wood.rigid_body_dynamics.maths.Matrix4d;
-import com.nick.wood.rigid_body_dynamics.maths.Vec3d;
+import com.nick.wood.maths.objects.Matrix4d;
+import com.nick.wood.maths.objects.Vec3d;
 
 public class RigidBodyGameObject implements GameObject {
 
