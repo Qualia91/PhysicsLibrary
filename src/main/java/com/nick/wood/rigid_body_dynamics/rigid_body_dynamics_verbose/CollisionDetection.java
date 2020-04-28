@@ -1,7 +1,8 @@
 package com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose;
 
-import com.nick.wood.maths.objects.Matrix4d;
-import com.nick.wood.maths.objects.Vec3d;
+import com.nick.wood.maths.objects.matrix.Matrix4d;
+import com.nick.wood.maths.objects.vector.Vec3d;
+import com.nick.wood.maths.objects.vector.Vecd;
 
 import java.util.ArrayList;
 
@@ -67,7 +68,7 @@ public class CollisionDetection {
 
 		// find the distance from center of sphere away from box
 		Vec3d closestPointInAabb = Vec3d.Min(Vec3d.Max(sphereOriginInCuboidSpace, cuboid.getDimensions().scale(-0.5)), cuboid.getDimensions().scale(0.5));
-		double distance = closestPointInAabb.subtract(sphereOriginInCuboidSpace).length();
+		double distance = closestPointInAabb.subtract((Vecd) sphereOriginInCuboidSpace).length();
 
 		double collisionDistance = distance - sphereRadius;
 
@@ -155,13 +156,13 @@ public class CollisionDetection {
 		// use x dimension for now
 		double rigidBodyRadius = rigidBody.getDimensions().getX() / 2.0;
 		double otherBodyRadius = otherBody.getDimensions().getX() / 2.0;
-		double totalRadSqr = (rigidBodyRadius + otherBodyRadius);
+		double totalRad = (rigidBodyRadius + otherBodyRadius);
 
 		// get vec between the 2 centers
 		Vec3d fromOtherBodyToRigid = rigidBody.getOrigin().subtract(otherBody.getOrigin());
 		double length = fromOtherBodyToRigid.length();
 
-		double collisionDistance = length - totalRadSqr;
+		double collisionDistance = length - totalRad;
 
 
 		// check if collision
@@ -169,6 +170,7 @@ public class CollisionDetection {
 
 			// this is all the maths that will work even if they aren't spheres
 			// for spheres, most of it wont do anything
+			System.out.println("collision");
 
 			double ma = rigidBody.getMass();
 			double mb = otherBody.getMass();

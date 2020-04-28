@@ -1,8 +1,9 @@
 package com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose;
 
-import com.nick.wood.maths.objects.Matrix4d;
+import com.nick.wood.maths.objects.matrix.Matrix4d;
 import com.nick.wood.maths.objects.Quaternion;
-import com.nick.wood.maths.objects.Vec3d;
+import com.nick.wood.maths.objects.vector.Vec3d;
+import com.nick.wood.maths.objects.vector.Vecd;
 import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.forces.Force;
 import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.ode.RigidBodyODEReturnData;
 

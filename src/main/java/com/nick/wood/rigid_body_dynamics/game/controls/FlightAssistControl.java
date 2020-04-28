@@ -1,8 +1,9 @@
 package com.nick.wood.rigid_body_dynamics.game.controls;
 
 import com.nick.wood.graphics_library.input.Control;
-import com.nick.wood.maths.objects.Matrix4d;
-import com.nick.wood.maths.objects.Vec3d;
+import com.nick.wood.maths.objects.matrix.Matrix4d;
+import com.nick.wood.maths.objects.vector.Vec3d;
+import com.nick.wood.maths.objects.vector.Vecd;
 
 public class FlightAssistControl implements Control {
 
@@ -102,11 +103,11 @@ public class FlightAssistControl implements Control {
 
 	@Override
 	public Vec3d getLinearMomentum(Matrix4d rotation, Vec3d currentLinearMomentum) {
-		return rotation.multiply(Vec3d.X.scale(speedHorizontal).add(Vec3d.Y.scale(speedLateral)).add(Vec3d.Z.scale(speedVertical)));
+		return rotation.multiply(Vec3d.X.scale(speedHorizontal).add((Vecd) Vec3d.Y.scale(speedLateral)).add((Vecd) Vec3d.Z.scale(speedVertical)));
 	}
 
 	@Override
 	public Vec3d getAngularMomentum(Matrix4d rotation, Vec3d currentAngularMomentum) {
-		return rotation.multiply(Vec3d.X.scale(speedXRotate).add(Vec3d.Y.scale(speedYRotate)).add(Vec3d.Z.scale(speedZRotate)));
+		return rotation.multiply(Vec3d.X.scale(speedXRotate).add((Vecd) Vec3d.Y.scale(speedYRotate)).add((Vecd) Vec3d.Z.scale(speedZRotate)));
 	}
 }

@@ -1,7 +1,7 @@
 package com.nick.wood.rigid_body_dynamics;
 
 import com.nick.wood.graphics_library.input.Inputs;
-import com.nick.wood.maths.objects.Vec3d;
+import com.nick.wood.maths.objects.vector.Vec3d;
 import com.nick.wood.rigid_body_dynamics.game.Game;
 import com.nick.wood.rigid_body_dynamics.particle_system_dynamics_verbose.*;
 

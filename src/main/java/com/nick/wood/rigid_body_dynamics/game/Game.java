@@ -18,7 +18,7 @@ public class Game implements Runnable {
 				width,
 				height,
 				"",
-				simulation.getGameObjects(),
+				simulation.getRootGameObjects(),
 				simulation.getInputs());
 	}
 
@@ -40,8 +40,6 @@ public class Game implements Runnable {
 			while (deltaSeconds >= 1 / simHerts) {
 
 				simulation.iterate(deltaSeconds);
-
-				window.updateDrawables(simulation.getGameObjects());
 
 				window.setTitle("Iteration time: " + deltaSeconds);
 

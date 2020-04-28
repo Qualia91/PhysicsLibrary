@@ -1,16 +1,16 @@
 package com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.ode;
 
 import com.nick.wood.maths.objects.Quaternion;
-import com.nick.wood.maths.objects.Vec3d;
+import com.nick.wood.maths.objects.vector.Vecd;
 
 public class RigidBodyODEReturnData {
 
-	public Vec3d Xdot;
+	public Vecd Xdot;
 	public Quaternion Qdot;
-	public Vec3d Pdot;
-	public Vec3d Ldot;
+	public Vecd Pdot;
+	public Vecd Ldot;
 
-	public RigidBodyODEReturnData(Vec3d xdot, Quaternion qdot, Vec3d pdot, Vec3d ldot) {
+	public RigidBodyODEReturnData(Vecd xdot, Quaternion qdot, Vecd pdot, Vecd ldot) {
 		this.Xdot = xdot;
 		this.Qdot = qdot;
 		this.Pdot = pdot;
@@ -18,10 +18,10 @@ public class RigidBodyODEReturnData {
 	}
 
 	public RigidBodyODEReturnData scale(double amount) {
-		Vec3d newXdot = Xdot.scale(amount);
+		Vecd newXdot = Xdot.scale(amount);
 		Quaternion newQdot = Qdot.scale(amount);
-		Vec3d newPdot = Pdot.scale(amount);
-		Vec3d newLdot = Ldot.scale(amount);
+		Vecd newPdot = Pdot.scale(amount);
+		Vecd newLdot = Ldot.scale(amount);
 		return new RigidBodyODEReturnData(newXdot, newQdot, newPdot, newLdot);
 	}
 

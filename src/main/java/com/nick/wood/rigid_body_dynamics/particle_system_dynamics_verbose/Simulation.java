@@ -1,9 +1,9 @@
 package com.nick.wood.rigid_body_dynamics.particle_system_dynamics_verbose;
 
+import com.nick.wood.graphics_library.objects.game_objects.RootGameObject;
 import com.nick.wood.rigid_body_dynamics.SimulationInterface;
 import com.nick.wood.graphics_library.input.Inputs;
-import com.nick.wood.graphics_library.GameObject;
-import com.nick.wood.maths.objects.Vec3d;
+import com.nick.wood.maths.objects.vector.Vec3d;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -102,11 +102,6 @@ public class Simulation implements SimulationInterface {
 	}
 
 	@Override
-	public HashMap<UUID, GameObject> getGameObjects() {
-		return null;
-	}
-
-	@Override
 	public void iterate(double deltaSeconds) {
 
 	}
@@ -117,6 +112,11 @@ public class Simulation implements SimulationInterface {
 
 	@Override
 	public Inputs getInputs() {
+		return null;
+	}
+
+	@Override
+	public HashMap<UUID, RootGameObject> getRootGameObjects() {
 		return null;
 	}
 
