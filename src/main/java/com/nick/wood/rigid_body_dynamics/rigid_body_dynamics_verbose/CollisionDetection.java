@@ -170,7 +170,6 @@ public class CollisionDetection {
 
 			// this is all the maths that will work even if they aren't spheres
 			// for spheres, most of it wont do anything
-			System.out.println("collision");
 
 			double ma = rigidBody.getMass();
 			double mb = otherBody.getMass();
