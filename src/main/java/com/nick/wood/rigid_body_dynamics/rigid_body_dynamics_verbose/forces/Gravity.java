@@ -15,7 +15,7 @@ public class Gravity implements Force{
 	}
 
 	@Override
-	public Vec3d act(RigidBody rigidBody) {
+	public Vec3d actLinear(RigidBody rigidBody) {
 
 		Vec3d sum = Vec3d.ZERO;
 
@@ -40,5 +40,10 @@ public class Gravity implements Force{
 		}
 
 		return sum;
+	}
+
+	@Override
+	public Vec3d actAngular(RigidBody rigidBody) {
+		return Vec3d.ZERO;
 	}
 }

@@ -16,23 +16,9 @@ import java.util.concurrent.Future;
 
 public class Main {
 
-    public static void main(String[] args) throws ExecutionException, InterruptedException {
+    public static void main(String[] args) {
 
-        Inputs inputs = new Inputs();
 
-        SimulationInterface simulation = new com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.Simulation(inputs, new ArrayList<>());
-
-        Game game = new Game(1000, 800, simulation);
-
-        ExecutorService executor = Executors.newFixedThreadPool(4);
-
-        Future<?> submit = executor.submit(game);
-
-        // waits for game to finish
-        submit.get();
-
-        // closes executor service
-        executor.shutdown();
 
     }
 

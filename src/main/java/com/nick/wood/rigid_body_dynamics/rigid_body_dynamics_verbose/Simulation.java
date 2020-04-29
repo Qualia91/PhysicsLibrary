@@ -1,16 +1,6 @@
 package com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose;
 
-import com.nick.wood.graphics_library.Material;
-import com.nick.wood.graphics_library.lighting.DirectionalLight;
-import com.nick.wood.graphics_library.lighting.PointLight;
-import com.nick.wood.graphics_library.lighting.SpotLight;
-import com.nick.wood.graphics_library.objects.Camera;
-import com.nick.wood.graphics_library.objects.Transform;
 import com.nick.wood.graphics_library.objects.game_objects.*;
-import com.nick.wood.graphics_library.objects.mesh_objects.CubeMesh;
-import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
-import com.nick.wood.graphics_library.objects.mesh_objects.SphereMesh;
-import com.nick.wood.maths.objects.matrix.Matrix4f;
 import com.nick.wood.maths.objects.vector.Vec3f;
 import com.nick.wood.rigid_body_dynamics.SimulationInterface;
 import com.nick.wood.rigid_body_dynamics.game.controls.FlightAssistControl;
@@ -33,12 +23,11 @@ public class Simulation implements SimulationInterface {
 	private UUID playerRigidBodyUUID;
 	private final Control control;
 
-	ArrayList<RigidBody> rigidBodies = new ArrayList<>();
+	ArrayList<RigidBody> rigidBodies;
 	HashMap<UUID, RootGameObject> rootGameObjectHashMap = new HashMap<>();
 	ArrayList<Plane> planes = new ArrayList<>();
 
-	public Simulation(Inputs input, ArrayList<RigidBody> rigidBodies) {
-
+	public Simulation(Inputs input, ArrayList<RigidBody> rigidBodies, HashMap<UUID, RootGameObject> rootGameObjectHashMap) {
 		this.rigidBodies = rigidBodies;
 		this.input = input;
 
@@ -46,114 +35,45 @@ public class Simulation implements SimulationInterface {
 		this.game3DInputs = new Game3DInputs(input, control);
 
 		this.rungeKutta = new RungeKutta(
-			(RigidBody rigidBody, UUID uuid) -> {
+				(RigidBody rigidBody, UUID uuid) -> {
 
-				Quaternion dDot = Quaternion.FromVec(0.0, rigidBody.getAngularVelocity()).multiply(rigidBody.getRotation()).scale(0.5);
+					Quaternion dDot = Quaternion.FromVec(0.0, rigidBody.getAngularVelocity()).multiply(rigidBody.getRotation()).scale(0.5);
 
-				resolveForces(rigidBody);
+					resolveForces(rigidBody);
 
-				return new RigidBodyODEReturnData(
-						rigidBody.getVelocity(),
-						dDot,
-						rigidBody.getForce(),
-						rigidBody.getTorque()
-				);
+					return new RigidBodyODEReturnData(
+							rigidBody.getVelocity(),
+							dDot,
+							rigidBody.getForce(),
+							rigidBody.getTorque()
+					);
 
-			}
+				}
 		);
 
-		// todo loop through rigid bodies and convert to game objects
-		for (RigidBody rigidBody : rigidBodies) {
-			rootGameObjectHashMap.put(rigidBody.getUuid(), convertToGameObject(rigidBody));
-		}
+		this.rootGameObjectHashMap = rootGameObjectHashMap;
 
-		RootGameObject cameraRootObject = new RootGameObject();
-		Camera camera = new Camera(new Vec3f(0.0f, 0.0f, 10.0f), new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
-		CameraGameObject cameraGameObject = new CameraGameObject(cameraRootObject, camera, CameraType.PRIMARY);
-		rootGameObjectHashMap.put(UUID.randomUUID(), cameraRootObject);
-
-		RootGameObject lightRootObject = new RootGameObject();
-		createLights(lightRootObject);
-		rootGameObjectHashMap.put(UUID.randomUUID(), lightRootObject);
-
+		//for (RigidBody rigidBody : rigidBodies) {
+		//	rootGameObjectHashMap.put(rigidBody.getUuid(), convertToGameObject(rigidBody));
+		//}
+		//rootGameObjectHashMap.put(UUID.randomUUID(), cameraGameObject);
+		//rootGameObjectHashMap.put(UUID.randomUUID(), lightRootObject);
 
 		this.collisionDetection = new CollisionDetection();
 	}
 
-	private void createLights(RootGameObject rootGameObject) {
-		MeshObject meshGroupLight = new SphereMesh(10, new Material("/textures/white.png"), true);
-
-		PointLight light = new PointLight(
-				new Vec3f(0.0f, 1.0f, 0.0f),
-				10);
-
-		Transform lightGameObjectTransform = new Transform(
-				Vec3f.X.scale(-10),
-				Vec3f.ONE,
-				Matrix4f.Identity
-		);
-		TransformGameObject transformGameObject = new TransformGameObject(rootGameObject, lightGameObjectTransform);
-		LightGameObject lightGameObject = new LightGameObject(transformGameObject, light);
-		MeshGameObject meshGameObject = new MeshGameObject(
-				transformGameObject,
-				meshGroupLight
-		);
-	}
-
-	private RootGameObject convertToPlayerObject(RigidBody rigidBody) {
-		RootGameObject rootObject = new RootGameObject();
-
-		Transform transform = new Transform(
-				(Vec3f) rigidBody.getOrigin().toVecf(),
-				(Vec3f) rigidBody.getDimensions().toVecf(),
-				rigidBody.getRotation().toMatrix().toMatrix4f()
-		);
-
-		TransformGameObject transformGameObject = new TransformGameObject(rootObject, transform);
-
-		PlayerGameObject playerGameObject = new PlayerGameObject(transformGameObject);
-
-
-		Camera camera = new Camera(new Vec3f(0.0f, 0.0f, 0.0f), new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
-
-		CameraGameObject cameraGameObject = new CameraGameObject(transformGameObject, camera, CameraType.PRIMARY);
-
-		MeshObject meshObject;
-
-		switch (rigidBody.getType()){
-			case SPHERE_INNER:
-				meshObject = new SphereMesh(10, new Material("/textures/white.png"), true);
-				break;
-			case SPHERE:
-				meshObject = new SphereMesh(10, new Material("/textures/white.png"), false);
-				break;
-			case CUBOID:
-				meshObject = new CubeMesh(false, new Material("/textures/white.png")) ;
-				break;
-			default:
-				meshObject = new SphereMesh(10, new Material("/textures/white.png"), false);
-				break;
-		}
-
-		MeshGameObject meshGameObject = new MeshGameObject(
-				transformGameObject,
-				meshObject
-		);
-
-		return rootObject;
-	}
-
 	private void resolveForces(RigidBody rigidBody) {
 
-		Vec3d sumVec = Vec3d.ZERO;
+		Vec3d sumVecLinear = Vec3d.ZERO;
+		Vec3d sumVecAngular = Vec3d.ZERO;
 
 		for (Force force : rigidBody.getForces()) {
-			Vec3d act = force.act(rigidBody);
-			sumVec = sumVec.add(act);
+			sumVecLinear = sumVecLinear.add(force.actLinear(rigidBody));
+			sumVecAngular = sumVecAngular.add(force.actAngular(rigidBody));
 		}
 
-		rigidBody.setForce(sumVec);
-		rigidBody.setTorque(Vec3d.ZERO);
+		rigidBody.setForce(sumVecLinear);
+		rigidBody.setTorque(sumVecAngular);
 
 	}
 
@@ -164,45 +84,6 @@ public class Simulation implements SimulationInterface {
 	@Override
 	public HashMap<UUID, RootGameObject> getRootGameObjects() {
 		return rootGameObjectHashMap;
-	}
-
-	public RootGameObject convertToGameObject(RigidBody rigidBody) {
-
-		RootGameObject rootObject = new RootGameObject();
-
-		Transform transform = new Transform(
-				(Vec3f) rigidBody.getOrigin().toVecf(),
-				(Vec3f) rigidBody.getDimensions().toVecf(),
-				rigidBody.getRotation().toMatrix().toMatrix4f()
-		);
-
-		TransformGameObject transformGameObject = new TransformGameObject(rootObject, transform);
-
-		MeshObject meshObject;
-		Matrix4f startingTranslation = Matrix4f.Translation(Vec3f.X).multiply(Matrix4f.Rotation(-90f, Vec3f.X));
-
-		switch (rigidBody.getType()){
-			case SPHERE_INNER:
-				meshObject = new SphereMesh(10, new Material("/textures/white.png"), true);
-				break;
-			case SPHERE:
-				meshObject = new SphereMesh(10, new Material("/textures/white.png"), false);
-				break;
-			case CUBOID:
-				meshObject = new CubeMesh(false, new Material("/textures/white.png"));
-				break;
-			default:
-				meshObject = new SphereMesh(10, new Material("/textures/white.png"), false);
-				break;
-		}
-
-		MeshGameObject meshGameObject = new MeshGameObject(
-				transformGameObject,
-				meshObject
-		);
-
-		return rootObject;
-
 	}
 
 	@Override

@@ -3,17 +3,17 @@ package com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.forces;
 import com.nick.wood.maths.objects.vector.Vec3d;
 import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.RigidBody;
 
-public class GravityBasic implements Force{
+public class Drag implements Force{
 
-	private static final double g = 9.81;
+	private static final double DRAG_COEFF = -0.01;
 
 	@Override
 	public Vec3d actLinear(RigidBody rigidBody) {
-		return Vec3d.Z.scale(rigidBody.getMass() * -9.81);
+		return rigidBody.getVelocity().scale(DRAG_COEFF);
 	}
 
 	@Override
 	public Vec3d actAngular(RigidBody rigidBody) {
-		return Vec3d.ZERO;
+		return rigidBody.getAngularVelocity().scale(DRAG_COEFF);
 	}
 }
