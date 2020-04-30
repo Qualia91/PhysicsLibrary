@@ -47,7 +47,7 @@ public class RigidBody {
 		this.dimensions = dimensions;
 		this.forces = forces;
 		this.origin = origin;
-		this.rotation = rotation;
+		this.rotation = rotation.normalise();
 		this.linearMomentum = linearMomentum;
 		this.angularMomentum = angularMomentum;
 		this.rigidBodyType = rigidBodyType;
@@ -62,14 +62,14 @@ public class RigidBody {
 						yy + zz, 0.0, 0.0, 0.0,
 						0.0, xx + zz, 0.0, 0.0,
 						0.0, 0.0, xx + yy, 0.0,
-						0.0, 0.0, 0.0, 12/mass
+						0.0, 0.0, 0.0, 12.0/mass
 				).scale(mass/12.0);
 				break;
 			case SPHERE:
 			case SPHERE_INNER:
-				double a = dimensions.getX()/2;
-				double b = dimensions.getY()/2;
-				double c = dimensions.getZ()/2;
+				double a = dimensions.getX()/2.0;
+				double b = dimensions.getY()/2.0;
+				double c = dimensions.getZ()/2.0;
 
 				double aa = a * a;
 				double bb = b * b;
@@ -178,7 +178,6 @@ public class RigidBody {
 		Quaternion newRotation = rotation.add(increment.Qdot);
 		Vec3d newMomentum = linearMomentum.add(increment.Pdot);
 		Vec3d newAngularMomentum = angularMomentum.add(increment.Ldot);
-
 		return new RigidBody(this.uuid, mass, dimensions, newX, newRotation, newMomentum, newAngularMomentum, rigidBodyType, forces);
 	}
 

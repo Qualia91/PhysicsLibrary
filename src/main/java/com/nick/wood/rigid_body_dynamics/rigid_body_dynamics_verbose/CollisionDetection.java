@@ -2,14 +2,13 @@ package com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose;
 
 import com.nick.wood.maths.objects.matrix.Matrix4d;
 import com.nick.wood.maths.objects.vector.Vec3d;
-import com.nick.wood.maths.objects.vector.Vecd;
 
 import java.util.ArrayList;
 
 public class CollisionDetection {
 
-	private static final double Cr = 0.5;
-	private static final double FRICTION = 0.5;
+	private static final double Cr = 0.2;
+	private static final double FRICTION = 0.2;
 
 	public void collisionDetection(ArrayList<RigidBody> rigidBodyList) {
 
@@ -263,7 +262,6 @@ public class CollisionDetection {
 
 		double collisionDistance = length - totalRad;
 
-
 		// check if collision
 		if (collisionDistance < 0) {
 
@@ -319,16 +317,16 @@ public class CollisionDetection {
 			Vec3d taa = (n.cross(vba1)).cross(n).normalise();
 
 			// angular velocity impulse
-			Vec3d la2f = IaInv.multiply(rap.cross((n.scale(jaa).add(taa.scale(FRICTION)))));
-			Vec3d lb2f = IbInv.multiply(rbp.cross((n.scale(jba).add(taa.scale(FRICTION)))));
+			Vec3d la2f = IaInv.rotate(rap.cross((n.scale(jaa).add(taa.scale(FRICTION * jaa)))));
+			Vec3d lb2f = IbInv.rotate(rbp.cross((n.scale(jba).add(taa.scale(FRICTION * jba)))));
 
 			// velocity impulse
 			Vec3d va2 = (n.scale(jaa/ma).add(taa.scale(FRICTION/ma)));
 			Vec3d vb2 = (n.scale(jba/mb).subtract(taa.scale(FRICTION/mb)));
 
 			// add impulse
-			rigidBody.addImpulse(rbp.normalise().scale(-collisionDistance/2.0), va2, la2f);
-			otherBody.addImpulse(rbp.normalise().scale(collisionDistance/2.0), vb2, lb2f.neg());
+			rigidBody.addImpulse(rbp.normalise().scale(-collisionDistance/2.0), va2, la2f.scale(-0.2));
+			otherBody.addImpulse(rbp.normalise().scale(collisionDistance/2.0), vb2, lb2f.scale(-0.2));
 
 		}
 	}
@@ -404,16 +402,16 @@ public class CollisionDetection {
 			Vec3d taa = (n.cross(vba1)).cross(n).normalise();
 
 			// angular velocity impulse
-			Vec3d la2f = IaInv.multiply(rap.cross((n.scale(jaa).add(taa.scale(FRICTION)))));
-			Vec3d lb2f = IbInv.multiply(rbp.cross((n.scale(jba).add(taa.scale(FRICTION)))));
+			Vec3d la2f = IaInv.rotate(rap.cross((n.scale(jaa).add(taa.scale(FRICTION * jaa)))));
+			Vec3d lb2f = IbInv.rotate(rbp.cross((n.scale(jba).add(taa.scale(FRICTION * jba)))));
 
 			// velocity impulse
 			Vec3d va2 = (n.scale(jaa/ma).add(taa.scale(FRICTION/ma)));
 			Vec3d vb2 = (n.scale(jba/mb).subtract(taa.scale(FRICTION/mb)));
 
 			// add impulse
-			sphereInner.addImpulse(rbp.normalise().scale(-collisionDistance/2.0), va2, la2f);
-			sphere.addImpulse(rbp.normalise().scale(collisionDistance/2.0), vb2, lb2f.neg());
+			sphereInner.addImpulse(rbp.normalise().scale(-collisionDistance/2.0), va2, la2f.scale(-0.2));
+			sphere.addImpulse(rbp.normalise().scale(collisionDistance/2.0), vb2, lb2f.scale(-0.2));
 
 		}
 	}
