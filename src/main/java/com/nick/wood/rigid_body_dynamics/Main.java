@@ -45,7 +45,7 @@ public class Main {
 
         Simulation simulation = new Simulation(particles, naryForces, planes);
 
-        Game game = new Game(1000, 800, simulation);
+        Game game = new Game(1000, 800, simulation, true, true);
 
         ExecutorService executor = Executors.newFixedThreadPool(4);
 

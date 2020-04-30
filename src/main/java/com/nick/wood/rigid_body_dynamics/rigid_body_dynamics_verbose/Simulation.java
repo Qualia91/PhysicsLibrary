@@ -3,10 +3,10 @@ package com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose;
 import com.nick.wood.graphics_library.objects.game_objects.*;
 import com.nick.wood.maths.objects.vector.Vec3f;
 import com.nick.wood.rigid_body_dynamics.SimulationInterface;
-import com.nick.wood.rigid_body_dynamics.game.controls.FlightAssistControl;
 import com.nick.wood.graphics_library.input.*;
 import com.nick.wood.maths.objects.Quaternion;
 import com.nick.wood.maths.objects.vector.Vec3d;
+import com.nick.wood.rigid_body_dynamics.game.controls.RigidBodyControl;
 import com.nick.wood.rigid_body_dynamics.particle_system_dynamics_verbose.Plane;
 import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.forces.Force;
 import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.ode.RigidBodyODEReturnData;
@@ -20,18 +20,17 @@ public class Simulation implements SimulationInterface {
 	private final Inputs input;
 	private final CollisionDetection collisionDetection;
 	private final Game3DInputs game3DInputs;
-	private UUID playerRigidBodyUUID;
 	private final Control control;
 
 	ArrayList<RigidBody> rigidBodies;
-	HashMap<UUID, RootGameObject> rootGameObjectHashMap = new HashMap<>();
+	HashMap<UUID, RootGameObject> rootGameObjectHashMap;
 	ArrayList<Plane> planes = new ArrayList<>();
 
-	public Simulation(Inputs input, ArrayList<RigidBody> rigidBodies, HashMap<UUID, RootGameObject> rootGameObjectHashMap) {
+	public Simulation(Inputs input, ArrayList<RigidBody> rigidBodies, HashMap<UUID, RootGameObject> rootGameObjectHashMap, Control control) {
 		this.rigidBodies = rigidBodies;
 		this.input = input;
+		this.control = control;
 
-		this.control = new FlightAssistControl(0.005, 5.0);
 		this.game3DInputs = new Game3DInputs(input, control);
 
 		this.rungeKutta = new RungeKutta(
@@ -41,6 +40,8 @@ public class Simulation implements SimulationInterface {
 
 					resolveForces(rigidBody);
 
+					control.reset();
+
 					return new RigidBodyODEReturnData(
 							rigidBody.getVelocity(),
 							dDot,
@@ -48,16 +49,11 @@ public class Simulation implements SimulationInterface {
 							rigidBody.getTorque()
 					);
 
+
 				}
 		);
 
 		this.rootGameObjectHashMap = rootGameObjectHashMap;
-
-		//for (RigidBody rigidBody : rigidBodies) {
-		//	rootGameObjectHashMap.put(rigidBody.getUuid(), convertToGameObject(rigidBody));
-		//}
-		//rootGameObjectHashMap.put(UUID.randomUUID(), cameraGameObject);
-		//rootGameObjectHashMap.put(UUID.randomUUID(), lightRootObject);
 
 		this.collisionDetection = new CollisionDetection();
 	}
@@ -72,8 +68,19 @@ public class Simulation implements SimulationInterface {
 			sumVecAngular = sumVecAngular.add(force.actAngular(rigidBody));
 		}
 
-		rigidBody.setForce(sumVecLinear);
-		rigidBody.setTorque(sumVecAngular);
+		if (control.getUuid() != null) {
+
+			if (control.getUuid().equals(rigidBody.getUuid())) {
+
+				game3DInputs.checkInputs();
+
+				sumVecLinear = sumVecLinear.add(rigidBody.getRotation().toMatrix().rotate((Vec3d) control.getForce()));
+				sumVecAngular = sumVecAngular.add(rigidBody.getRotation().toMatrix().rotate((Vec3d) control.getTorque()));
+			}
+		}
+
+		rigidBody.addForce(sumVecLinear);
+		rigidBody.addTorque(sumVecAngular);
 
 	}
 
@@ -93,19 +100,12 @@ public class Simulation implements SimulationInterface {
 		ArrayList<RigidBody> tempList = new ArrayList<>();
 
 		for (RigidBody rigidBody : rigidBodies) {
-
-			if (rigidBody.getUuid().equals(playerRigidBodyUUID)) {
-				rigidBody.setMomentums(control.getLinearMomentum(rigidBody.getRotation().toMatrix(), rigidBody.getLinearMomentum()), control.getAngularMomentum(rigidBody.getRotation().toMatrix(), rigidBody.getAngularMomentum()));
-				control.reset();
-			}
 			tempList.add(rungeKutta.solve(rigidBody, rigidBody.getUuid(), deltaSeconds));
 		}
 
 		rigidBodies = tempList;
 
 		collisionDetection.collisionDetection(tempList);
-
-		game3DInputs.checkInputs();
 
 		for (RigidBody rigidBody : tempList) {
 			rigidBody.applyImpulse();

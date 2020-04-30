@@ -34,8 +34,8 @@ public class RigidBody {
 	private Vec3d velocity;
 	private Vec3d angularVelocity;
 	// Computer quantities
-	private Vec3d force;
-	private Vec3d torque;
+	private Vec3d force = Vec3d.ZERO;
+	private Vec3d torque = Vec3d.ZERO;
 	// Impulse
 	private Vec3d pos = Vec3d.ZERO;
 	private Vec3d velocityImpulse = Vec3d.ZERO;
@@ -258,5 +258,15 @@ public class RigidBody {
 
 	public RigidBodyType getType() {
 		return rigidBodyType;
+	}
+
+	public void addForce(Vec3d additionalForce) {
+
+		this.force = force.add(additionalForce);
+	}
+
+	public void addTorque(Vec3d additionTorque) {
+
+		this.torque = torque.add(additionTorque);
 	}
 }

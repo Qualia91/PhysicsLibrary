@@ -11,7 +11,9 @@ public class Game implements Runnable {
 
 	public Game(int width,
 	            int height,
-	            SimulationInterface simulation) {
+	            SimulationInterface simulation,
+	            boolean enableCameraView,
+	            boolean enableCameraMove) {
 
 		this.simulation = simulation;
 		this.window = new Window(
@@ -19,7 +21,8 @@ public class Game implements Runnable {
 				height,
 				"",
 				simulation.getRootGameObjects(),
-				simulation.getInputs());
+				simulation.getInputs(),
+				enableCameraView, enableCameraMove);
 	}
 
 	@Override

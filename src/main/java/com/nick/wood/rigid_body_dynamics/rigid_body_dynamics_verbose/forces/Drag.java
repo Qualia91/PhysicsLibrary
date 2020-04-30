@@ -5,7 +5,7 @@ import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.RigidBody;
 
 public class Drag implements Force{
 
-	private static final double DRAG_COEFF = -0.01;
+	private static final double DRAG_COEFF = -0.1;
 
 	@Override
 	public Vec3d actLinear(RigidBody rigidBody) {

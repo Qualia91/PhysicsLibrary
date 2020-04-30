@@ -1,6 +1,7 @@
 package com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose;
 
 import com.nick.wood.graphics_library.Material;
+import com.nick.wood.graphics_library.input.Control;
 import com.nick.wood.graphics_library.input.Inputs;
 import com.nick.wood.graphics_library.lighting.PointLight;
 import com.nick.wood.graphics_library.lighting.SpotLight;
@@ -17,6 +18,8 @@ import com.nick.wood.maths.objects.vector.Vec3d;
 import com.nick.wood.maths.objects.vector.Vec3f;
 import com.nick.wood.rigid_body_dynamics.SimulationInterface;
 import com.nick.wood.rigid_body_dynamics.game.Game;
+import com.nick.wood.rigid_body_dynamics.game.controls.NoControl;
+import com.nick.wood.rigid_body_dynamics.game.controls.RigidBodyControl;
 import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.forces.Drag;
 import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.forces.Force;
 import com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.forces.GravityBasic;
@@ -99,9 +102,11 @@ class SimulationTest {
 
 		rootGameObjectHashMap.put(UUID.randomUUID(), cameraRootObject);
 
-		SimulationInterface simulation = new com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.Simulation(inputs, rigidBodies, rootGameObjectHashMap);
 
-		Game game = new Game(1200, 1000, simulation);
+
+		SimulationInterface simulation = new com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.Simulation(inputs, rigidBodies, rootGameObjectHashMap, new NoControl());
+
+		Game game = new Game(1200, 1000, simulation, true, true);
 
 		ExecutorService executor = Executors.newFixedThreadPool(8);
 
@@ -180,9 +185,9 @@ class SimulationTest {
 		rootGameObjectHashMap.put(UUID.randomUUID(), cameraRootObject);
 		rootGameObjectHashMap.put(UUID.randomUUID(), lightRootObject);
 
-		SimulationInterface simulation = new com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.Simulation(inputs, rigidBodies, rootGameObjectHashMap);
+		SimulationInterface simulation = new com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.Simulation(inputs, rigidBodies, rootGameObjectHashMap, new NoControl());
 
-		Game game = new Game(1000, 800, simulation);
+		Game game = new Game(1000, 800, simulation, true, true);
 
 		ExecutorService executor = Executors.newFixedThreadPool(8);
 
@@ -240,9 +245,9 @@ class SimulationTest {
 		createLights(lightRootObject);
 		rootGameObjectHashMap.put(UUID.randomUUID(), lightRootObject);
 
-		SimulationInterface simulation = new com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.Simulation(inputs, rigidBodies, rootGameObjectHashMap);
+		SimulationInterface simulation = new com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.Simulation(inputs, rigidBodies, rootGameObjectHashMap, new NoControl());
 
-		Game game = new Game(1000, 800, simulation);
+		Game game = new Game(1000, 800, simulation, true, true);
 
 		ExecutorService executor = Executors.newFixedThreadPool(4);
 
@@ -338,9 +343,74 @@ class SimulationTest {
 
 		Inputs inputs = new Inputs();
 
-		SimulationInterface simulation = new com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.Simulation(inputs, rigidBodies, rootGameObjectHashMap);
+		SimulationInterface simulation = new com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.Simulation(inputs, rigidBodies, rootGameObjectHashMap, new NoControl());
 
-		Game game = new Game(1000, 800, simulation);
+		Game game = new Game(1000, 800, simulation, true, true);
+
+		ExecutorService executor = Executors.newFixedThreadPool(4);
+
+		Future<?> submit = executor.submit(game);
+
+		// waits for game to finish
+		submit.get();
+
+		// closes executor service
+		executor.shutdown();
+	}
+
+	@Test
+	void cameraAttachedToObject() throws ExecutionException, InterruptedException {
+
+		ArrayList<RigidBody> rigidBodies = new ArrayList<>();
+
+		ArrayList<Force> forces = new ArrayList<>();
+		forces.add(new Drag());
+
+		UUID uuid = UUID.randomUUID();
+		//Quaternion quaternion = Quaternion.RotationX(90);
+		Quaternion quaternion = new Quaternion(1.0, 0.0, 0.0, 0.0);
+		RigidBody rigidBodyCube = new RigidBody(uuid, 1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(0.0, 0.0, 25.0), quaternion, Vec3d.ZERO, Vec3d.ZERO, RigidBodyType.SPHERE, forces);
+		rigidBodies.add(rigidBodyCube);
+
+
+		HashMap<UUID, RootGameObject> rootGameObjectHashMap = new HashMap<>();
+
+
+		RigidBodyControl control = null;
+		for (RigidBody rigidBody : rigidBodies) {
+			RootGameObject rootGameObject = convertToGameObject(rigidBody);
+			TransformGameObject transformGameObjectLaser = (TransformGameObject) rootGameObject.getGameObjectNodeData().getChildren().get(0);
+			MeshObject meshGroupLaser = new SphereMesh(10, new Material("/textures/texture.png"), false);
+			createLaserUnderTransform(new Vec3f(1.0f, 1.0f, 1.0f), Vec3f.ZERO, meshGroupLaser, transformGameObjectLaser);
+
+			control = new RigidBodyControl(2, 0.5, rigidBody.getUuid());
+
+			Camera camera = new Camera(new Vec3f(-5.0f, 0.0f, 1.0f), new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
+			CameraGameObject cameraGameObject = new CameraGameObject(transformGameObjectLaser, camera, CameraType.PRIMARY);
+
+			rootGameObjectHashMap.put(rigidBody.getUuid(), rootGameObject);
+		}
+
+		//// Arena
+		UUID uuidArena = UUID.randomUUID();
+		RigidBody rigidBodyArena = new RigidBody(uuidArena, 10, new Vec3d(100, 100, 100), new Vec3d(0.0, 0.0, 0.0), new Quaternion(1.0, 0.0, 0.0, 0.0), Vec3d.ZERO, Vec3d.ZERO, RigidBodyType.SPHERE_INNER, forces);
+		rigidBodies.add(rigidBodyArena);
+		RootGameObject rootGameObject = convertToGameObject(rigidBodyArena);
+		TransformGameObject transformGameObject = (TransformGameObject) rootGameObject.getGameObjectNodeData().getChildren().get(0);
+		MeshObject meshGroupLight = new SphereMesh(10, new Material("/textures/white.png"), true);
+		createLightUnderTransform(new Vec3f(1.0f, 0.0f, 0.0f), Vec3f.Z.scale(0.30f), meshGroupLight, transformGameObject);
+		createLightUnderTransform(new Vec3f(0.0f, 1.0f, 0.0f), Vec3f.Z.scale(-0.30f), meshGroupLight, transformGameObject);
+		createLightUnderTransform(new Vec3f(0.0f, 0.0f, 1.0f), Vec3f.X.scale(0.30f), meshGroupLight, transformGameObject);
+		createLightUnderTransform(new Vec3f(1.0f, 1.0f, 0.0f), Vec3f.X.scale(-0.30f), meshGroupLight, transformGameObject);
+		createLightUnderTransform(new Vec3f(1.0f, 0.0f, 1.0f), Vec3f.Y.scale(0.30f), meshGroupLight, transformGameObject);
+		createLightUnderTransform(new Vec3f(0.0f, 1.0f, 1.0f), Vec3f.Y.scale(-0.30f), meshGroupLight, transformGameObject);
+		rootGameObjectHashMap.put(uuidArena, rootGameObject);
+
+		Inputs inputs = new Inputs();
+
+		SimulationInterface simulation = new com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.Simulation(inputs, rigidBodies, rootGameObjectHashMap, control);
+
+		Game game = new Game(1000, 800, simulation, false, false);
 
 		ExecutorService executor = Executors.newFixedThreadPool(4);
 
@@ -392,9 +462,76 @@ class SimulationTest {
 		rootGameObjectHashMap.put(UUID.randomUUID(), cameraRootObject);
 		rootGameObjectHashMap.put(UUID.randomUUID(), lightRootObject);
 
-		SimulationInterface simulation = new com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.Simulation(inputs, rigidBodies, rootGameObjectHashMap);
+		SimulationInterface simulation = new com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.Simulation(inputs, rigidBodies, rootGameObjectHashMap, new NoControl());
 
-		Game game = new Game(1000, 800, simulation);
+		Game game = new Game(1000, 800, simulation, true, true);
+
+		ExecutorService executor = Executors.newFixedThreadPool(4);
+
+		Future<?> submit = executor.submit(game);
+
+		// waits for game to finish
+		submit.get();
+
+		// closes executor service
+		executor.shutdown();
+	}
+
+	@Test
+	void bigBangWithPlayer() throws ExecutionException, InterruptedException {
+
+		ArrayList<RigidBody> rigidBodies = new ArrayList<>();
+
+		ArrayList<Force> forces = new ArrayList<>();
+		forces.add(new Drag());
+
+		// demo 3: big bang
+		Random random = new Random();
+		for (int k = -2; k < 2; k++) {
+			for (int j = -2; j < 2; j++) {
+				for (int i = -2; i < 2; i++) {
+					Vec3d mom = Vec3d.X.scale(-i*10).add(Vec3d.Y.scale(-j*10)).add(Vec3d.Z.scale(-k*10));
+					Vec3d angMom = Vec3d.X.scale(random.nextInt(10) - 4).add(Vec3d.Y.scale(random.nextInt(10) - 4)).add(Vec3d.Z.scale(random.nextInt(10) - 4));
+					UUID uuid = UUID.randomUUID();
+					RigidBody rigidBody = new RigidBody(uuid, 1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(i * 10, j * 10, k*10), new Quaternion(1.0, 0.0, 0.0, 0.0), mom, angMom.scale(0.02), RigidBodyType.SPHERE, forces);
+					rigidBodies.add(rigidBody);
+				}
+			}
+		}
+
+		UUID playerUUID = UUID.randomUUID();
+		RigidBody rigidBody = new RigidBody(playerUUID, 1, new Vec3d(1.0, 1.0, 1.0), new Vec3d(-50, 0, 0), new Quaternion(1.0, 0.0, 0.0, 0.0), Vec3d.ZERO, Vec3d.ZERO, RigidBodyType.SPHERE, forces);
+		RootGameObject rootGameObject = convertToGameObject(rigidBody);
+		TransformGameObject transformGameObjectLaser = (TransformGameObject) rootGameObject.getGameObjectNodeData().getChildren().get(0);
+		MeshObject meshGroupLaser = new SphereMesh(10, new Material("/textures/texture.png"), false);
+		createLaserUnderTransform(new Vec3f(1.0f, 1.0f, 1.0f), Vec3f.ZERO, meshGroupLaser, transformGameObjectLaser);
+		rigidBodies.add(rigidBody);
+		Control control = new RigidBodyControl(2, 0.5, playerUUID);
+
+		Camera camera = new Camera(new Vec3f(-5.0f, 0.0f, 1.0f), new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
+		CameraGameObject cameraGameObject = new CameraGameObject(transformGameObjectLaser, camera, CameraType.PRIMARY);
+
+
+		RootGameObject lightRootObject = new RootGameObject();
+		createLights(lightRootObject);
+
+		Inputs inputs = new Inputs();
+
+		HashMap<UUID, RootGameObject> rootGameObjectHashMap = new HashMap<>();
+
+		for (RigidBody rigidBodyInLoop : rigidBodies) {
+			rootGameObjectHashMap.put(rigidBodyInLoop.getUuid(), convertToGameObject(rigidBodyInLoop));
+		}
+
+		createArena(rigidBodies, rootGameObjectHashMap, forces);
+
+		rootGameObjectHashMap.put(playerUUID, rootGameObject);
+
+		rootGameObjectHashMap.put(UUID.randomUUID(), lightRootObject);
+
+		SimulationInterface simulation = new com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.Simulation(inputs, rigidBodies, rootGameObjectHashMap, control);
+
+		Game game = new Game(1000, 800, simulation, false, false);
 
 		ExecutorService executor = Executors.newFixedThreadPool(4);
 
@@ -451,9 +588,9 @@ class SimulationTest {
 		rootGameObjectHashMap.put(UUID.randomUUID(), cameraRootObject);
 		rootGameObjectHashMap.put(UUID.randomUUID(), lightRootObject);
 
-		SimulationInterface simulation = new com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.Simulation(inputs, rigidBodies, rootGameObjectHashMap);
+		SimulationInterface simulation = new com.nick.wood.rigid_body_dynamics.rigid_body_dynamics_verbose.Simulation(inputs, rigidBodies, rootGameObjectHashMap, new NoControl());
 
-		Game game = new Game(1000, 800, simulation);
+		Game game = new Game(1000, 800, simulation, true, true);
 
 		ExecutorService executor = Executors.newFixedThreadPool(4);
 
@@ -464,6 +601,23 @@ class SimulationTest {
 
 		// closes executor service
 		executor.shutdown();
+	}
+
+	public void createArena(ArrayList<RigidBody> rigidBodies, HashMap<UUID, RootGameObject> rootGameObjectHashMap, ArrayList<Force> forces) {
+		//// Arena
+		UUID uuidArena = UUID.randomUUID();
+		RigidBody rigidBodyArena = new RigidBody(uuidArena, 10, new Vec3d(100, 100, 100), new Vec3d(0.0, 0.0, 0.0), new Quaternion(1.0, 0.0, 0.0, 0.0), Vec3d.ZERO, Vec3d.ZERO, RigidBodyType.SPHERE_INNER, forces);
+		rigidBodies.add(rigidBodyArena);
+		RootGameObject rootGameObject = convertToGameObject(rigidBodyArena);
+		TransformGameObject transformGameObject = (TransformGameObject) rootGameObject.getGameObjectNodeData().getChildren().get(0);
+		MeshObject meshGroupLight = new SphereMesh(10, new Material("/textures/white.png"), true);
+		createLightUnderTransform(new Vec3f(1.0f, 0.0f, 0.0f), Vec3f.Z.scale(0.30f), meshGroupLight, transformGameObject);
+		createLightUnderTransform(new Vec3f(0.0f, 1.0f, 0.0f), Vec3f.Z.scale(-0.30f), meshGroupLight, transformGameObject);
+		createLightUnderTransform(new Vec3f(0.0f, 0.0f, 1.0f), Vec3f.X.scale(0.30f), meshGroupLight, transformGameObject);
+		createLightUnderTransform(new Vec3f(1.0f, 1.0f, 0.0f), Vec3f.X.scale(-0.30f), meshGroupLight, transformGameObject);
+		createLightUnderTransform(new Vec3f(1.0f, 0.0f, 1.0f), Vec3f.Y.scale(0.30f), meshGroupLight, transformGameObject);
+		createLightUnderTransform(new Vec3f(0.0f, 1.0f, 1.0f), Vec3f.Y.scale(-0.30f), meshGroupLight, transformGameObject);
+		rootGameObjectHashMap.put(uuidArena, rootGameObject);
 	}
 
 	public RootGameObject convertToGameObject(RigidBody rigidBody) {
@@ -486,7 +640,7 @@ class SimulationTest {
 				meshObject = new SphereMesh(10, new Material("/textures/white.png"), true);
 				break;
 			case SPHERE:
-				meshObject = new SphereMesh(10, new Material("/textures/white.png"), false);
+				meshObject = new SphereMesh(10, new Material("/textures/texture.png"), false);
 				break;
 			case CUBOID:
 				meshObject = new CubeMesh(false, new Material("/textures/white.png"));
