@@ -1,4 +1,4 @@
 /target/
-/out/production/RigidBodyDynamics/META-INF/
-/RigidBodyDynamics.iml
+/out/
 /.idea/
+*.iml
