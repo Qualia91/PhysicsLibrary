@@ -243,4 +243,15 @@ public class RigidBody implements Body {
 
 		this.torque = torque.add(additionTorque);
 	}
+
+	public void slowDown() {
+		Vec3d linearForce = linearMomentum.scale(mass);
+		addForce(linearForce.scale(-5));
+
+		if (angularMomentum.length2() < 5) {
+			addTorque(angularMomentum.scale(-20));
+		} else {
+			addTorque(angularMomentum.scale(-10));
+		}
+	}
 }
