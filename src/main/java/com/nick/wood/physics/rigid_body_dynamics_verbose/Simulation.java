@@ -2,7 +2,7 @@ package com.nick.wood.physics.rigid_body_dynamics_verbose;
 
 import com.nick.wood.physics.Body;
 import com.nick.wood.physics.SimulationInterface;
-import com.nick.wood.maths.objects.Quaternion;
+import com.nick.wood.maths.objects.QuaternionD;
 import com.nick.wood.maths.objects.vector.Vec3d;
 import com.nick.wood.physics.rigid_body_dynamics_verbose.forces.Force;
 import com.nick.wood.physics.rigid_body_dynamics_verbose.ode.RigidBodyODEReturnData;
@@ -23,7 +23,7 @@ public class Simulation implements SimulationInterface {
 		this.rungeKutta = new RungeKutta(
 				(RigidBody rigidBody, UUID uuid) -> {
 
-					Quaternion dDot = Quaternion.FromVec(1.0, rigidBody.getAngularVelocity()).multiply(rigidBody.getRotation()).scale(0.5);
+					QuaternionD dDot = QuaternionD.FromVec(1.0, rigidBody.getAngularVelocity()).multiply(rigidBody.getRotation()).scale(0.5);
 
 					resolveForces(rigidBody);
 

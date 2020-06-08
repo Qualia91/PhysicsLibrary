@@ -1,6 +1,6 @@
 package com.nick.wood.physics.particle_system_dynamics_verbose;
 
-import com.nick.wood.maths.objects.Quaternion;
+import com.nick.wood.maths.objects.QuaternionD;
 import com.nick.wood.maths.objects.vector.Vec3d;
 import com.nick.wood.maths.objects.vector.Vecd;
 import com.nick.wood.physics.Body;
@@ -49,8 +49,8 @@ public class Particle implements Body {
 	}
 
 	@Override
-	public Quaternion getRotation() {
-		return Quaternion.Rotation(Vec3d.ZERO);
+	public QuaternionD getRotation() {
+		return QuaternionD.Rotation(Vec3d.ZERO);
 	}
 
 	public void updateState(Vec3d newPos, Vec3d newVel) {

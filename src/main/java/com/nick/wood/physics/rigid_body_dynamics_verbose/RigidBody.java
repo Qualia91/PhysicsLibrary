@@ -1,7 +1,7 @@
 package com.nick.wood.physics.rigid_body_dynamics_verbose;
 
 import com.nick.wood.maths.objects.matrix.Matrix4d;
-import com.nick.wood.maths.objects.Quaternion;
+import com.nick.wood.maths.objects.QuaternionD;
 import com.nick.wood.maths.objects.vector.Vec3d;
 import com.nick.wood.physics.Body;
 import com.nick.wood.physics.rigid_body_dynamics_verbose.forces.Force;
@@ -25,7 +25,7 @@ public class RigidBody implements Body {
 	private final RigidBodyType rigidBodyType;
 	// State variables
 	private Vec3d origin;
-	private Quaternion rotation;
+	private QuaternionD rotation;
 	private Vec3d linearMomentum;
 	private Vec3d angularMomentum;
 	// Derived quantities
@@ -42,7 +42,7 @@ public class RigidBody implements Body {
 	private Vec3d angularVelocityImpulse = Vec3d.ZERO;
 	private ArrayList<Force> forces;
 
-	public RigidBody(UUID uuid, double mass, Vec3d dimensions, Vec3d origin, Quaternion rotation, Vec3d linearMomentum, Vec3d angularMomentum, RigidBodyType rigidBodyType, ArrayList<Force> forces) {
+	public RigidBody(UUID uuid, double mass, Vec3d dimensions, Vec3d origin, QuaternionD rotation, Vec3d linearMomentum, Vec3d angularMomentum, RigidBodyType rigidBodyType, ArrayList<Force> forces) {
 		this.uuid = uuid;
 		this.dimensions = dimensions;
 		this.forces = forces;
@@ -107,7 +107,7 @@ public class RigidBody implements Body {
 		return velocity.scale(mass);
 	}
 
-	private Matrix4d calcInertialTensor(Quaternion rotationQ, Matrix4d IBody) {
+	private Matrix4d calcInertialTensor(QuaternionD rotationQ, Matrix4d IBody) {
 		Matrix4d rot = rotationQ.toMatrix().transpose();
 		return rot.multiply(IBody).multiply(rot.transpose());
 	}
@@ -141,7 +141,7 @@ public class RigidBody implements Body {
 		return origin;
 	}
 
-	public Quaternion getRotation() {
+	public QuaternionD getRotation() {
 		return rotation;
 	}
 
@@ -175,7 +175,7 @@ public class RigidBody implements Body {
 
 	public RigidBody incrementAndCopy(RigidBodyODEReturnData increment) {
 		Vec3d newX = origin.add(increment.Xdot);
-		Quaternion newRotation = rotation.add(increment.Qdot);
+		QuaternionD newRotation = rotation.add(increment.Qdot);
 		Vec3d newMomentum = linearMomentum.add(increment.Pdot);
 		Vec3d newAngularMomentum = angularMomentum.add(increment.Ldot);
 		return new RigidBody(this.uuid, mass, dimensions, newX, newRotation, newMomentum, newAngularMomentum, rigidBodyType, forces);
