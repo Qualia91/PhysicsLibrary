@@ -1,7 +1,7 @@
-package com.nick.wood.physics.rigid_body_dynamics_verbose.forces;
+package com.nick.wood.physics_library.rigid_body_dynamics_verbose.forces;
 
 import com.nick.wood.maths.objects.vector.Vec3d;
-import com.nick.wood.physics.rigid_body_dynamics_verbose.RigidBody;
+import com.nick.wood.physics_library.rigid_body_dynamics_verbose.RigidBody;
 
 import java.util.ArrayList;
 

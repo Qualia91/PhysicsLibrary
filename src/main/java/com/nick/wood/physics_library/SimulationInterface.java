@@ -1,4 +1,4 @@
-package com.nick.wood.physics;
+package com.nick.wood.physics_library;
 
 import java.util.ArrayList;
 

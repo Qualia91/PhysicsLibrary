@@ -1,4 +1,4 @@
-package com.nick.wood.physics;
+package com.nick.wood.physics_library;
 
 import com.nick.wood.maths.objects.QuaternionD;
 import com.nick.wood.maths.objects.vector.Vecd;

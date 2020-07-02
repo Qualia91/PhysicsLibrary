@@ -1,6 +1,6 @@
-package com.nick.wood.physics.rigid_body_dynamics_verbose.ode;
+package com.nick.wood.physics_library.rigid_body_dynamics_verbose.ode;
 
-import com.nick.wood.physics.rigid_body_dynamics_verbose.RigidBody;
+import com.nick.wood.physics_library.rigid_body_dynamics_verbose.RigidBody;
 
 import java.util.UUID;
 import java.util.function.BiFunction;

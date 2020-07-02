@@ -1,12 +1,12 @@
-package com.nick.wood.physics.rigid_body_dynamics_verbose;
+package com.nick.wood.physics_library.rigid_body_dynamics_verbose;
 
-import com.nick.wood.physics.Body;
-import com.nick.wood.physics.SimulationInterface;
+import com.nick.wood.physics_library.Body;
+import com.nick.wood.physics_library.SimulationInterface;
 import com.nick.wood.maths.objects.QuaternionD;
 import com.nick.wood.maths.objects.vector.Vec3d;
-import com.nick.wood.physics.rigid_body_dynamics_verbose.forces.Force;
-import com.nick.wood.physics.rigid_body_dynamics_verbose.ode.RigidBodyODEReturnData;
-import com.nick.wood.physics.rigid_body_dynamics_verbose.ode.RungeKutta;
+import com.nick.wood.physics_library.rigid_body_dynamics_verbose.forces.Force;
+import com.nick.wood.physics_library.rigid_body_dynamics_verbose.ode.RigidBodyODEReturnData;
+import com.nick.wood.physics_library.rigid_body_dynamics_verbose.ode.RungeKutta;
 
 import java.util.*;
 

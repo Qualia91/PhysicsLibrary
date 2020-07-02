@@ -1,4 +1,4 @@
-package com.nick.wood.physics;
+package com.nick.wood.physics_library;
 
 public class Main {
 

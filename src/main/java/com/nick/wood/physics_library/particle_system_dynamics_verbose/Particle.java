@@ -1,9 +1,9 @@
-package com.nick.wood.physics.particle_system_dynamics_verbose;
+package com.nick.wood.physics_library.particle_system_dynamics_verbose;
 
 import com.nick.wood.maths.objects.QuaternionD;
 import com.nick.wood.maths.objects.vector.Vec3d;
 import com.nick.wood.maths.objects.vector.Vecd;
-import com.nick.wood.physics.Body;
+import com.nick.wood.physics_library.Body;
 
 import java.util.ArrayList;
 import java.util.UUID;
