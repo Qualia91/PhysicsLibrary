@@ -8,17 +8,15 @@ import com.nick.wood.physics_library.rigid_body_dynamics_verbose.forces.Force;
 import com.nick.wood.physics_library.rigid_body_dynamics_verbose.ode.RigidBodyODEReturnData;
 import com.nick.wood.physics_library.rigid_body_dynamics_verbose.ode.RungeKutta;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
-public class Simulation implements SimulationInterface {
+public class Simulation {
 
 	private final RungeKutta rungeKutta;
 	private final CollisionDetection collisionDetection;
 
-	ArrayList<RigidBody> rigidBodies;
-
-	public Simulation(ArrayList<RigidBody> rigidBodies) {
-		this.rigidBodies = rigidBodies;
+	public Simulation() {
 
 		this.rungeKutta = new RungeKutta(
 				(RigidBody rigidBody, UUID uuid) -> {
@@ -34,7 +32,6 @@ public class Simulation implements SimulationInterface {
 							rigidBody.getTorque()
 					);
 
-
 				}
 		);
 
@@ -46,39 +43,31 @@ public class Simulation implements SimulationInterface {
 		Vec3d sumVecLinear = Vec3d.ZERO;
 		Vec3d sumVecAngular = Vec3d.ZERO;
 
-		for (Force force : rigidBody.getForces()) {
-			sumVecLinear = sumVecLinear.add(force.actLinear(rigidBody));
-			sumVecAngular = sumVecAngular.add(force.actAngular(rigidBody));
-		}
+		// todo forces need to go somewhere
+		//for (Force force : rigidBody.getForces()) {
+		//	sumVecLinear = sumVecLinear.add(force.actLinear(rigidBody));
+		//	sumVecAngular = sumVecAngular.add(force.actAngular(rigidBody));
+		//}
 
 		rigidBody.addForce(sumVecLinear);
 		rigidBody.addTorque(sumVecAngular);
 
 	}
 
-	@Override
-	public void iterate(double deltaSeconds) {
+	public ArrayList<RigidBody> iterate(double deltaSeconds, ArrayList<RigidBody> rigidBodies) {
 
-		// user controls
-		ArrayList<RigidBody> tempList = new ArrayList<>();
+		ArrayList<RigidBody> nextIterRBs = new ArrayList<>();
 
 		for (RigidBody rigidBody : rigidBodies) {
-			tempList.add(rungeKutta.solve(rigidBody, rigidBody.getUuid(), deltaSeconds));
+			nextIterRBs.add(rungeKutta.solve(rigidBody, rigidBody.getUuid(), deltaSeconds));
 		}
 
-		rigidBodies = tempList;
+		collisionDetection.collisionDetection(nextIterRBs);
 
-		collisionDetection.collisionDetection(tempList);
-
-		for (RigidBody rigidBody : tempList) {
+		for (RigidBody rigidBody : nextIterRBs) {
 			rigidBody.applyImpulse();
 		}
 
+		return nextIterRBs;
 	}
-
-	@Override
-	public ArrayList<? extends Body> getBodies() {
-		return rigidBodies;
-	}
-
 }

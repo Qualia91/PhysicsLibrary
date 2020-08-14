@@ -7,7 +7,7 @@ import com.nick.wood.maths.objects.vector.Vec3d;
 import java.util.ArrayList;
 import java.util.Optional;
 
-public class Simulation implements SimulationInterface {
+public class Simulation {
 
 	private final ArrayList<Body> particles;
 	private final ArrayList<NaryForce> forces;
@@ -93,12 +93,10 @@ public class Simulation implements SimulationInterface {
 		}
 	}
 
-	@Override
 	public void iterate(double deltaSeconds) {
 
 	}
 
-	@Override
 	public ArrayList<Body> getBodies() {
 		return particles;
 	}

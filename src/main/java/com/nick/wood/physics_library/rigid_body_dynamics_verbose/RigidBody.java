@@ -40,12 +40,10 @@ public class RigidBody implements Body {
 	private Vec3d pos = Vec3d.ZERO;
 	private Vec3d velocityImpulse = Vec3d.ZERO;
 	private Vec3d angularVelocityImpulse = Vec3d.ZERO;
-	private ArrayList<Force> forces;
 
-	public RigidBody(UUID uuid, double mass, Vec3d dimensions, Vec3d origin, QuaternionD rotation, Vec3d linearMomentum, Vec3d angularMomentum, RigidBodyType rigidBodyType, ArrayList<Force> forces) {
+	public RigidBody(UUID uuid, double mass, Vec3d dimensions, Vec3d origin, QuaternionD rotation, Vec3d linearMomentum, Vec3d angularMomentum, RigidBodyType rigidBodyType) {
 		this.uuid = uuid;
 		this.dimensions = dimensions;
-		this.forces = forces;
 		this.origin = origin;
 		this.rotation = rotation.normalise();
 		this.linearMomentum = linearMomentum;
@@ -178,7 +176,7 @@ public class RigidBody implements Body {
 		QuaternionD newRotation = rotation.add(increment.Qdot);
 		Vec3d newMomentum = linearMomentum.add(increment.Pdot);
 		Vec3d newAngularMomentum = angularMomentum.add(increment.Ldot);
-		return new RigidBody(this.uuid, mass, dimensions, newX, newRotation, newMomentum, newAngularMomentum, rigidBodyType, forces);
+		return new RigidBody(this.uuid, mass, dimensions, newX, newRotation, newMomentum, newAngularMomentum, rigidBodyType);
 	}
 
 	public Vec3d getAngularVelocity() {
@@ -220,10 +218,6 @@ public class RigidBody implements Body {
 		this.pos = Vec3d.ZERO;
 		this.velocityImpulse = Vec3d.ZERO;
 		this.angularVelocityImpulse = Vec3d.ZERO;
-	}
-
-	public ArrayList<Force> getForces() {
-		return forces;
 	}
 
 	public UUID getUuid() {
