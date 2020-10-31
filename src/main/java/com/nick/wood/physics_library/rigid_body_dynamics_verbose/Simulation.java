@@ -1,15 +1,12 @@
 package com.nick.wood.physics_library.rigid_body_dynamics_verbose;
 
-import com.nick.wood.physics_library.Body;
-import com.nick.wood.physics_library.SimulationInterface;
 import com.nick.wood.maths.objects.QuaternionD;
 import com.nick.wood.maths.objects.vector.Vec3d;
-import com.nick.wood.physics_library.rigid_body_dynamics_verbose.forces.Force;
 import com.nick.wood.physics_library.rigid_body_dynamics_verbose.ode.RigidBodyODEReturnData;
 import com.nick.wood.physics_library.rigid_body_dynamics_verbose.ode.RungeKutta;
 
-import java.lang.reflect.Array;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Simulation {
 
@@ -54,17 +51,17 @@ public class Simulation {
 
 	}
 
-	public ArrayList<RigidBody> iterate(double deltaSeconds, ArrayList<RigidBody> rigidBodies) {
+	public HashMap<UUID, RigidBody> iterate(double deltaSeconds, ArrayList<RigidBody> rigidBodies) {
 
-		ArrayList<RigidBody> nextIterRBs = new ArrayList<>();
+		HashMap<UUID, RigidBody> nextIterRBs = new HashMap<>();
 
 		for (RigidBody rigidBody : rigidBodies) {
-			nextIterRBs.add(rungeKutta.solve(rigidBody, rigidBody.getUuid(), deltaSeconds));
+			nextIterRBs.put(rigidBody.getUuid(), rungeKutta.solve(rigidBody, rigidBody.getUuid(), deltaSeconds));
 		}
 
-		collisionDetection.collisionDetection(nextIterRBs);
+		collisionDetection.collisionDetection(new ArrayList<>(nextIterRBs.values()));
 
-		for (RigidBody rigidBody : nextIterRBs) {
+		for (RigidBody rigidBody : nextIterRBs.values()) {
 			rigidBody.applyImpulse();
 		}
 

@@ -248,4 +248,17 @@ public class RigidBody implements Body {
 			addTorque(angularMomentum.scale(-10));
 		}
 	}
+
+	@Override
+	public int hashCode() {
+		return uuid.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof UUID) {
+			return uuid.equals(obj);
+		}
+		return super.equals(obj);
+	}
 }
