@@ -1,4 +1,4 @@
-module com.nick.wood.rigid_body_dynamics {
+module com.nick.wood.physics_library {
 	requires com.nick.wood.maths;
 	exports com.nick.wood.physics_library.rigid_body_dynamics_verbose;
 	exports com.nick.wood.physics_library.particle_system_dynamics_verbose;
