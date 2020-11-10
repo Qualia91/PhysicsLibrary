@@ -1,8 +1,7 @@
-package com.nick.wood.physics_library.particle_system_dynamics_verbose;
+package com.boc_dev.physics_library.particle_system_dynamics_verbose;
 
-import com.nick.wood.physics_library.Body;
-import com.nick.wood.physics_library.SimulationInterface;
-import com.nick.wood.maths.objects.vector.Vec3d;
+import com.boc_dev.physics_library.Body;
+import com.boc_dev.maths.objects.vector.Vec3d;
 
 import java.util.ArrayList;
 import java.util.Optional;

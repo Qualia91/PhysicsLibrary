@@ -1,13 +1,11 @@
-package com.nick.wood.physics_library.rigid_body_dynamics_verbose;
+package com.boc_dev.physics_library.rigid_body_dynamics_verbose;
 
-import com.nick.wood.maths.objects.matrix.Matrix4d;
-import com.nick.wood.maths.objects.QuaternionD;
-import com.nick.wood.maths.objects.vector.Vec3d;
-import com.nick.wood.physics_library.Body;
-import com.nick.wood.physics_library.rigid_body_dynamics_verbose.forces.Force;
-import com.nick.wood.physics_library.rigid_body_dynamics_verbose.ode.RigidBodyODEReturnData;
+import com.boc_dev.maths.objects.matrix.Matrix4d;
+import com.boc_dev.maths.objects.QuaternionD;
+import com.boc_dev.maths.objects.vector.Vec3d;
+import com.boc_dev.physics_library.Body;
+import com.boc_dev.physics_library.rigid_body_dynamics_verbose.ode.RigidBodyODEReturnData;
 
-import java.util.ArrayList;
 import java.util.UUID;
 
 public class RigidBody implements Body {

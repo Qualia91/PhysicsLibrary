@@ -1,6 +1,6 @@
-package com.nick.wood.physics_library;
+package com.boc_dev.physics_library;
 
-import com.nick.wood.physics_library.rigid_body_dynamics_verbose.RigidBody;
+import com.boc_dev.physics_library.rigid_body_dynamics_verbose.RigidBody;
 
 import java.util.ArrayList;
 

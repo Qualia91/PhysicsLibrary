@@ -1,6 +1,6 @@
-package com.nick.wood.physics_library.particle_system_dynamics_verbose;
+package com.boc_dev.physics_library.particle_system_dynamics_verbose;
 
-import com.nick.wood.maths.objects.vector.Vec3d;
+import com.boc_dev.maths.objects.vector.Vec3d;
 
 /**Z down frame of reference
  *

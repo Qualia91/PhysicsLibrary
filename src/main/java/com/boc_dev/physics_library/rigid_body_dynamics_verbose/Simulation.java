@@ -1,12 +1,11 @@
-package com.nick.wood.physics_library.rigid_body_dynamics_verbose;
+package com.boc_dev.physics_library.rigid_body_dynamics_verbose;
 
-import com.nick.wood.maths.objects.QuaternionD;
-import com.nick.wood.maths.objects.vector.Vec3d;
-import com.nick.wood.physics_library.rigid_body_dynamics_verbose.ode.RigidBodyODEReturnData;
-import com.nick.wood.physics_library.rigid_body_dynamics_verbose.ode.RungeKutta;
+import com.boc_dev.maths.objects.QuaternionD;
+import com.boc_dev.maths.objects.vector.Vec3d;
+import com.boc_dev.physics_library.rigid_body_dynamics_verbose.ode.RigidBodyODEReturnData;
+import com.boc_dev.physics_library.rigid_body_dynamics_verbose.ode.RungeKutta;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Simulation {
 

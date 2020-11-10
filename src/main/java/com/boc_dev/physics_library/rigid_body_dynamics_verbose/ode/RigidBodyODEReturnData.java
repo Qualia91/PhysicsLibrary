@@ -1,7 +1,7 @@
-package com.nick.wood.physics_library.rigid_body_dynamics_verbose.ode;
+package com.boc_dev.physics_library.rigid_body_dynamics_verbose.ode;
 
-import com.nick.wood.maths.objects.QuaternionD;
-import com.nick.wood.maths.objects.vector.Vecd;
+import com.boc_dev.maths.objects.QuaternionD;
+import com.boc_dev.maths.objects.vector.Vecd;
 
 public class RigidBodyODEReturnData {
 
