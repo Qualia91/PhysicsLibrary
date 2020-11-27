@@ -39,7 +39,36 @@ public class RigidBody implements Body {
 	private Vec3d velocityImpulse = Vec3d.ZERO;
 	private Vec3d angularVelocityImpulse = Vec3d.ZERO;
 
-	public RigidBody(UUID uuid, double mass, Vec3d dimensions, Vec3d origin, QuaternionD rotation, Vec3d linearMomentum, Vec3d angularMomentum, RigidBodyType rigidBodyType) {
+	public RigidBody(UUID uuid,
+	                 double mass,
+	                 Vec3d dimensions,
+	                 Vec3d origin,
+	                 QuaternionD rotation,
+	                 Vec3d linearMomentum,
+	                 Vec3d angularMomentum,
+	                 RigidBodyType rigidBodyType) {
+		this(uuid,
+				mass,
+				dimensions,
+				origin,
+				rotation,
+				linearMomentum,
+				angularMomentum,
+				Vec3d.ZERO,
+				Vec3d.ZERO,
+				rigidBodyType);
+	}
+
+	public RigidBody(UUID uuid,
+	                 double mass,
+	                 Vec3d dimensions,
+	                 Vec3d origin,
+	                 QuaternionD rotation,
+	                 Vec3d linearMomentum,
+	                 Vec3d angularMomentum,
+	                 Vec3d linearVelocityImpulse,
+	                 Vec3d angularVelocityImpulse,
+	                 RigidBodyType rigidBodyType) {
 		this.uuid = uuid;
 		this.dimensions = dimensions;
 		this.origin = origin;
@@ -48,6 +77,9 @@ public class RigidBody implements Body {
 		this.angularMomentum = angularMomentum;
 		this.rigidBodyType = rigidBodyType;
 		this.mass = mass;
+
+		this.velocityImpulse = linearVelocityImpulse;
+		this.angularVelocityImpulse = angularVelocityImpulse;
 
 		switch (rigidBodyType) {
 			case CUBOID:
@@ -58,14 +90,14 @@ public class RigidBody implements Body {
 						yy + zz, 0.0, 0.0, 0.0,
 						0.0, xx + zz, 0.0, 0.0,
 						0.0, 0.0, xx + yy, 0.0,
-						0.0, 0.0, 0.0, 12.0/mass
-				).scale(mass/12.0);
+						0.0, 0.0, 0.0, 12.0 / mass
+				).scale(mass / 12.0);
 				break;
 			case SPHERE:
 			case SPHERE_INNER:
-				double a = dimensions.getX()/2.0;
-				double b = dimensions.getY()/2.0;
-				double c = dimensions.getZ()/2.0;
+				double a = dimensions.getX() / 2.0;
+				double b = dimensions.getY() / 2.0;
+				double c = dimensions.getZ() / 2.0;
 
 				double aa = a * a;
 				double bb = b * b;
@@ -110,9 +142,9 @@ public class RigidBody implements Body {
 
 	private Matrix4d getIBodyInv(Matrix4d iBody) {
 		return new Matrix4d(
-				1.0/iBody.get(0, 0), 0.0, 0.0, 0.0,
-				0.0, 1.0/iBody.get(1, 1), 0.0, 0.0,
-				0.0, 0.0, 1.0/iBody.get(2, 2), 0.0,
+				1.0 / iBody.get(0, 0), 0.0, 0.0, 0.0,
+				0.0, 1.0 / iBody.get(1, 1), 0.0, 0.0,
+				0.0, 0.0, 1.0 / iBody.get(2, 2), 0.0,
 				0.0, 0.0, 0.0, 1.0
 		);
 	}
@@ -174,7 +206,7 @@ public class RigidBody implements Body {
 		QuaternionD newRotation = rotation.add(increment.Qdot);
 		Vec3d newMomentum = linearMomentum.add(increment.Pdot);
 		Vec3d newAngularMomentum = angularMomentum.add(increment.Ldot);
-		return new RigidBody(this.uuid, mass, dimensions, newX, newRotation, newMomentum, newAngularMomentum, rigidBodyType);
+		return new RigidBody(this.uuid, mass, dimensions, newX, newRotation, newMomentum, newAngularMomentum, velocityImpulse, angularVelocityImpulse, rigidBodyType);
 	}
 
 	public Vec3d getAngularVelocity() {
