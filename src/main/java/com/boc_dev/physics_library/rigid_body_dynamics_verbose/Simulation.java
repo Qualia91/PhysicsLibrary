@@ -2,6 +2,8 @@ package com.boc_dev.physics_library.rigid_body_dynamics_verbose;
 
 import com.boc_dev.maths.objects.QuaternionD;
 import com.boc_dev.maths.objects.vector.Vec3d;
+import com.boc_dev.physics_library.rigid_body_dynamics_verbose.forces.Force;
+import com.boc_dev.physics_library.rigid_body_dynamics_verbose.forces.Pair;
 import com.boc_dev.physics_library.rigid_body_dynamics_verbose.ode.RigidBodyODEReturnData;
 import com.boc_dev.physics_library.rigid_body_dynamics_verbose.ode.RungeKutta;
 
@@ -15,11 +17,11 @@ public class Simulation {
 	public Simulation() {
 
 		this.rungeKutta = new RungeKutta(
-				(RigidBody rigidBody, UUID uuid) -> {
+				(RigidBody rigidBody, UUID uuid, ArrayList<RigidBody> rigidBodies) -> {
 
 					QuaternionD dDot = QuaternionD.FromVec(1.0, rigidBody.getAngularVelocity()).multiply(rigidBody.getRotation()).scale(0.5);
 
-					resolveForces(rigidBody);
+					resolveForces(rigidBody, rigidBodies);
 
 					return new RigidBodyODEReturnData(
 							rigidBody.getVelocity(),
@@ -34,16 +36,18 @@ public class Simulation {
 		this.collisionDetection = new CollisionDetection();
 	}
 
-	private void resolveForces(RigidBody rigidBody) {
+	private void resolveForces(RigidBody rigidBody, ArrayList<RigidBody> rigidBodies) {
 
 		Vec3d sumVecLinear = Vec3d.ZERO;
 		Vec3d sumVecAngular = Vec3d.ZERO;
 
-		// todo forces need to go somewhere
-		//for (Force force : rigidBody.getForces()) {
-		//	sumVecLinear = sumVecLinear.add(force.actLinear(rigidBody));
-		//	sumVecAngular = sumVecAngular.add(force.actAngular(rigidBody));
-		//}
+		for (Force force : rigidBody.getForces()) {
+
+			Pair<Vec3d, Vec3d> act = force.act(rigidBody, rigidBodies);
+
+			sumVecLinear = sumVecLinear.add(act.getKey());
+			sumVecAngular = sumVecAngular.add(act.getValue());
+		}
 
 		rigidBody.addForce(sumVecLinear);
 		rigidBody.addTorque(sumVecAngular);
@@ -55,7 +59,7 @@ public class Simulation {
 		HashMap<UUID, RigidBody> nextIterRBs = new HashMap<>();
 
 		for (RigidBody rigidBody : rigidBodies) {
-			nextIterRBs.put(rigidBody.getUuid(), rungeKutta.solve(rigidBody, rigidBody.getUuid(), deltaSeconds));
+			nextIterRBs.put(rigidBody.getUuid(), rungeKutta.solve(rigidBody, rigidBody.getUuid(), deltaSeconds, rigidBodies));
 		}
 
 		collisionDetection.collisionDetection(new ArrayList<>(nextIterRBs.values()));

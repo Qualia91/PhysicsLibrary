@@ -4,8 +4,10 @@ import com.boc_dev.maths.objects.matrix.Matrix4d;
 import com.boc_dev.maths.objects.QuaternionD;
 import com.boc_dev.maths.objects.vector.Vec3d;
 import com.boc_dev.physics_library.Body;
+import com.boc_dev.physics_library.rigid_body_dynamics_verbose.forces.Force;
 import com.boc_dev.physics_library.rigid_body_dynamics_verbose.ode.RigidBodyODEReturnData;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 public class RigidBody implements Body {
@@ -39,6 +41,8 @@ public class RigidBody implements Body {
 	private Vec3d velocityImpulse = Vec3d.ZERO;
 	private Vec3d angularVelocityImpulse = Vec3d.ZERO;
 
+	private final ArrayList<Force> forces;
+
 	public RigidBody(UUID uuid,
 	                 double mass,
 	                 Vec3d dimensions,
@@ -46,7 +50,8 @@ public class RigidBody implements Body {
 	                 QuaternionD rotation,
 	                 Vec3d linearMomentum,
 	                 Vec3d angularMomentum,
-	                 RigidBodyType rigidBodyType) {
+	                 RigidBodyType rigidBodyType,
+	                 ArrayList<Force> forces) {
 		this(uuid,
 				mass,
 				dimensions,
@@ -56,7 +61,8 @@ public class RigidBody implements Body {
 				angularMomentum,
 				Vec3d.ZERO,
 				Vec3d.ZERO,
-				rigidBodyType);
+				rigidBodyType,
+				forces);
 	}
 
 	public RigidBody(UUID uuid,
@@ -68,7 +74,8 @@ public class RigidBody implements Body {
 	                 Vec3d angularMomentum,
 	                 Vec3d linearVelocityImpulse,
 	                 Vec3d angularVelocityImpulse,
-	                 RigidBodyType rigidBodyType) {
+	                 RigidBodyType rigidBodyType,
+	                 ArrayList<Force> forces) {
 		this.uuid = uuid;
 		this.dimensions = dimensions;
 		this.origin = origin;
@@ -77,6 +84,7 @@ public class RigidBody implements Body {
 		this.angularMomentum = angularMomentum;
 		this.rigidBodyType = rigidBodyType;
 		this.mass = mass;
+		this.forces = forces;
 
 		this.velocityImpulse = linearVelocityImpulse;
 		this.angularVelocityImpulse = angularVelocityImpulse;
@@ -124,6 +132,10 @@ public class RigidBody implements Body {
 		this.InertialTensor = calcInertialTensor(this.rotation, IBody);
 		this.Iinv = calcInertialTensor(this.rotation, IBodyInv);
 		this.angularVelocity = calcAngularVelocity(Iinv, angularMomentum);
+	}
+
+	public ArrayList<Force> getForces() {
+		return forces;
 	}
 
 	private Vec3d calcVelocity(Vec3d momentum, double mass) {
@@ -206,7 +218,7 @@ public class RigidBody implements Body {
 		QuaternionD newRotation = rotation.add(increment.Qdot);
 		Vec3d newMomentum = linearMomentum.add(increment.Pdot);
 		Vec3d newAngularMomentum = angularMomentum.add(increment.Ldot);
-		return new RigidBody(this.uuid, mass, dimensions, newX, newRotation, newMomentum, newAngularMomentum, velocityImpulse, angularVelocityImpulse, rigidBodyType);
+		return new RigidBody(this.uuid, mass, dimensions, newX, newRotation, newMomentum, newAngularMomentum, velocityImpulse, angularVelocityImpulse, rigidBodyType, forces);
 	}
 
 	public Vec3d getAngularVelocity() {
