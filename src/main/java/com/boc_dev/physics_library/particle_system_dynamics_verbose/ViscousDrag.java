@@ -14,9 +14,18 @@ public class ViscousDrag implements NaryForce {
 
 	@Override
 	public Vec3d calculateForceOnParticle(Particle targetParticle, ArrayList<Particle> particles) {
-		return new Vec3d(
-				-coefficientOfDrag*targetParticle.getVelocity().getX(),
-				-coefficientOfDrag*targetParticle.getVelocity().getY(),
-				-coefficientOfDrag*targetParticle.getVelocity().getZ());
+
+		for (NaryForce force : targetParticle.getForces()) {
+			if (force instanceof ViscousDrag) {
+				return new Vec3d(
+						-coefficientOfDrag*targetParticle.getVelocity().getX(),
+						-coefficientOfDrag*targetParticle.getVelocity().getY(),
+						-coefficientOfDrag*targetParticle.getVelocity().getZ());
+			}
+		}
+
+		return Vec3d.ZERO;
+
+
 	}
 }

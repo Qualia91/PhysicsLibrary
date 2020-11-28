@@ -20,6 +20,14 @@ public class SimpleGravity implements NaryForce {
 
 	@Override
 	public Vec3d calculateForceOnParticle(Particle targetParticle, ArrayList<Particle> particles) {
-		return new Vec3d(0.0, 0.0, -targetParticle.getMass() * g);
+
+		for (NaryForce force : targetParticle.getForces()) {
+			if (force instanceof SimpleGravity) {
+				return new Vec3d(0.0, 0.0, -targetParticle.getMass() * g);
+			}
+		}
+
+		return Vec3d.ZERO;
+
 	}
 }
